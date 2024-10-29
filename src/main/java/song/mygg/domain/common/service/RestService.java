@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import song.mygg.domain.common.entity.CommonEntity;
+import song.mygg.domain.common.exception.rest.RestException;
+import song.mygg.domain.common.exception.rest.RestNotFoundException;
 
 import java.util.Optional;
 
@@ -16,24 +18,25 @@ import java.util.Optional;
 public class RestService {
     private final RestTemplate restTemplate;
 
-    public <T extends CommonEntity> Optional<T> findEntity(String url, Class<T> clazz) throws HttpClientErrorException {
+    public <T extends CommonEntity> Optional<T> getRest(String url, Class<T> clazz) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
         HttpEntity<T> httpEntity = new HttpEntity<>(headers);
 
         try {
-            ResponseEntity<T> response = restTemplate.exchange(
+            T response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     httpEntity,
                     clazz
-            );
-
-            return Optional.ofNullable(response.getBody());
+            ).getBody();
+            return Optional.ofNullable(response);
         } catch (HttpClientErrorException.NotFound e) {
-            return Optional.empty();
+            throw new RestNotFoundException("데이터를 찾을 수 없습니다.");
+        } catch (HttpClientErrorException e) {
+            throw new RestException("rest request exception");
         } catch (Exception e) {
-            return Optional.empty();
+            throw new RuntimeException("rest exception");
         }
     }
 }
