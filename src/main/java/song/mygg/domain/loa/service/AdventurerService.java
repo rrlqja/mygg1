@@ -27,7 +27,7 @@ public class AdventurerService {
             return optionalAdventurer.get();
         }
 
-        Optional<Adventurer> optionalRest = restService.getRest(GET_ARMORIES_PROFILE.buildUrl(Map.of("name", "주다영")), Adventurer.class);
+        Optional<Adventurer> optionalRest = restService.getRest(GET_ARMORIES_PROFILE.buildUrl(Map.of("characterName", name)), Adventurer.class);
 
         if (optionalRest.isEmpty()) {
             throw new AdventurerNotFoundException("adv 없음");

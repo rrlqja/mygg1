@@ -18,9 +18,9 @@ public class LoaHomeController {
     private final AdventurerService adventurerService;
 
     @ResponseBody
-    @GetMapping("/adventurer/{name}")
-    public Adventurer getAdventurer(@PathVariable("name") String name) {
+    @GetMapping("/adventurer/{characterName}")
+    public Adventurer getAdventurer(@PathVariable("characterName") String characterName) {
 
-        return adventurerService.getAdventurer(name);
+        return adventurerService.getAdventurer(characterName);
     }
 }

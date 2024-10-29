@@ -25,11 +25,21 @@
 <input type="number" id="postId" name="postId" placeholder="Enter post ID" />
 <button onclick="goToPost()">Submit</button>
 
+<input type="number" id="advName" name="advName" placeholder="Enter post ID" />
+<button onclick="goToAdv()">Submit</button>
+
 <script>
     function goToPost() {
         var postId = document.getElementById('postId').value;
         if(postId) {
             window.location.href = '/jsph/' + postId;
+        }
+    }
+
+    function goToAdv() {
+        var advName = document.getElementById('advName').value;
+        if(advName) {
+            window.location.href = '/loa/adventurer/' + advName;
         }
     }
 </script>
