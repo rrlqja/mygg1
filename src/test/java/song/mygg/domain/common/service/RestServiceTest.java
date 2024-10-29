@@ -12,7 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 import song.mygg.domain.common.entity.CommonEntity;
 import song.mygg.domain.loa.entity.Adventurer;
-import song.mygg.domain.loa.service.LoaUrl;
+import song.mygg.domain.loa.util.LoaUrl;
 
 import java.util.Map;
 import java.util.Optional;

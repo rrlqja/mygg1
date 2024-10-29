@@ -11,7 +11,7 @@ import song.mygg.domain.loa.repository.AdventurerJpaRepository;
 import java.util.Map;
 import java.util.Optional;
 
-import static song.mygg.domain.loa.service.LoaUrl.GET_ARMORIES_PROFILE;
+import static song.mygg.domain.loa.util.LoaUrl.GET_ARMORIES_PROFILE;
 
 @Slf4j
 @Service

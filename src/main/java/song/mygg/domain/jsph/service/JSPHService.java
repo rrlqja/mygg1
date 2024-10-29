@@ -9,6 +9,7 @@ import song.mygg.domain.jsph.exception.NotFoundException;
 import song.mygg.domain.jsph.repository.JSPHPostJpaRepository;
 import song.mygg.domain.jsph.util.JSPHUrl;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -25,7 +26,7 @@ public class JSPHService {
             return boardOptional.get();
         }
 
-        JSPHPost jsphPost = restService.getRest(JSPHUrl.getPostById.getUrl() + id, JSPHPost.class)
+        JSPHPost jsphPost = restService.getRest(JSPHUrl.GET_POST_BY_ID.buildUrl(Map.of("id", id)), JSPHPost.class)
                 .orElseThrow(NotFoundException::new);
 
         return jsphPostJpaRepository.save(jsphPost);
