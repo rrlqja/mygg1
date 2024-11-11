@@ -2,6 +2,7 @@ package song.mygg.domain.common.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -18,9 +19,13 @@ import java.util.Optional;
 public class RestService {
     private final RestTemplate restTemplate;
 
+    @Value("${loa.authorization}")
+    private String loaAuthorization;
+
     public <T extends CommonEntity> Optional<T> getRest(String url, Class<T> clazz) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+        headers.add("Authorization", "bearer " + loaAuthorization);
         HttpEntity<T> httpEntity = new HttpEntity<>(headers);
 
         try {
