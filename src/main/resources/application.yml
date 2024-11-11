@@ -33,3 +33,11 @@ logging.level:
     hibernate.SQL: debug
     springframework.security: debug
 #  org.hibernate.orm.jdbc.bind: trace
+
+jasypt:
+  encryptor:
+    bean: jasyptStringEncryptor
+    password: ${JASYPT_ENCRYPTOR_PASSWORD}
+
+loa:
+  authorization: ENC(GQW+X08RCGVuKqQgGvZBzNRUcwn6d4+MaJ2U/JFSEDrXkwLEY5rypjtdHTh5x+lpyEk4Y/AJXCcrX74S/ImR4EZsxgr4XG2yZQvIE+Aa7IkCiR8Dszj13NdHyBxuXEG+l/hgy60YRXXtlUj7L90ES96VIes0vuhq028c8kXLomTEwjWYNQZavVzsuLHoAgDoYVuXnF7ZTfYCNT4kLOBx11IoRRvp9Zb3t0dwZg0+Fw622ozoV/y4spKleUkQpbtN2YOejwActWdDGWYLNPk9jIeHarBNvGYdAVtayxZFvX7UlKB5Bekj1rwUBE1xQU81q5tcJEaFAUO+SNmz2CTjCFU+RWml/e6iCJlcnwG4Sciip282F+jm0Iov9wPSN3mvgOgHaRWjZIi2fHAwfz3INxJRgv2sLqkqZJVKanFp70Vg52hX59g9+vOCSs4CyiYtP8TVQDT84XNR1r1jlakVEzSNJoOAus4EyHYQ4zz2yXsKlN7BVMrKjODOFmeIctjcRDkI9H6jqJqUTUuHpaGlVjZBzKyB4xoKnTMnF/oWm7XKqMPiDbrMgGQZB/TfRIKP7djdsnEQtP0uX+guknamM8gdUIDuH50/89e79Apvq7PrXNxLstGTgt0KOwyKG5pXrEbmLCyqdUiFDYfYp7wQhrigPpQG8HdhFHiEQa/GsvNK8zucfASmbgQMJ4aowRoSuAvXzzl2nZKIS22Qo1KbNQWNrkZvn94PHHBtxz9IlI4DyKQ4ZyP0Uc2q/Q+qM6y7hwLtKrjXop+fH+Kzlv7iTrXi8R6fv5/x15DZ44ixKfMrPtWzGKObe2Tsfx9T5Lr0bVi54YgAmBnOBQCpc/mbHN/gySciHMmO)
