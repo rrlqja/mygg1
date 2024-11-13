@@ -1,4 +1,4 @@
-package song.mygg.domain.user.exception.user;
+package song.mygg.domain.common.exception.user;
 
 public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException() {

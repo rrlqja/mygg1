@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import song.mygg.domain.common.service.RestService;
 import song.mygg.domain.loa.entity.Adventurer;
-import song.mygg.domain.loa.exception.adventurer.AdventurerNotFoundException;
+import song.mygg.domain.common.exception.adventurer.AdventurerNotFoundException;
 import song.mygg.domain.loa.repository.AdventurerJpaRepository;
 
 import java.util.Map;

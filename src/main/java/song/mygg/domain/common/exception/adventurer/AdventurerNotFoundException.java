@@ -1,4 +1,4 @@
-package song.mygg.domain.loa.exception.adventurer;
+package song.mygg.domain.common.exception.adventurer;
 
 public class AdventurerNotFoundException extends AdventurerException {
     public AdventurerNotFoundException() {

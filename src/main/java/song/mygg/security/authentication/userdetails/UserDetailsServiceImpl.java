@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import song.mygg.domain.user.entity.User;
-import song.mygg.domain.user.exception.user.UserNotFoundException;
+import song.mygg.domain.common.exception.user.UserNotFoundException;
 import song.mygg.domain.user.repository.UserJpaRepository;
 
 @Slf4j
