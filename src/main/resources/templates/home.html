@@ -1,5 +1,7 @@
 <!doctype html>
-<html xmlns:th="http://www.thymleaf.org">
+<html xmlns:th="http://www.thymleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
 <head>
     <meta charset="UTF-8">
     <title>Home</title>
@@ -7,50 +9,45 @@
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" th:href="@{/css/base/body.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/base/numberInput.css}">
+
     <style>
-        /* number input */
-            /* Chrome, Safari, Edge, Opera */
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
+        .body-container {
+            width: 100%;
+            height: 1500px;
+            margin: auto;
         }
-            /* Firefox */
-        input[type="number"] {
-            -moz-appearance: textfield;
+
+        .nav-container {
+            height: 80px;
+            font-size: 16px;
+            border-bottom: solid 1px #e2e2e2;
         }
-        /* number input */
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<div class="body-container">
+<nav class="navbar navbar-expand-lg navbar-light bg-light nav-container">
     <a class="navbar-brand" th:href=@{/}>Home</a>
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-                <a class="nav-link login" th:href=@{/login}>login</a>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" th:href=@{/} id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Dropdown
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" th:href=@{/}>Action</a>
-                    <a class="dropdown-item" th:href=@{/}>Another action</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" th:href=@{/}>Something else here</a>
-                </div>
-            </li>
-        </ul>
         <div class="form-inline my-2 my-lg-0">
             <input class="form-control mr-sm-2" type="number" id="postId" name="postId" placeholder="Enter post ID" aria-label="Search">
             <button class="btn btn-outline-success my-2 my-sm-0" th:onclick="goToPost()">Search</button>
             <input class="form-control mr-sm-2" type="text" id="advName" name="advName" placeholder="Enter LOA ID" aria-label="Search">
             <button class="btn btn-outline-success my-2 my-sm-0" th:onclick="goToAdv()">Search</button>
         </div>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a sec:authorize="!isAuthenticated()" class="nav-link login" th:href=@{/login}>login</a>
+                <a sec:authorize="isAuthenticated()" class="nav-link logout" th:href=@{/logout}>logout</a>
+            </li>
+        </ul>
     </div>
 </nav>
+</div>
 
 <script>
     function goToPost() {

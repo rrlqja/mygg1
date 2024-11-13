@@ -1,5 +1,6 @@
 package song.mygg.config;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,7 +12,12 @@ import song.mygg.domain.user.repository.UserJpaRepository;
 @Component
 @RequiredArgsConstructor
 public class InitConfig {
+    private final InitData initData;
 
+    @PostConstruct
+    public void setInit() {
+        initData.init();
+    }
 
     @Slf4j
     @Component
@@ -21,7 +27,7 @@ public class InitConfig {
         private final PasswordEncoder passwordEncoder;
 
         public void init() {
-            User user = User.of("initUser", passwordEncoder.encode("1"));
+            User user = User.of("1", passwordEncoder.encode("1"));
 
             User user1 = userRepository.save(user);
         }

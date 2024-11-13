@@ -9,6 +9,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import song.mygg.security.authentication.login.LoginFailureHandler;
+import song.mygg.security.authentication.login.LoginSuccessHandler;
 import song.mygg.security.authentication.userdetails.UserDetailsServiceImpl;
 
 @Slf4j
@@ -17,6 +19,8 @@ import song.mygg.security.authentication.userdetails.UserDetailsServiceImpl;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
+    private final LoginSuccessHandler loginSuccessHandler;
+    private final LoginFailureHandler loginFailureHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -27,11 +31,11 @@ public class SecurityConfig {
                         .anyRequest().permitAll())
                 .userDetailsService(userDetailsService)
                 .formLogin(login -> login
-//                        .loginPage("/login")
+                        .loginPage("/login")
                         .usernameParameter("username")
                         .passwordParameter("password")
-                        .successForwardUrl("/")
-                        .failureUrl("/login?error"))
+                        .successHandler(loginSuccessHandler)
+                        .failureHandler(loginFailureHandler))
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")

@@ -2,26 +2,34 @@ package song.mygg.domain.common.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @Slf4j
 @Controller
 @RequiredArgsConstructor
 public class CommonController {
 
-    @GetMapping("/")
+    @RequestMapping(value = "/", method = {POST, GET})
     public String getHome(Model model) {
         model.addAttribute("name", null);
 
         return "home";
     }
 
-    @PostMapping("/login")
+    @RequestMapping(value = "/login", method = {POST, GET})
     public String getLogin() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+        if (authentication != null && authentication.isAuthenticated() &&
+                !(authentication.getPrincipal() instanceof String && authentication.getPrincipal().equals("anonymousUser"))) {
+            return "redirect:/";
+        }
         return "login";
     }
 }
