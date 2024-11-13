@@ -1,4 +1,4 @@
-package song.mygg.aop.aspect;
+package song.mygg.aspect.aspect;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
