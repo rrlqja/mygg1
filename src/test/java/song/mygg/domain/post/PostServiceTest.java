@@ -5,9 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
-import song.mygg.domain.post.dto.request.RequestSavePostDto;
-import song.mygg.domain.post.dto.response.ResponseGetPostDto;
-import song.mygg.domain.post.dto.response.ResponseSavePostDto;
+import song.mygg.domain.post.dto.request.ReqSavePostDto;
+import song.mygg.domain.post.dto.response.ResGetPostDto;
+import song.mygg.domain.post.dto.response.ResSavePostDto;
 import song.mygg.domain.post.repository.PostJpaRepository;
 import song.mygg.domain.post.service.PostService;
 
@@ -26,18 +26,18 @@ class PostServiceTest {
 
     @Test
     void successSavePost() {
-        RequestSavePostDto requestSavePostDto = new RequestSavePostDto();
-        requestSavePostDto.setTitle("testTitle");
-        requestSavePostDto.setContent("testContent");
-        requestSavePostDto.setWriterName("testWriter");
-        ResponseSavePostDto savePostDto = postService.savePost(requestSavePostDto, null);
+        ReqSavePostDto reqSavePostDto = new ReqSavePostDto();
+        reqSavePostDto.setTitle("testTitle");
+        reqSavePostDto.setContent("testContent");
+        reqSavePostDto.setWriterName("testWriter");
+        ResSavePostDto savePostDto = postService.savePost(reqSavePostDto, null);
 
-        ResponseGetPostDto postDto = postService.getPostById(savePostDto.getId());
+        ResGetPostDto postDto = postService.getPostById(savePostDto.getId());
 
         assertThat(postDto.getWriterName())
-                .isEqualTo(requestSavePostDto.getWriterName());
+                .isEqualTo(reqSavePostDto.getWriterName());
 
         assertThat(postRepository.findById(savePostDto.getId()).get().getWriterName())
-                .isEqualTo(requestSavePostDto.getWriterName());
+                .isEqualTo(reqSavePostDto.getWriterName());
     }
 }
