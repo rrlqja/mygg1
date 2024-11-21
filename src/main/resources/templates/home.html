@@ -63,13 +63,9 @@
 </nav>
 <div class="body-container">
     <div class="list-group content-container">
-        <button type="button" class="list-group-item list-group-item-action">
-            Cras justo odio
-        </button>
-        <button type="button" class="list-group-item list-group-item-action">Dapibus ac facilisis in</button>
-        <button type="button" class="list-group-item list-group-item-action">Morbi leo risus</button>
-        <button type="button" class="list-group-item list-group-item-action">Porta ac consectetur ac</button>
-        <button type="button" class="list-group-item list-group-item-action" disabled>Vestibulum at eros</button>
+        <div th:each="post : ${posts}">
+            <div class="list-group-item list-group-item-action" th:text="${post}" th:onclick="|location.href='@{/post/{postId}(postId=${post})}'|">title</div>
+        </div>
     </div>
 </div>
 
