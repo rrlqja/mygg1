@@ -1,0 +1,21 @@
+spring:
+  #  profiles:
+  #    active: dev
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/mygg1?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    #    jdbc:mysql://localhost:3306/DB_NAME?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: 1235
+
+upload:
+  path: ENC(AQ66smiFH5UC4uJ3+q/8jtHDQDKfebdjkW161ME4+Fef+seAkMdw9Mq7Cj8Ju07Z)
+  url: ENC(xak68FFzmHU2PcfXdXgKpP2GGMlRA6hZ6fAqtFu4St7PXaIIBQZdxweDZXe3Rkld)
+
+jasypt:
+  encryptor:
+    bean: jasyptStringEncryptor
+    password: ${JASYPT_ENCRYPTOR_PASSWORD}
+
+download:
+  path: ENC(5pN0MoLOUW2gsFaRf7Gtve+hurg05e/ZXCAvHZJ9OhIlgKmEvzG8u6Oyhuwv5Y9Y)

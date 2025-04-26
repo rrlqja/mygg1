@@ -1,0 +1,24 @@
+spring:
+#  profiles:
+#    active: dev
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ENC(4y18wCHtfwOqz278eDEN27maPiOpRYHzI6eecc3uHU6xf0ge2oYAaw9dKsAvROKZuRPnRqKW0w6qV0KDO/UAngu6eosqI/ioAh/FzqVD3/PaRrdAvHHVufiPaNvFLbaqAl08Tg6o2OwYmIe6ciM7URRl5sFSkFUP7MDIgWRbUKUQLZS5958yPg==)
+    #    jdbc:mysql://localhost:3306/DB_NAME?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ENC(phW6d7YIsNErj+8Ub9vkAg==)
+    password: ENC(ql2W2noMkt+b/il6+6aVv/PNmXs/2JE8)
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+upload:
+  path: ENC(0TUPFuaCY/FVw5tX0o2dpUrAP/S/3Y0vq6hOGNFXz18=)
+  url: ENC(mp4ZtGLKQeIMon5nJE+rmPoGtewCnZo8EofnEUCAR4lhGQQ4rDyFt2ffZANS4/xU)
+
+jasypt:
+  encryptor:
+    bean: jasyptStringEncryptor
+    password: ${JASYPT_ENCRYPTOR_PASSWORD}
+
+download:
+  path: ENC(BVlwl8O0fu5OZ9krYatOQW4t9biZikYtjzhvrNVDDzF7GWHHQrEOHDUALpFVj4eb)
