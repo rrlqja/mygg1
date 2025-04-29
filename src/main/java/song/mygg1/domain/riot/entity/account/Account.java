@@ -1,4 +1,4 @@
-package song.mygg1.domain.riot.entity;
+package song.mygg1.domain.riot.entity.account;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,7 +17,17 @@ public class Account {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String puuid;
     private String gameName;
     private String tagLine;
-    private String puuid;
+
+    public static Account create(String puuid, String gameName, String tagLine) {
+        return new Account(puuid, gameName, tagLine);
+    }
+
+    private Account(String puuid, String gameName, String tagLine) {
+        this.puuid = puuid;
+        this.gameName = gameName;
+        this.tagLine = tagLine;
+    }
 }

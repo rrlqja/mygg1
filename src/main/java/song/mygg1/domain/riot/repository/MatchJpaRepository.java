@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import song.mygg1.domain.riot.entity.Matches;
+import song.mygg1.domain.riot.entity.match.Matches;
 
 import java.util.Collection;
 import java.util.List;

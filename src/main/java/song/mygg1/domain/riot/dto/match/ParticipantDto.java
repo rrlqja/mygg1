@@ -1,10 +1,10 @@
-package song.mygg1.domain.riot.dto;
+package song.mygg1.domain.riot.dto.match;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import song.mygg1.domain.riot.entity.Info;
-import song.mygg1.domain.riot.entity.Participant;
+import song.mygg1.domain.riot.entity.match.Info;
+import song.mygg1.domain.riot.entity.match.Participant;
 
 @Data
 @NoArgsConstructor

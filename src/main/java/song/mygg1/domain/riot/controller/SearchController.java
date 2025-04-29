@@ -28,7 +28,7 @@ public class SearchController {
             return "redirect:/";
         }
 
-        SearchDto search = searchService.search("vevee", "kr1", 0, 10);
+        SearchDto search = searchService.search("hide on bush", "kr1", 0, 10);
         model.addAttribute("search", objectMapper.enable(SerializationFeature.INDENT_OUTPUT).writeValueAsString(search));
 
         model.addAttribute("query", query);

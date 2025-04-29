@@ -1,4 +1,4 @@
-package song.mygg1.domain.riot.entity;
+package song.mygg1.domain.riot.entity.match;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;

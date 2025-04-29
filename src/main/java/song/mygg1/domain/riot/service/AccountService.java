@@ -5,8 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import song.mygg1.domain.common.exception.riot.exceptions.AccountNotFoundException;
+import song.mygg1.domain.riot.dto.account.AccountDto;
 import song.mygg1.domain.riot.repository.AccountJpaRepository;
-import song.mygg1.domain.riot.entity.Account;
+import song.mygg1.domain.riot.entity.account.Account;
 
 @Slf4j
 @Service
@@ -19,12 +20,12 @@ public class AccountService {
     public Account findAccountByGameNameAndTagLine(String gameName, String tagLine) {
         return accountRepository.findAccountByGameNameAndTagLine(gameName, tagLine)
                 .orElseGet(() -> {
-                    Account account = apiService.getAccount(gameName, tagLine)
+                    AccountDto accountDto = apiService.getAccount(gameName, tagLine)
                             .orElseThrow(() -> {
                                 log.warn("Riot Api: {}#{} 유저를 찾을 수 없습니다.", gameName, tagLine);
                                 return new AccountNotFoundException("사용자를 찾을 수 없습니다.");
                             });
-                    return accountRepository.save(account);
+                    return accountRepository.save(accountDto.toEntity());
                 });
     }
 }
