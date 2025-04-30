@@ -1,5 +1,6 @@
 package song.mygg1.domain.common.controller;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class HomeController {
 
     @GetMapping("/")
-    public String getHome() {
+    public String getHome(HttpSession session) {
 
         return "common/home";
     }

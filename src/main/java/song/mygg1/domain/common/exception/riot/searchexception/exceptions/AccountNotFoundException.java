@@ -1,8 +1,8 @@
-package song.mygg1.domain.common.exception.riot.exceptions;
+package song.mygg1.domain.common.exception.riot.searchexception.exceptions;
 
-import song.mygg1.domain.common.exception.riot.RiotApiException;
+import song.mygg1.domain.common.exception.riot.searchexception.SearchException;
 
-public class AccountNotFoundException extends RiotApiException {
+public class AccountNotFoundException extends SearchException {
     public AccountNotFoundException() {
         super("Account Not Found Exception");
     }

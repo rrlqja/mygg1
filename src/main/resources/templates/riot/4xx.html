@@ -3,7 +3,7 @@
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
     <meta charset="UTF-8">
-    <title>Search</title>
+    <title>Bad Request</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -12,8 +12,8 @@
 </head>
 <body>
 <div th:replace="common/fragments :: header"></div>
-
-<pre th:text="${search}">
-</pre>
+<div>
+    <span> 사용자를 찾을 수 없당</span>
+</div>
 </body>
 </html>

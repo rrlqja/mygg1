@@ -27,17 +27,25 @@ spring:
     multipart:
       max-file-size: 30MB
       max-request-size: 100MB
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 server:
   servlet:
     session:
-      tracking-modes: cookie
+      cookie:
+        http-only: true
+        max-age: 259200
+        path: /
 
 logging.level:
   org:
     hibernate.SQL: debug
     springframework:
       security: debug
+#  io.lettuce.core: TRACE
 #  org.hibernate.orm.jdbc.bind: trace
 #      web.cors.DefaultCorsProcessor: trace # cors log
 

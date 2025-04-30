@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import song.mygg1.domain.common.exception.riot.exceptions.SummonerNotFoundException;
+import song.mygg1.domain.common.exception.riot.searchexception.exceptions.SummonerNotFoundException;
 import song.mygg1.domain.riot.dto.summoner.SummonerDto;
 import song.mygg1.domain.riot.entity.summoner.Summoner;
 import song.mygg1.domain.riot.repository.SummonerJpaRepository;
