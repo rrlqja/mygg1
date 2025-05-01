@@ -11,14 +11,10 @@ spring:
     hibernate:
       ddl-auto: update
 
-upload:
-  path: ENC(0TUPFuaCY/FVw5tX0o2dpUrAP/S/3Y0vq6hOGNFXz18=)
-  url: ENC(mp4ZtGLKQeIMon5nJE+rmPoGtewCnZo8EofnEUCAR4lhGQQ4rDyFt2ffZANS4/xU)
-
 jasypt:
   encryptor:
     bean: jasyptStringEncryptor
     password: ${JASYPT_ENCRYPTOR_PASSWORD}
 
-download:
-  path: ENC(BVlwl8O0fu5OZ9krYatOQW4t9biZikYtjzhvrNVDDzF7GWHHQrEOHDUALpFVj4eb)
+ddragon:
+  path: ENC(GgFRfb9ZAj9IExGqFJl7x7VDAs73RM7EmW0xW0MMPZenQbPOPW3fglyXW7C6urfi)

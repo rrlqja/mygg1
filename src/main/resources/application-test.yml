@@ -8,20 +8,17 @@ spring:
     username: root
     password: 1235
 
-upload:
-  path: ENC(9rKd47HRvPL8msFsn4Gl0k1Hzg9dj01eksx8O3lrtj2tvHXPxGmRxoChraOlYmTr)
-  url: ENC(9ndaYT5TYl8WZYzy/a9cLgKHEewxs6Jcc9owG6bKoaTjSSn3SCdF6mWHW3tQMHJw)
-
 jasypt:
   encryptor:
     bean: jasyptStringEncryptor
     password: ${JASYPT_ENCRYPTOR_PASSWORD}
 
-download:
-  path: ENC(Lv/KpLrkXrm9VJlpQGytUkb/kMGdYRUHmofCWMK/prV+C/gVhhEiUs1oOj9gr8cv)
+ddragon:
+  path: ENC(5nbh5RlhI66tx04Atb01hhTfKRlPXK2mxblJp524Y9RGrKcerVH4cnaz/h2HKA6ePdLscWJu2iJjxM7ZVXMNVQ==)
 
 api:
   riot:
     api-key: ENC(IGioYZTNUIFqqXqHQtNIvRsI9azyN1auoLKaPpqnZv2P+JTwTDmP7l9rQIbGite55Ys5u05Oz+w=)
     asia-url: ENC(+fu97w0afKR84ez9dtvdMuFjtXMIJGZ1KsZs6NcrPj/BtAq9gDAkWw==)
     kr-url: ENC(Sr12CtptJZ/cs1LQoqFcXCLbtvlrH+Uvcbch3lIxzbjo8TksHlxFLA==)
+    data-dragon: ENC(Mwv1iQDyfLbqIgfMTYCXMZq102YnCBjbmRAfJVG2/iOoOw955ez5p6RPZ5LLWtN0)

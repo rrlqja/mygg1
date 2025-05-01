@@ -14,7 +14,9 @@
 <div th:fragment="header">
     <div class="container" style="width: 100%; height: 50px; display: flex; flex-direction: row; gap: 10px; justify-content: center; align-items: flex-end;">
         <div style="width: 100px; height: 40px;">
-            <img th:src="@{/imgs/mygg.png}" alt="logo" style="width:100%; height:100%; object-fit: contain;">
+            <a th:href="@{/}">
+                <img th:src="@{/imgs/mygg.png}" alt="logo" style="width:100%; height:100%; object-fit: contain;">
+            </a>
         </div>
         <form method="get" th:action="@{/kr/search}" style="width: 500px; height: 40px; display: flex; flex-direction: row; gap: 10px; justify-content: center; align-items: center;">
             <div style="width: 430px; height: 30px;">

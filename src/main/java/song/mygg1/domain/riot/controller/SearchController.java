@@ -15,8 +15,6 @@ import song.mygg1.domain.redis.service.RedisService;
 import song.mygg1.domain.riot.dto.SearchDto;
 import song.mygg1.domain.riot.service.SearchService;
 
-import java.util.List;
-
 @Slf4j
 @Controller
 @RequiredArgsConstructor
@@ -40,7 +38,8 @@ public class SearchController {
         SearchDto search = searchService.search(gameName, tagLine, 0, 10);
 
         model.addAttribute("query", query);
-        model.addAttribute("search", objectMapper.enable(SerializationFeature.INDENT_OUTPUT).writeValueAsString(search));
+        model.addAttribute("search", search);
+        model.addAttribute("searchJson", objectMapper.enable(SerializationFeature.INDENT_OUTPUT).writeValueAsString(search));
 
         redisService.addRecentSearch(session.getId(), gameName, tagLine);
         model.addAttribute("recentSearch",

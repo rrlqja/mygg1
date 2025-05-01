@@ -18,7 +18,7 @@ public class AccountDto {
     }
 
     public AccountDto(Account account) {
-        puuid = account.getPuuid();
+        this.puuid = account.getPuuid();
         this.gameName = account.getGameName();
         this.tagLine = account.getTagLine();
     }
