@@ -23,9 +23,43 @@
                 <input class="form-control" type="text" name="query" th:value="${param.query}" placeholder="플레이어 검색" style="width: 100%; height: 30px;">
             </div>
             <div style="width: 60px; height: 30px;">
-                <button class="btn btn-outline-primary" type="submit" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">검색</button>
+                <button class="btn btn-outline-primary" type="submit" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border: none; background-color: #55585c; color: white; font-size: 14px; font-weight: 400;">검색</button>
             </div>
         </form>
+    </div>
+</div>
+
+<div th:fragment="rank(leagueEntry, title)">
+    <div style="width:380px; height:100%; display:flex; align-items:center; gap:10px;">
+        <th:block th:with="leauge=${leagueEntry}">
+            <div style="width:150px; height:150px;">
+                <img th:if="${!#lists.isEmpty(leauge)}"
+                     th:src="@{|/imgs/tier/Rank_${leauge[0].tier}.png|}"
+                     style="width:100%; height:100%; border-radius:10px;"/>
+                <img th:if="${#lists.isEmpty(leauge)}"
+                     th:src="@{/imgs/bri_qus.png}"
+                     style="width:100%; height:100%; border-radius:10px;"/>
+            </div>
+
+            <div style="width:210px; height:150px; display:flex; flex-direction:column; justify-content:space-evenly;">
+                <div style="font-size:14px; font-weight:600;">
+                    <span style="font-size: 12px; font-weight: 400;" th:text="${title}"></span><br/>
+                    <span th:if="${#lists.isEmpty(leauge)}">정보없음</span>
+                    <span th:if="${!#lists.isEmpty(leauge)}"
+                          th:text="${leauge[0].tier + ' ' + leauge[0].rank}">TIER RANK</span><br/>
+                    <span th:if="${!#lists.isEmpty(leauge)}"
+                          th:text="${leauge[0].leaguePoints + ' LP'}">0 LP</span><br/>
+                </div>
+
+                <div style="font-size:14px; font-weight:600;"
+                     th:with="wins=${!#lists.isEmpty(leauge) ? leauge[0].wins : 0}, losses=${!#lists.isEmpty(leauge) ? leauge[0].losses : 0},
+                     total=${wins + losses}, winRate=${total > 0 ? T(java.lang.Math).round(wins * 100.0 / total) : 0}">
+                    <span th:text="${!#lists.isEmpty(leauge) ? (total + '전 ' + wins + '승 ' + losses + '패 (' + winRate + '%)') : '정보없음'}">
+                        정보없음
+                    </span>
+                </div>
+            </div>
+        </th:block>
     </div>
 </div>
 
