@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 import song.mygg1.domain.riot.entity.match.Info;
 import song.mygg1.domain.riot.entity.match.Participant;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -39,11 +42,23 @@ public class ParticipantDto {
 
     private String summonerId;
 
+    private Integer goldEarned;
+    private Integer goldSpent;
+    private Integer visionScore;
+    private Integer visionWardsBoughtInGame;
+    private Integer wardsKilled;
+    private Integer wardsPlaced;
+
+    private String summonerBaseUrl = "/image/champion/";
+    private Integer summoner1Id;
+    private Integer summoner2Id;
+
     public Participant toEntity(Info info) {
         return Participant.create(participantId, assists, deaths, kills, championName, summonerName, win, teamId,
                 totalDamageDealt, totalDamageDealtToChampions, totalDamageTaken, totalHeal, totalHealsOnTeammates, totalMinionsKilled,
                 item0, item1, item2, item3, item4, item5, item6, puuid, riotIdGameName, riotIdTagLine, summonerId,
-                info);
+                info, goldEarned, goldSpent, visionScore, visionWardsBoughtInGame, wardsKilled, wardsPlaced,
+                summoner1Id, summoner2Id);
     }
 
     public ParticipantDto(Participant participant) {
@@ -71,5 +86,21 @@ public class ParticipantDto {
         this.riotIdGameName = participant.getRiotIdGameName();
         this.riotIdTagLine = participant.getRiotIdTagLine();
         this.summonerId = participant.getSummonerId();
+        this.goldEarned = participant.getGoldEarned();
+        this.goldSpent = participant.getGoldSpent();
+        this.visionScore = participant.getVisionScore();
+        this.visionWardsBoughtInGame = participant.getVisionWardsBoughtInGame();
+        this.wardsKilled = participant.getWardsKilled();
+        this.wardsPlaced = participant.getWardsPlaced();
+        this.summoner1Id = participant.getSummoner1Id();
+        this.summoner2Id = participant.getSummoner2Id();
+    }
+
+    public List<Integer> getItemList() {
+        return Arrays.asList(item0, item1, item2, item3, item4, item5);
+    }
+
+    public List<Integer> getSummonerIdList() {
+        return Arrays.asList(summoner1Id, summoner2Id);
     }
 }

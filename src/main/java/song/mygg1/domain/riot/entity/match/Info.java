@@ -33,12 +33,19 @@ public class Info {
     private Long gameStartTimestamp;
     private String gameType;
     private String gameVersion;
+    private int queueId;
 
-    public static Info create(Long gameId, String endOfGameResult, String gameMode, String gameName, Long gameStartTimestamp, String gameType, String gameVersion) {
-        return new Info(gameId, endOfGameResult, gameMode, gameName, gameStartTimestamp, gameType, gameVersion);
+    private Long gameCreation;
+    private Long gameDuration;
+    private Long gameEndTimestamp;
+
+    public static Info create(Long gameId, String endOfGameResult, String gameMode, String gameName, Long gameStartTimestamp, String gameType, String gameVersion, int queueId,
+                              Long gameCreation, Long gameDuration, Long gameEndTimestamp) {
+        return new Info(gameId, endOfGameResult, gameMode, gameName, gameStartTimestamp, gameType, gameVersion, queueId, gameCreation, gameDuration, gameEndTimestamp);
     }
 
-    private Info(Long gameId, String endOfGameResult, String gameMode, String gameName, Long gameStartTimestamp, String gameType, String gameVersion) {
+    private Info(Long gameId, String endOfGameResult, String gameMode, String gameName, Long gameStartTimestamp, String gameType, String gameVersion, int queueId,
+                 Long gameCreation, Long gameDuration, Long gameEndTimestamp) {
         this.gameId = gameId;
         this.endOfGameResult = endOfGameResult;
         this.gameMode = gameMode;
@@ -46,6 +53,10 @@ public class Info {
         this.gameStartTimestamp = gameStartTimestamp;
         this.gameType = gameType;
         this.gameVersion = gameVersion;
+        this.queueId = queueId;
+        this.gameCreation = gameCreation;
+        this.gameDuration = gameDuration;
+        this.gameEndTimestamp = gameEndTimestamp;
     }
 
     public void setParticipants(List<Participant> participants) {

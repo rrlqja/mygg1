@@ -25,6 +25,6 @@ public class SearchDto {
         this.account = new AccountDto(account);
         this.summoner = new SummonerDto(summoner);
         this.leagueEntrySet = leagueEntrySet.stream().map(LeagueEntryDto::new).collect(Collectors.toSet());
-        this.matchList = matchesList.stream().map(MatchDto::new).toList();
+        this.matchList = matchesList.stream().map(m -> new MatchDto(m, account.getPuuid())).toList();
     }
 }

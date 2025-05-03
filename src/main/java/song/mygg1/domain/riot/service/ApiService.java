@@ -1,5 +1,6 @@
 package song.mygg1.domain.riot.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +23,7 @@ import song.mygg1.domain.riot.dto.summoner.SummonerDto;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,25 +52,73 @@ public class ApiService {
     }
 
     public Optional<byte[]> getProfileIcon(String version, int iconId) {
-        Optional<byte[]> res;
-        try {
-            res = doExchange(riotDataDragonUrl, GET_PROFILE_ICON.getPath(), HttpMethod.GET, byte[].class, Map.of("version", version, "iconId", iconId));
-        } catch (RiotApiException e) {
-            log.error(e.getMessage(), e);
-            res = Optional.empty();
-        }
-        return res;
+        return fetchIcon(
+                GET_PROFILE_ICON.getPath(),
+                Map.of("version", version, "iconId", iconId)
+        );
+    }
+    public Optional<byte[]> getChampionIcon(String version, String championName) {
+        return fetchIcon(
+                GET_CHAMPION.getPath(),
+                Map.of("version", version, "championName", championName)
+        );
     }
 
-    public Optional<byte[]> getChampionIcon(String version, String championName) {
-        Optional<byte[]> res;
+    public Optional<byte[]> getItemIcon(String version, int itemId) {
+        return fetchIcon(
+                GET_ITEM.getPath(),
+                Map.of("version", version, "itemId", itemId)
+        );
+    }
+
+    public Optional<byte[]> getSpellIcon(String version, int spellId) {
+        Optional<JsonNode> optionalSummoner = doExchange(
+                riotDataDragonUrl,
+                GET_SUMMONER_JSON.getPath(),
+                HttpMethod.GET,
+                JsonNode.class,
+                Map.of("version", version)
+        );
+        if (optionalSummoner.isEmpty()) {
+            return Optional.empty();
+        }
+
+        JsonNode dataNode = optionalSummoner.get().get("data");
+        String group = null, icon = null;
+        for (Iterator<Map.Entry<String, JsonNode>> it = dataNode.fields(); it.hasNext(); ) {
+            JsonNode node = it.next().getValue();
+            if (node.get("key").asInt() == spellId) {
+                JsonNode image = node.get("image");
+                group = image.get("group").asText();
+                icon  = image.get("full").asText();
+                break;
+            }
+        }
+        if (group == null || icon == null) {
+            return Optional.empty();
+        }
+
+        return fetchIcon(
+                GET_SPELL_ICON.getPath(),
+                Map.of("version", version,
+                        "group",   group,
+                        "full",    icon)
+        );
+    }
+
+    private Optional<byte[]> fetchIcon(String path, Map<String, ?> uriVars) {
         try {
-            res = doExchange(riotDataDragonUrl, GET_CHAMPION.getPath(), HttpMethod.GET, byte[].class, Map.of("version", version, "championName", championName));
+            return doExchange(
+                    riotDataDragonUrl,
+                    path,
+                    HttpMethod.GET,
+                    byte[].class,
+                    uriVars
+            );
         } catch (RiotApiException e) {
             log.error(e.getMessage(), e);
-            res = Optional.empty();
+            return Optional.empty();
         }
-        return res;
     }
 
     public Optional<AccountDto> getAccount(String gameName, String tagLine) {
@@ -149,6 +199,9 @@ public class ApiService {
 
             return Optional.ofNullable(response.getBody());
         } catch (HttpClientErrorException.NotFound e) {
+            return Optional.empty();
+        } catch (IllegalArgumentException e) {
+            log.error(e.getMessage(), e);
             return Optional.empty();
         } catch (RestClientException e) {
             throw new RiotApiException("잘못된 요청입니다.", e);

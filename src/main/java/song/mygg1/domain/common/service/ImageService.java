@@ -31,7 +31,7 @@ public class ImageService {
     }
 
     private void createVersionDirs(String version) throws IOException {
-        for (String sub : List.of("profile", "champion")) {
+        for (String sub : List.of("profile", "champion", "item", "spell")) {
             Files.createDirectories(ddragonPath.resolve(version).resolve(sub));
         }
         Files.createDirectories(ddragonPath.resolve("tier"));
@@ -50,6 +50,22 @@ public class ImageService {
                 "champion",
                 champName + ".png",
                 () -> dataDragonService.getChampionIcon(champName)
+        );
+    }
+
+    public UrlResource getItem(int itemId) throws IOException {
+        return loadImage(
+                "item",
+                itemId + ".png",
+                () -> dataDragonService.getItemIcon(itemId)
+        );
+    }
+
+    public UrlResource getSpell(int spellId) throws IOException{
+        return loadImage(
+                "spell",
+                spellId + ".png",
+                () -> dataDragonService.getSpellIcon(spellId)
         );
     }
 

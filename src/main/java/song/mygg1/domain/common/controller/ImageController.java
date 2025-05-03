@@ -15,6 +15,9 @@ import song.mygg1.domain.common.service.ImageService;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static org.springframework.http.CacheControl.*;
+
 @Slf4j
 @Controller
 @RequestMapping("/image")
@@ -28,7 +31,7 @@ public class ImageController {
         UrlResource resource = imageService.getTier(tierName);
 
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(5, TimeUnit.MINUTES).cachePublic())
+                .cacheControl(maxAge(5, MINUTES).cachePublic())
                 .body(resource);
     }
 
@@ -37,7 +40,25 @@ public class ImageController {
         UrlResource resource = imageService.getProfile(iconId);
 
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(5, TimeUnit.MINUTES).cachePublic())
+                .cacheControl(maxAge(5, MINUTES).cachePublic())
+                .body(resource);
+    }
+
+    @GetMapping(value = "item/{itemId}", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<UrlResource> getItem(@PathVariable("itemId") int itemId) throws IOException {
+        UrlResource resource = imageService.getItem(itemId);
+
+        return ResponseEntity.ok()
+                .cacheControl(maxAge(5, MINUTES).cachePublic())
+                .body(resource);
+    }
+
+    @GetMapping(value = "spell/{spellId}", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<UrlResource> getSpell(@PathVariable("spellId") int spellId) throws IOException {
+        UrlResource resource = imageService.getSpell(spellId);
+
+        return ResponseEntity.ok()
+                .cacheControl(maxAge(5, MINUTES).cachePublic())
                 .body(resource);
     }
 
@@ -46,7 +67,7 @@ public class ImageController {
         UrlResource resource = imageService.getChampion(championName);
 
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(5, TimeUnit.MINUTES).cachePublic())
+                .cacheControl(maxAge(5, MINUTES).cachePublic())
                 .body(resource);
     }
 }

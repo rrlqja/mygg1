@@ -49,6 +49,16 @@ public class DataDragonService {
         );
     }
 
+    public byte[] getItemIcon(int itemId) {
+        return fetchOrPlaceholder(() ->
+                apiService.getItemIcon(version, itemId));
+    }
+
+    public byte[] getSpellIcon(int spellId) {
+        return fetchOrPlaceholder(() ->
+                apiService.getSpellIcon(version, spellId));
+    }
+
     private byte[] fetchOrPlaceholder(Supplier<Optional<byte[]>> fetcher) {
         return fetcher.get()
                 .orElseGet(() -> {
