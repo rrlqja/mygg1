@@ -95,40 +95,42 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', () => {
         let openDetail = null;
         let openToggle = null;
 
-        document.querySelectorAll('.match-toggle').forEach(toggle => {
-            toggle.addEventListener('click', () => {
-                const matchId = toggle.dataset.matchId;
-                const puuid   = toggle.dataset.puuid;
-                const url     = `/match/${matchId}?puuid=${puuid}`;
+        const container = document.getElementById('match-list-container');
+        container.addEventListener('click', e => {
+        const toggle = e.target.closest('.match-toggle');
+        if (!toggle) return;
 
-                if (window.openDetail) {
-                    window.openDetail.remove();
-                    window.openToggle.classList.remove('open');
-                    if (window.openToggle === toggle) {
-                        window.openDetail = null;
-                        window.openToggle = null;
-                        return;
-                    }
-                }
+        const matchId = toggle.dataset.matchId;
+        const puuid   = toggle.dataset.puuid;
+        const url     = `/match/${matchId}?puuid=${puuid}`;
 
-                fetch(url)
-                    .then(res => res.text())
-                    .then(html => {
-                        const wrapper = document.createElement('div');
-                        wrapper.innerHTML = html.trim();
-                        const detailDiv = wrapper.firstChild;
+        if (window.openDetail) {
+            window.openDetail.remove();
+            window.openToggle.classList.remove('open');
+            if (window.openToggle === toggle) {
+                window.openDetail = null;
+                window.openToggle = null;
+                return;
+           }
+        }
 
-                        const matchItem = toggle.closest('.match-item');
-                        matchItem.parentNode.insertBefore(detailDiv, matchItem.nextSibling);
+        fetch(url)
+            .then(res => res.text())
+            .then(html => {
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = html.trim();
+                const detailDiv = wrapper.firstChild;
 
-                        toggle.classList.add('open');
-                        window.openDetail = detailDiv;
-                        window.openToggle = toggle;
-                    });
+                const matchItem = toggle.closest('.match-item');
+                matchItem.parentNode.insertBefore(detailDiv, matchItem.nextSibling);
+
+                toggle.classList.add('open');
+                window.openDetail = detailDiv;
+                window.openToggle = toggle;
             });
         });
     });

@@ -66,4 +66,13 @@ public class MatchService {
 
         return new MatchDto(match, puuid);
     }
+
+    @Transactional
+    public List<MatchDto> getMoreMatchList(String puuid, Integer start, Integer count) {
+        List<Matches> matchList = getMatchList(puuid, start, count);
+
+        return matchList.stream()
+                .map(m->new MatchDto(m, puuid))
+                .toList();
+    }
 }

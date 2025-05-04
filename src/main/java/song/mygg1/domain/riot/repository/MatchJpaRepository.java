@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface MatchJpaRepository extends JpaRepository<Matches, Long> {
     @Query("select m " +
             " from Matches m " +
+            " join fetch m.info " +
+            " join fetch m.metadata " +
             "where m.matchId in :matchIds")
     List<Matches> findMatchesByMatchIdIn(@Param("matchIds") Collection<String> matchIds);
 

@@ -41,9 +41,7 @@ public class MatchController {
                                @RequestParam(name = "start") Integer start,
                                @RequestParam(name = "count") Integer count,
                                Model model) {
-        List<MatchDto> matches = matchService.getMatchList(puuid, start, count).stream()
-                .map(m->new MatchDto(m, puuid))
-                .toList();
+        List<MatchDto> matches = matchService.getMoreMatchList(puuid, start, count);
 
         model.addAttribute("matches", matches);
         model.addAttribute("puuid", puuid);
