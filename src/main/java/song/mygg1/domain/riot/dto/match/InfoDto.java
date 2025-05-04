@@ -3,6 +3,7 @@ package song.mygg1.domain.riot.dto.match;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import song.mygg1.domain.riot.entity.QueueType;
 import song.mygg1.domain.riot.entity.match.Info;
 import song.mygg1.domain.riot.entity.match.Participant;
@@ -11,6 +12,7 @@ import song.mygg1.domain.riot.entity.match.Team;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,6 +31,9 @@ public class InfoDto {
 
     private List<ParticipantDto> participants = new ArrayList<>();
     private List<TeamDto> teams = new ArrayList<>();
+
+    private Integer maxDealt;
+    private Integer maxTaken;
 
     public Info toEntity() {
         Info info = Info.create(gameId, endOfGameResult, gameMode, gameName, gameStartTimestamp, gameType, gameVersion, queueId,
@@ -58,8 +63,21 @@ public class InfoDto {
         this.gameVersion = info.getGameVersion();
         this.queueId = info.getQueueId();
 
+        this.maxDealt = info.getParticipants().stream()
+                .mapToInt(Participant::getTotalDamageDealt)
+                .max().orElse(1);
+
+        this.maxTaken = info.getParticipants().stream()
+                .mapToInt(Participant::getTotalDamageTaken)
+                .max().orElse(1);
+
         this.participants = info.getParticipants().stream()
                 .map(ParticipantDto::new)
+                .map(p -> {
+                    p.setDealtPercent(p.getTotalDamageDealt() * 100.0 / maxDealt);
+                    p.setTakenPercent(p.getTotalDamageTaken() * 100.0 / maxTaken);
+                    return p;
+                })
                 .toList();
 
         this.teams = info.getTeams().stream()

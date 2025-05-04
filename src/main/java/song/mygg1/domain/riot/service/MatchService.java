@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import song.mygg1.domain.common.exception.riot.match.exceptions.MatchNotFoundException;
 import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.entity.match.Matches;
 import song.mygg1.domain.riot.repository.MatchJpaRepository;
@@ -51,5 +52,18 @@ public class MatchService {
         return matchIdList.stream()
                 .map(matchMap::get)
                 .toList();
+    }
+
+    @Transactional
+    public MatchDto getMatchDetail(String matchId, String puuid) {
+        Matches match = matchRepository.findMatchesByMatchId(matchId)
+                .orElseGet(() -> {
+                    MatchDto matchDto = apiService.getMatchDetail(matchId)
+                            .orElseThrow(MatchNotFoundException::new);
+
+                    return matchRepository.save(matchDto.toEntity());
+                });
+
+        return new MatchDto(match, puuid);
     }
 }

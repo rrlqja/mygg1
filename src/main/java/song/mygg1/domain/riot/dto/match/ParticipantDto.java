@@ -17,6 +17,7 @@ public class ParticipantDto {
     private Integer assists;
     private Integer deaths;
     private Integer kills;
+    private Integer champLevel;
     private String championName;
     private String summonerName;
     private Boolean win;
@@ -53,8 +54,14 @@ public class ParticipantDto {
     private Integer summoner1Id;
     private Integer summoner2Id;
 
+    private String kda;
+    private String kdaAvg;
+
+    private double dealtPercent;
+    private double takenPercent;
+
     public Participant toEntity(Info info) {
-        return Participant.create(participantId, assists, deaths, kills, championName, summonerName, win, teamId,
+        return Participant.create(participantId, assists, deaths, kills, champLevel, championName, summonerName, win, teamId,
                 totalDamageDealt, totalDamageDealtToChampions, totalDamageTaken, totalHeal, totalHealsOnTeammates, totalMinionsKilled,
                 item0, item1, item2, item3, item4, item5, item6, puuid, riotIdGameName, riotIdTagLine, summonerId,
                 info, goldEarned, goldSpent, visionScore, visionWardsBoughtInGame, wardsKilled, wardsPlaced,
@@ -66,6 +73,7 @@ public class ParticipantDto {
         this.assists = participant.getAssists();
         this.deaths = participant.getDeaths();
         this.kills = participant.getKills();
+        this.champLevel = participant.getChampLevel();
         this.championName = participant.getChampionName();
         this.summonerName = participant.getSummonerName();
         this.win = participant.getWin();
@@ -94,6 +102,9 @@ public class ParticipantDto {
         this.wardsPlaced = participant.getWardsPlaced();
         this.summoner1Id = participant.getSummoner1Id();
         this.summoner2Id = participant.getSummoner2Id();
+
+        this.kda            = participant.getKills() + " / " + participant.getDeaths() + " / " + participant.getAssists();
+        this.kdaAvg         = String.format("%.2f", (participant.getKills() + participant.getAssists()) / (double) participant.getDeaths());
     }
 
     public List<Integer> getItemList() {
@@ -103,4 +114,11 @@ public class ParticipantDto {
     public List<Integer> getSummonerIdList() {
         return Arrays.asList(summoner1Id, summoner2Id);
     }
+    public void setDealtPercent(double dealtPercent) {
+        this.dealtPercent = dealtPercent;
+    }
+    public void setTakenPercent(double takenPercent) {
+        this.takenPercent = takenPercent;
+    }
+
 }

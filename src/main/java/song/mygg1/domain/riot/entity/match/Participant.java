@@ -28,6 +28,7 @@ public class Participant {
     private Integer assists;
     private Integer deaths;
     private Integer kills;
+    private Integer champLevel;
     private String championName;
     private String summonerName;
     private Boolean win;
@@ -63,7 +64,7 @@ public class Participant {
     private Integer summoner1Id;
     private Integer summoner2Id;
 
-    public static Participant create(Integer participantId, Integer assists, Integer deaths, Integer kills, String championName,
+    public static Participant create(Integer participantId, Integer assists, Integer deaths, Integer kills, Integer championLevel, String championName,
                                      String summonerName, Boolean win, Integer teamId, Integer totalDamageDealt, Integer totalDamageDealtToChampions,
                                      Integer totalDamageTaken, Integer totalHeal, Integer totalHealsOnTeammates, Integer totalMinionsKilled,
                                      Integer item0, Integer item1, Integer item2, Integer item3, Integer item4, Integer item5, Integer item6,
@@ -71,14 +72,14 @@ public class Participant {
                                      Info info, Integer goldEarned, Integer goldSpent,
                                      Integer visionScore, Integer visionWardsBoughtInGame, Integer wardsKilled, Integer wardsPlaced,
                                      Integer summoner1Id, Integer summoner2Id) {
-        return new Participant(participantId, assists, deaths, kills, championName, summonerName, win, teamId, totalDamageDealt,
+        return new Participant(participantId, assists, deaths, kills, championLevel, championName, summonerName, win, teamId, totalDamageDealt,
                 totalDamageDealtToChampions, totalDamageTaken, totalHeal, totalHealsOnTeammates, totalMinionsKilled,
                 item0, item1, item2, item3, item4, item5, item6, puuid, riotIdGameName, riotIdTagLine, summonerId,
                 info, goldEarned, goldSpent, visionScore, visionWardsBoughtInGame, wardsKilled, wardsPlaced,
                 summoner1Id, summoner2Id);
     }
 
-    private Participant(Integer participantId, Integer assists, Integer deaths, Integer kills, String championName,
+    private Participant(Integer participantId, Integer assists, Integer deaths, Integer kills, Integer champLevel, String championName,
                         String summonerName, Boolean win, Integer teamId, Integer totalDamageDealt, Integer totalDamageDealtToChampions,
                         Integer totalDamageTaken, Integer totalHeal, Integer totalHealsOnTeammates, Integer totalMinionsKilled,
                         Integer item0, Integer item1, Integer item2, Integer item3, Integer item4, Integer item5, Integer item6,
@@ -90,6 +91,7 @@ public class Participant {
         this.assists = assists;
         this.deaths = deaths;
         this.kills = kills;
+        this.champLevel = champLevel;
         this.championName = championName;
         this.summonerName = summonerName;
         this.win = win;

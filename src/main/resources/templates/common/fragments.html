@@ -63,5 +63,167 @@
     </div>
 </div>
 
+<div th:fragment="matchDetail(match)">
+    <div class="match-detail">
+        <div style="width: 100%; min-height: 250px; display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start;">
+            <div style="width: 100%; min-height: 50px; background-color: white; display: flex; flex-direction: column; align-items: center; border: 1px solid #d7d8da;">
+                <div th:each="p : ${match.info.participants.?[teamId == 100]}" style="width: 100%; height: 50px; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; border-bottom: 1px solid #d7d8da;">
+                    <div style="width: 40px; height: 40px; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-left: 8px;">
+                        <img th:src="@{/image/champion/{champ}(champ=${p.championName})}" th:alt="${p.championName}" style="width: 100%; height: 100%; border-radius: 4px;" />
+                    </div>
+
+                    <div th:text="${p.riotIdGameName}" style="width: 120px; height: 40px; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 14px;">
+                        아이디
+                    </div>
+
+                    <div style="width: 90px; height: 40px; display: flex; flex-direction: row; align-items: center; justify-content: center; text-align: center;">
+                        <div class="participant-list" style="display:flex; flex-wrap: wrap; gap: 5px; align-items:center; margin-left: 5px;">
+                            <img th:each="spell, stat : ${p.getSummonerIdList()}"
+                                 th:if="${stat.index < 2}"
+                                 th:src="@{/image/spell/{spellId}(spellId=*{spell})}"
+                                 th:alt="스펠"
+                                 class="item"
+                                 style="width: 40px; height: 40px; border-radius: 3px;"/>
+                        </div>
+                    </div>
+
+                    <div th:text="${p.champLevel}" style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 14px;">
+                        레벨
+                    </div>
+
+                    <div style="width: 80px; height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                        <span th:text="${p.kdaAvg}" style="width: 100%; height: 35px; display: flex; justify-content: center; align-items: end; font-size: 16px; font-weight: 600;">K/D/A Avg</span>
+                        <span th:text="${p.kda}" style="width: 100%; height: 35px; font-size: 14px; font-weight: 500;">K/D/A</span>
+                    </div>
+
+                    <div style="width: 240px; height: 40px; border-radius: 4px; display: flex; flex-direction: row; align-items: center; justify-content: center;">
+                        <div class="item-list" style="display:flex; flex-wrap: wrap; gap: 5px; align-items:center;">
+                            <img th:each="item, stat : ${p.getItemList()}"
+                                 th:if="${stat.index < 6}"
+                                 th:src="@{/image/item/{itemId}(itemId=${item})}"
+                                 th:alt="아이템"
+                                 class="item"
+                                 style="width: 35px; height: 35px; border-radius: 10px;"/>
+                        </div>
+                    </div>
+
+                    <div style="width: 90px; height: 40px; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; text-align: center;">
+                        <div th:text="${'CS ' + p.totalMinionsKilled}" style="width: 100%; height: 20px; font-size: 14px; font-weight: 400;" />
+                        <div th:text="${'Gold ' + p.getGoldEarned()}" style="width: 100%; height: 20px; font-size: 14px; font-weight: 700;" />
+                    </div>
+
+                    <div style="width: 100px; height: 40px; display: flex; flex-direction: column; gap: 3px; justify-content: center; align-items: center; text-align: center;">
+                        <div th:text="${p.totalDamageDealt}" style="width: 100%; height: 20px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                            dealt
+                        </div>
+                        <div style="width: 80%; height: 15px; background: #eee; border-radius: 5px; overflow: hidden;">
+                            <div th:style="'width:' + ${#numbers.formatDecimal(p.dealtPercent, 0, 0)} + '%; height:100%; height: 100%; background:#d33;'">
+                            </div>
+                        </div>
+                    </div>
+                    <div style="width: 100px; height: 40px; display: flex; flex-direction: column; gap: 3px; justify-content: center; align-items: center; text-align: center;">
+                        <div th:text="${p.totalDamageTaken}" style="width: 100%; height: 20px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                            dealt
+                        </div>
+                        <div style="width: 80%; height: 15px; background: #eee; border-radius: 5px; overflow: hidden;">
+                            <div th:style="'width:' + ${#numbers.formatDecimal(p.takenPercent, 0, 0)} + '%; height:100%; height: 100%; background:#3a3;'">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="width: 100%; height: 50px; background-color: white; display: flex; flex-direction: row; justify-content: flex-start; align-items: flex-start; border: 1px solid #d7d8da;">
+                <div style="width: 100px; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">블루팀</div>
+                <div th:with="blueTeam=${match.info.teams.?[teamId == 100][0]}" th:classappend="${blueTeam.win} ? ' win-status' : ' lose-status'"
+                     style="width: 100px; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <span th:text="${blueTeam.win} ? '승리' : '패배'">승패</span>
+                </div>
+            </div>
+            <div style="width: 100%; height: 50px; background-color: white; display: flex; flex-direction: row; justify-content: flex-start; align-items: flex-start; border: 1px solid #d7d8da;">
+                <div style="width: 100px; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">레드팀</div>
+                <div th:with="redTeam=${match.info.teams.?[teamId == 200][0]}" th:classappend="${redTeam.win} ? 'win-status' : 'lose-status'"
+                     style="width: 100px; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <span th:text="${redTeam.win} ? '승리' : '패배'">승패</span>
+                </div>
+            </div>
+            <div style="width: 100%; min-height: 50px; background-color: white; display: flex; flex-direction: column; align-items: center; border: 1px solid #d7d8da;">
+                <div th:each="p : ${match.info.participants.?[teamId == 200]}" style="width: 100%; height: 50px; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; border-bottom: 1px solid #d7d8da;">
+                    <div style="width: 40px; height: 40px; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-left: 8px;">
+                        <img th:src="@{/image/champion/{champ}(champ=${p.championName})}" th:alt="${p.championName}" style="width: 100%; height: 100%; border-radius: 4px;" />
+                    </div>
+
+                    <div th:text="${p.riotIdGameName}" style="width: 120px; height: 40px; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 14px;">
+                        아이디
+                    </div>
+
+                    <div style="width: 90px; height: 40px; display: flex; flex-direction: row; align-items: center; justify-content: center; text-align: center;">
+                        <div class="participant-list" style="display:flex; flex-wrap: wrap; gap: 5px; align-items:center; margin-left: 5px;">
+                            <img th:each="spell, stat : ${p.getSummonerIdList()}"
+                                 th:if="${stat.index < 2}"
+                                 th:src="@{/image/spell/{spellId}(spellId=*{spell})}"
+                                 th:alt="스펠"
+                                 class="item"
+                                 style="width: 40px; height: 40px; border-radius: 3px;"/>
+                        </div>
+                    </div>
+
+                    <div th:text="${p.champLevel}" style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 14px;">
+                        레벨
+                    </div>
+
+                    <div style="width: 80px; height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                        <span th:text="${p.kdaAvg}" style="width: 100%; height: 35px; display: flex; justify-content: center; align-items: end; font-size: 16px; font-weight: 600;">K/D/A Avg</span>
+                        <span th:text="${p.kda}" style="width: 100%; height: 35px; font-size: 14px; font-weight: 500;">K/D/A</span>
+                    </div>
+
+                    <div style="width: 240px; height: 40px; border-radius: 4px; display: flex; flex-direction: row; align-items: center; justify-content: center;">
+                        <div class="item-list" style="display:flex; flex-wrap: wrap; gap: 5px; align-items:center;">
+                            <img th:each="item, stat : ${p.getItemList()}"
+                                 th:if="${stat.index < 6}"
+                                 th:src="@{/image/item/{itemId}(itemId=${item})}"
+                                 th:alt="아이템"
+                                 class="item"
+                                 style="width: 35px; height: 35px; border-radius: 10px;"/>
+                        </div>
+                    </div>
+
+                    <div style="width: 90px; height: 40px; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; text-align: center;">
+                        <div th:text="${'CS ' + p.totalMinionsKilled}" style="width: 100%; height: 20px; font-size: 14px; font-weight: 400;" />
+                        <div th:text="${'Gold ' + p.getGoldEarned()}" style="width: 100%; height: 20px; font-size: 14px; font-weight: 700;" />
+                    </div>
+
+                    <div style="width: 100px; height: 40px; display: flex; flex-direction: column; gap: 3px; justify-content: center; align-items: center; text-align: center;">
+                        <div th:text="${p.totalDamageDealt}" style="width: 100%; height: 20px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                            dealt
+                        </div>
+                        <div style="width: 80%; height: 15px; background: #eee; border-radius: 5px; overflow: hidden;">
+                            <div th:style="'width:' + ${#numbers.formatDecimal(p.dealtPercent, 0, 0)} + '%; height:100%; height: 100%; background:#d33;'">
+                            </div>
+                        </div>
+                    </div>
+                    <div style="width: 100px; height: 40px; display: flex; flex-direction: column; gap: 3px; justify-content: center; align-items: center; text-align: center;">
+                        <div th:text="${p.totalDamageTaken}" style="width: 100%; height: 20px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                            dealt
+                        </div>
+                        <div style="width: 80%; height: 15px; background: #eee; border-radius: 5px; overflow: hidden;">
+                            <div th:style="'width:' + ${#numbers.formatDecimal(p.takenPercent, 0, 0)} + '%; height:100%; height: 100%; background:#3a3;'">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="matchDetailArena(match)">
+    <div class="match-detail">
+        <div><strong>아레나 매치 ID:</strong> <span th:text="${match.metadata.matchId}"/></div>
+        <div><strong>게임 모드:</strong> <span th:text="${match.info.queueType}"/></div>
+        <div><strong>플레이어 K/D/A:</strong> <span th:text="${match.kda}"/></div>
+        <div><strong>골드:</strong> <span th:text="${match.player.goldEarned}"/></div>
+    </div>
+</div>
+
 </body>
 </html>
