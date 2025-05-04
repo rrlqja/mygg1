@@ -1,8 +1,5 @@
 package song.mygg1.domain.riot.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,12 +19,11 @@ import song.mygg1.domain.riot.service.SearchService;
 public class SearchController {
     private final SearchService searchService;
     private final RedisService redisService;
-    private final ObjectMapper objectMapper;
 
     @GetMapping("/search")
     public String getSearch(@RequestParam(name = "query", required = false) String query,
                             HttpSession session,
-                            Model model) throws JsonProcessingException {
+                            Model model) {
         if (query == null || query.isBlank()) {
             return "redirect:/";
         }
@@ -39,7 +35,6 @@ public class SearchController {
 
         model.addAttribute("query", query);
         model.addAttribute("search", search);
-        model.addAttribute("searchJson", objectMapper.enable(SerializationFeature.INDENT_OUTPUT).writeValueAsString(search));
 
         redisService.addRecentSearch(session.getId(), gameName, tagLine);
         model.addAttribute("recentSearch",

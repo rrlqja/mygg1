@@ -12,7 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@ToString
+@ToString(exclude = "info")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

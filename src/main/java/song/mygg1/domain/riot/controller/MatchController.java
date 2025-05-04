@@ -12,6 +12,8 @@ import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.entity.QueueType;
 import song.mygg1.domain.riot.service.MatchService;
 
+import java.util.List;
+
 @Slf4j
 @Controller
 @RequestMapping("/match")
@@ -32,5 +34,20 @@ public class MatchController {
         } else {
             return "common/fragments::matchDetail(match=${matchDetail})";
         }
+    }
+
+    @GetMapping("/list")
+    public String getMatchList(@RequestParam(name = "puuid") String puuid,
+                               @RequestParam(name = "start") Integer start,
+                               @RequestParam(name = "count") Integer count,
+                               Model model) {
+        List<MatchDto> matches = matchService.getMatchList(puuid, start, count).stream()
+                .map(m->new MatchDto(m, puuid))
+                .toList();
+
+        model.addAttribute("matches", matches);
+        model.addAttribute("puuid", puuid);
+
+        return "common/fragments::matchItems(matches = ${matches}, puuid = ${puuid})";
     }
 }

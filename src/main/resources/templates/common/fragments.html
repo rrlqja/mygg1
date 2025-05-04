@@ -63,6 +63,75 @@
     </div>
 </div>
 
+<div th:fragment="matchItems(matches, puuid)">
+    <div th:each="match : ${matches}"
+         th:classappend="${match.win} ? ' win-match' : ' lose-match'"
+         class="match-item" style="width: 100%; height: 80px; display: flex; flex-direction: row; padding: 5px;">
+        <div style="width: 75px; height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin-right: 5px; border-right: 1px solid black;" >
+            <span th:text="${match.win} ? '승리' : '패배'" style="font-size: 14px; font-weight: 600;"></span>
+            <span th:text="${match.info.getQueueType()}" style="font-size: 12px; font-weight: 500;"></span>
+        </div>
+
+        <div class="my-champ" style="width: 70px; height: 70px; margin-right: 5px;">
+            <img th:src="@{${match.championImgUrl}}"
+                 th:alt="${match.player.championName}"
+                 style="width:100%; height:100%; border-radius:10px;" />
+        </div>
+
+        <div style="width: 140px; height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-left: 1px solid black;">
+            <span th:text="${match.kdaAvg}" style="width: 100%; height: 30px; display: flex; justify-content: center; align-items: end; font-size: 16px; font-weight: 600;">K/D/A Avg</span>
+            <span th:text="${match.kda}" style="width: 100%; height: 30px; line-height: 30px; font-size: 16px; font-weight: 500;">K/D/A</span>
+        </div>
+
+        <div style="width: 140px; height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-left: 1px solid black;">
+            <div class="participant-list" style="display:flex; flex-wrap: wrap; gap: 5px; align-items:center; margin-left:20px;">
+                <img th:each="item, stat : ${match.player.getItemList()}"
+                     th:if="${stat.index < 6}"
+                     th:src="@{/image/item/{itemId}(itemId=${item})}"
+                     th:alt="아이템"
+                     class="item"
+                     style="width: 30px; height: 30px; border-radius: 10px;"/>
+            </div>
+        </div>
+
+        <div style="width: 40px; height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+            <div class="participant-list" style="display:flex; flex-wrap: wrap; gap: 5px; align-items:center; margin-left: 5px;">
+                <img th:each="spell, stat : ${match.player.getSummonerIdList()}"
+                     th:if="${stat.index < 2}"
+                     th:src="@{/image/spell/{spellId}(spellId=*{spell})}"
+                     th:alt="스펠"
+                     class="item"
+                     style="width: 30px; height: 30px; border-radius: 10px;"/>
+            </div>
+        </div>
+
+        <div style="width: 210px; height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-left: 1px solid black;">
+            <div class="participant-list" style="display:flex; flex-wrap: wrap; gap: 5px; align-items:center; margin-left:20px;">
+                <img th:each="imgInfo, stat : ${match.participantChampionImgList}"
+                     th:if="${stat.index < 10}"
+                     th:src="@{${imgInfo.url}}"
+                     th:alt="챔피언"
+                     class="participant-champ"
+                     th:classappend="${imgInfo.player}? ' player-highlight' : ''" style="width: 30px; height: 30px; border-radius: 10px;"/>
+            </div>
+        </div>
+
+        <div style="width: 90px; height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-left: 1px solid black;">
+            <div th:text="${'CS ' + match.player.totalMinionsKilled}" style="width: 100%; height: 20px; font-size: 14px; font-weight: 400;" />
+            <div th:text="${'Gold ' + match.player.getGoldEarned()}" style="width: 100%; height: 20px; font-size: 14px; font-weight: 700;" />
+            <div th:text="${'시야 ' + match.player.visionScore + '/' + match.player.visionWardsBoughtInGame}" style="width: 100%; height: 20px; font-size: 14px; font-weight: 400;" />
+        </div>
+
+        <div style="width: 110px; height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-left: 1px solid black; border-right: 1px solid black; line-height: 70px;">
+            <div th:text="${match.info.getGameDuration()}" style="width: 100%; height: 100%;"></div>
+        </div>
+
+        <div class="match-toggle" th:attr="data-match-id=${match.metadata.matchId}, data-puuid=${puuid}" style="">
+            <span class="toggle-icon">&#9660;</span>
+        </div>
+    </div>
+</div>
+
 <div th:fragment="matchDetail(match)">
     <div class="match-detail">
         <div style="width: 100%; min-height: 250px; display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start;">
