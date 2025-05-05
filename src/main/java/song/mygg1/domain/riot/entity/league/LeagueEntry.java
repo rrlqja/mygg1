@@ -29,6 +29,21 @@ public class LeagueEntry {
     private boolean freshBlood;
     private boolean inactive;
 
+    private boolean deleteFlag;
+
+    public void update(String leagueId, String tier, String rank, String summonerId, int leaguePoints, int wins, int losses, boolean hotStreak, boolean veteran, boolean freshBlood, boolean inactive) {
+        this.leagueId = leagueId;
+        this.tier = tier;
+        this.rank = rank;
+        this.leaguePoints = leaguePoints;
+        this.wins = wins;
+        this.losses = losses;
+        this.hotStreak = hotStreak;
+        this.veteran = veteran;
+        this.freshBlood = freshBlood;
+        this.inactive = inactive;
+    }
+
     public static LeagueEntry create(String queueType, String puuid, String leagueId, String tier, String rank, String summonerId,
                                      int leaguePoints, int wins, int losses, boolean hotStreak, boolean veteran, boolean freshBlood, boolean inactive) {
         LeagueEntryId id = new LeagueEntryId(queueType, puuid);
@@ -49,5 +64,10 @@ public class LeagueEntry {
         this.veteran = veteran;
         this.freshBlood = freshBlood;
         this.inactive = inactive;
+        this.deleteFlag = false;
+    }
+
+    public void delete() {
+        this.deleteFlag = true;
     }
 }

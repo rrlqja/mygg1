@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 @ToString
 @Entity
 @Getter
@@ -21,6 +23,14 @@ public class Account {
     private String gameName;
     private String tagLine;
 
+    private LocalDateTime lastRefreshDateTime;
+
+    public void update(String gameName, String tagLine) {
+        this.gameName = gameName;
+        this.tagLine = tagLine;
+        this.lastRefreshDateTime = LocalDateTime.now();
+    }
+
     public static Account create(String puuid, String gameName, String tagLine) {
         return new Account(puuid, gameName, tagLine);
     }
@@ -29,5 +39,6 @@ public class Account {
         this.puuid = puuid;
         this.gameName = gameName;
         this.tagLine = tagLine;
+        this.lastRefreshDateTime = LocalDateTime.now();
     }
 }

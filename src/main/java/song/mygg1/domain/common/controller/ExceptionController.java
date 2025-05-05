@@ -3,7 +3,7 @@ package song.mygg1.domain.common.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import song.mygg1.domain.common.exception.riot.searchexception.SearchException;
+import song.mygg1.domain.common.exception.riot.SearchException;
 
 @Slf4j
 @ControllerAdvice

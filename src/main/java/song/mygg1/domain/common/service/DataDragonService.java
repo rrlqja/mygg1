@@ -6,13 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import song.mygg1.domain.common.exception.MyggException;
-import song.mygg1.domain.common.exception.riot.RiotApiException;
+import song.mygg1.domain.common.exception.riot.riotapi.RiotApiException;
 import song.mygg1.domain.riot.service.ApiService;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.function.Supplier;
 

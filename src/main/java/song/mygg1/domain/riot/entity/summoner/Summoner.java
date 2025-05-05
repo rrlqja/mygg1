@@ -20,6 +20,11 @@ public class Summoner {
     private Long revisionDate;
     private Long summonerLevel;
 
+    public void update(Long summonerLevel, Integer profileIconId) {
+        this.summonerLevel = summonerLevel;
+        this.profileIconId = profileIconId;
+    }
+
     public static Summoner create(String id, String accountId, String puuid, Integer profileIconId, Long revisionDate, Long summonerLevel) {
         return new Summoner(id, accountId, puuid, profileIconId, revisionDate, summonerLevel);
     }

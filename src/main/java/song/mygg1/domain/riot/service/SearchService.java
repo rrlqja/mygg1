@@ -39,4 +39,14 @@ public class SearchService {
 
         return new SearchDto(account, summoner, leagueEntrySet, matchesList);
     }
+
+    @Transactional
+    public SearchDto refresh(String puuid) {
+        Account updateAccount = accountService.refreshAccount(puuid);
+        Summoner updateSummoner = summonerService.refreshSummoner(updateAccount.getPuuid());
+        Set<LeagueEntry> updateLeagueEntrySet = leagueService.refreshLeague(updateAccount.getPuuid());
+        List<Matches> updateMatchesList = matchService.refreshMatchList(updateAccount.getPuuid(), 0, 10);
+
+        return new SearchDto(updateAccount, updateSummoner, updateLeagueEntrySet, updateMatchesList);
+    }
 }

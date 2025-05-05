@@ -58,7 +58,7 @@
         <div style="width: 960px; height: 300px; display: flex; flex-direction: column; align-items: start; justify-content: start;">
             <div style="width: 100%; height: 140px; display: flex; flex-direction: row;">
                 <div style="width: 125px; height: 125px; border-radius: 10px;">
-                    <img th:src="@{/image/profile/{iconId}(iconId=${search.summoner.getProfileIconId()})}" style="width: 100%; height: 100%; border-radius: 10px;">
+                    <img th:src="@{/image/profile/{iconId}(iconId=${search.summoner.profileIconId})}" style="width: 100%; height: 100%; border-radius: 10px;">
                 </div>
                 <div style="width: 775px; height: 125px; display: flex; flex-direction: column; align-items: start; justify-content: start; padding-left: 16px;">
                     <div style="width: 100%; height: 100%;">
@@ -67,8 +67,12 @@
                         <span th:text="${'레벨: ' + search.summoner.summonerLevel}" style="font-size: 13px; font-weight: 500;"></span>
                     </div>
                     <div style="width: 100%; height: 100%; display: flex; flex-direction: row; align-items: center; justify-content: start;">
-                        <button class="btn btn-outline-secondary" style="width: 80px; height: 35px; font-size: 14px; font-weight: 400; white-space: nowrap; border: none; background-color: #eff1f3; color: black;">전적갱신</button>
-                        <span th:text="${'마지막 갱신일: '}" style="font-size: 12px; font-weight: 400; padding-left: 12px;"></span>
+                        <form id="refresh-form" th:action="@{/kr/search/refresh}" method="get" th:attr="data-last-refresh=${search.account.lastRefreshDateTimeRaw}" style="display:inline;">
+                            <input type="hidden" name="query" th:value="${search.account.gameName}" />
+                            <input type="hidden" name="puuid" th:value="${search.account.puuid}" />
+                            <button type="submit" class="btn btn-outline-secondary">전적갱신</button>
+                        </form>
+                        <span th:text="${'마지막 갱신일: ' + search.account.lastRefreshDateTime}" style="font-size: 12px; font-weight: 400; padding-left: 12px;"></span>
                     </div>
                 </div>
             </div>
@@ -159,6 +163,25 @@
                     }
                 })
                 .catch(console.error);
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('refresh-form');
+        form.addEventListener('submit', e => {
+            const lastRefresh = form.dataset.lastRefresh;
+            if (!lastRefresh) return;
+
+            const lastDate = new Date(lastRefresh);
+            const now      = new Date();
+            const diffMin  = (now - lastDate) / 1000 / 60;
+            if (diffMin < 5) {
+                e.preventDefault();
+                alert(
+                    '전적은 5분에 한 번만 갱신할 수 있습니다.\n' +
+                    '마지막 갱신: ' + lastDate.toLocaleString()
+                );
+            }
         });
     });
 </script>

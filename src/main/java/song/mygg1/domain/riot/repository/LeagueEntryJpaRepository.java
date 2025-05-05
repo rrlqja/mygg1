@@ -13,6 +13,7 @@ import java.util.Set;
 public interface LeagueEntryJpaRepository extends JpaRepository<LeagueEntry, LeagueEntryId> {
     @Query("select le " +
             " from LeagueEntry le " +
-            "where le.id.puuid = :puuid")
+            "where le.id.puuid = :puuid " +
+            "  and le.deleteFlag = false")
     Set<LeagueEntry> findLeagueEntriesById_Puuid(@Param("puuid") String puuid);
 }

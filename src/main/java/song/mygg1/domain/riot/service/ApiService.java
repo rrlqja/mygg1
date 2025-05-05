@@ -15,7 +15,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import song.mygg1.domain.common.exception.MyggException;
-import song.mygg1.domain.common.exception.riot.RiotApiException;
+import song.mygg1.domain.common.exception.riot.riotapi.RiotApiException;
 import song.mygg1.domain.riot.dto.account.AccountDto;
 import song.mygg1.domain.riot.dto.league.LeagueEntryDto;
 import song.mygg1.domain.riot.dto.match.MatchDto;
@@ -123,6 +123,10 @@ public class ApiService {
 
     public Optional<AccountDto> getAccount(String gameName, String tagLine) {
         return doExchange(riotAsiaUrl, GET_ACCOUNT.getPath(), HttpMethod.GET, AccountDto.class, Map.of("gameName", gameName, "tagLine", tagLine));
+    }
+
+    public Optional<AccountDto> getAccount(String puuid) {
+        return doExchange(riotAsiaUrl, GET_ACCOUNT_BY_PUUID.getPath(), HttpMethod.GET, AccountDto.class, Map.of("puuid", puuid));
     }
 
     public List<String> getMatches(String puuid, Integer start, Integer count) {

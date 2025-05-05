@@ -8,9 +8,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriUtils;
 import song.mygg1.domain.redis.service.RedisService;
 import song.mygg1.domain.riot.dto.SearchDto;
 import song.mygg1.domain.riot.service.SearchService;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -42,5 +47,18 @@ public class SearchController {
         );
 
         return "riot/search";
+    }
+
+    @GetMapping("/search/refresh")
+    public String getRefresh(@RequestParam(name = "query", required = false) String query,
+                             @RequestParam(name = "puuid") String puuid,
+                             HttpSession session,
+                             RedirectAttributes redirectAttributes) {
+        SearchDto refresh = searchService.refresh(puuid);
+
+        List<String> recent = redisService.getRecentSearch(session.getId());
+        redirectAttributes.addFlashAttribute("recentSearch", recent);
+
+        return "redirect:/kr/search?query=" + UriUtils.encode(query, StandardCharsets.UTF_8);
     }
 }

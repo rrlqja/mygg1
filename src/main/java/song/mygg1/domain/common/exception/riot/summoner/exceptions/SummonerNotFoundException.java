@@ -1,6 +1,6 @@
-package song.mygg1.domain.common.exception.riot.searchexception.exceptions;
+package song.mygg1.domain.common.exception.riot.summoner.exceptions;
 
-import song.mygg1.domain.common.exception.riot.searchexception.SearchException;
+import song.mygg1.domain.common.exception.riot.SearchException;
 
 public class SummonerNotFoundException extends SearchException {
     public SummonerNotFoundException() {

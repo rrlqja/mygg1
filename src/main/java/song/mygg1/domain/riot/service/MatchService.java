@@ -75,4 +75,35 @@ public class MatchService {
                 .map(m->new MatchDto(m, puuid))
                 .toList();
     }
+
+    @Transactional
+    public List<Matches> refreshMatchList(String puuid, Integer start, Integer count) {
+        List<String> latestMatchList = apiService.getMatches(puuid, start, count);
+
+        List<Matches> existMatchList = matchRepository.findMatchesByMatchIdIn(latestMatchList);
+
+        List<String> existMatchIdList = existMatchList
+                .stream()
+                .map(m -> m.getMetadata().getMatchId())
+                .toList();
+
+        List<String> newMatchId = latestMatchList.stream()
+                .filter(lm -> !existMatchIdList.contains(lm))
+                .toList();
+
+        List<Matches> newMatchList = newMatchId.stream()
+                .map(apiService::getMatchDetail)
+                .flatMap(Optional::stream)
+                .map(MatchDto::toEntity)
+                .toList();
+
+        matchRepository.saveAll(newMatchList);
+
+        Map<String, Matches> matchMap = Stream.concat(existMatchList.stream(), newMatchList.stream())
+                .collect(Collectors.toMap(Matches::getMatchId, Function.identity()));
+
+        return latestMatchList.stream()
+                .map(matchMap::get)
+                .toList();
+    }
 }

@@ -1,8 +1,8 @@
-package song.mygg1.domain.common.exception.riot;
+package song.mygg1.domain.common.exception.riot.riotapi;
 
-import song.mygg1.domain.common.exception.MyggException;
+import song.mygg1.domain.common.exception.riot.SearchException;
 
-public class RiotApiException extends MyggException {
+public class RiotApiException extends SearchException {
     public RiotApiException() {
         super("Riot Api Exception");
     }
