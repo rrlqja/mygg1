@@ -29,6 +29,52 @@
     </div>
 </div>
 
+<div th:fragment="leagueList(leagueItemList, title, subTitle)">
+    <div style="width: 100%; height: 30px; font-size: 14px; font-weight: 400; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; border-bottom: 1px solid #e0e0e0;">
+        <span th:text="${title}">league</span>
+        <span th:text="${'-' + subTitle}" style="font-size: 12px; font-weight: 500;">subTitle</span>
+    </div>
+    <div class="entry-item" th:each="entry : ${leagueItemList}" th:onclick="|location.href='@{/kr/search(query=${entry.gameName + '#' + entry.tagLine})}'|" style="width: 100%; height: 45px; font-size: 14px; font-weight: 400; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; cursor: pointer;">
+        <div style="width: 35px; height: 35px;">
+            <img th:src="@{/image/profile/{iconId}(iconId=${entry.profileIconId})}" style="width: 100%; height: 100%; border-radius: 8px;">
+        </div>
+        <div style="width: 150px; height: 35px; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; padding-left: 4px; font-size: 14px; font-weight: 400;">
+            <span th:text="${entry.getGameName() + '#' + entry.getTagLine()}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline;"></span>
+        </div>
+        <div style="width: 100px; height: 35px; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; padding-left: 4px; font-size: 14px; font-weight: 400; gap: 3px;">
+            <div th:each="championMastery : ${entry.championMasteryList}" style="width: 30px; height: 30px;">
+                <div style="width: 100%; height: 30px;">
+                    <img th:src="@{/image/champion/{championId}(championId=${championMastery.championId})}" style="width: 100%; height: 100%; border-radius: 8px;">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="rotationChampions(rotationChampions, title)">
+    <div style="width: 100%; height: 30px; border-top-left-radius: 8px; border-top-right-radius: 8px; line-height: 30px; font-size: 15px; font-weight: 600; background-color: #afcaa3; padding-left: 8px;">
+        <span th:text="${title}"></span>
+    </div>
+    <div style="width: 100%; min-height: 30px; background-color: #d5e3cf; border-bottom-right-radius: 8px; border-bottom-left-radius: 8px; display: flex; flex-direction: row; justify-content: flex-start; align-items: flex-start; font-size: 15px; font-weight: 600; gap: 6px; flex-wrap: wrap; padding: 8px;">
+        <div th:each="champion : ${rotationChampions}" style="width: 90px; min-height: 90px; display: flex; flex-direction: column; justify-content: flex-start; align-items: center;">
+            <div style="width: 100%; height: 90px;">
+                <img th:src="@{/image/champion/{championId}(championId=${champion})}" style="width: 100%; height: 100%; border-radius: 10px;">
+            </div>
+            <div th:text="${champion}" style="width: 100%; height: 20px; display: flex; justify-content: center; align-items: center; font-size: 14px;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="recentSearch(recentSearchList)">
+    <div style="width: 100%; height: 30px; font-size: 14px; font-weight: 400; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; border-bottom: 1px solid #e0e0e0;">
+        <span>최근 검색</span>
+    </div>
+    <div th:each="recentSearch : ${recentSearchList}" style="width: 100%; height: 30px; font-size: 14px; font-weight: 400; display: flex; flex-direction: row; justify-content: flex-start; align-items: center;">
+        <div th:text="${recentSearch}" th:onclick="|location.href='@{/kr/search(query=${recentSearch})}'|" style="cursor: pointer;" ></div>
+    </div>
+</div>
+
 <div th:fragment="rank(leagueEntry, title)">
     <div style="width:380px; height:100%; display:flex; align-items:center; gap:10px;">
         <th:block th:with="leauge=${leagueEntry}">
@@ -138,7 +184,7 @@
             <div style="width: 100%; min-height: 50px; background-color: white; display: flex; flex-direction: column; align-items: center; border: 1px solid #d7d8da;">
                 <div th:each="p : ${match.info.participants.?[teamId == 100]}" style="width: 100%; height: 50px; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; border-bottom: 1px solid #d7d8da;">
                     <div style="width: 40px; height: 40px; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-left: 8px;">
-                        <img th:src="@{/image/champion/{champ}(champ=${p.championName})}" th:alt="${p.championName}" style="width: 100%; height: 100%; border-radius: 4px;" />
+                        <img th:src="@{/image/champion/{champ}(champ=${p.championId})}" th:alt="${p.championName}" style="width: 100%; height: 100%; border-radius: 4px;" />
                     </div>
 
                     <div th:text="${p.riotIdGameName}" style="width: 120px; height: 40px; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 14px;">
@@ -182,7 +228,7 @@
                     </div>
 
                     <div style="width: 100px; height: 40px; display: flex; flex-direction: column; gap: 3px; justify-content: center; align-items: center; text-align: center;">
-                        <div th:text="${p.totalDamageDealt}" style="width: 100%; height: 20px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                        <div th:text="${p.totalDamageDealtToChampions}" style="width: 100%; height: 20px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
                             dealt
                         </div>
                         <div style="width: 80%; height: 15px; background: #eee; border-radius: 5px; overflow: hidden;">
@@ -218,7 +264,7 @@
             <div style="width: 100%; min-height: 50px; background-color: white; display: flex; flex-direction: column; align-items: center; border: 1px solid #d7d8da;">
                 <div th:each="p : ${match.info.participants.?[teamId == 200]}" style="width: 100%; height: 50px; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; border-bottom: 1px solid #d7d8da;">
                     <div style="width: 40px; height: 40px; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-left: 8px;">
-                        <img th:src="@{/image/champion/{champ}(champ=${p.championName})}" th:alt="${p.championName}" style="width: 100%; height: 100%; border-radius: 4px;" />
+                        <img th:src="@{/image/champion/{champ}(champ=${p.championId})}" th:alt="${p.championName}" style="width: 100%; height: 100%; border-radius: 4px;" />
                     </div>
 
                     <div th:text="${p.riotIdGameName}" style="width: 120px; height: 40px; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 14px;">
@@ -262,7 +308,7 @@
                     </div>
 
                     <div style="width: 100px; height: 40px; display: flex; flex-direction: column; gap: 3px; justify-content: center; align-items: center; text-align: center;">
-                        <div th:text="${p.totalDamageDealt}" style="width: 100%; height: 20px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                        <div th:text="${p.totalDamageDealtToChampions}" style="width: 100%; height: 20px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
                             dealt
                         </div>
                         <div style="width: 80%; height: 15px; background: #eee; border-radius: 5px; overflow: hidden;">

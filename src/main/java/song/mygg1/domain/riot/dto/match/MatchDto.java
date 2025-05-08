@@ -43,14 +43,14 @@ public class MatchDto {
                 .orElse(null);
 
         if (player != null) {
-            this.championImgUrl = imgBaseUrl + player.getChampionName();
+            this.championImgUrl = imgBaseUrl + player.getChampionId();
             this.kda            = player.getKills() + " / " + player.getDeaths() + " / " + player.getAssists();
             this.kdaAvg         = String.format("%.2f", (player.getKills() + player.getAssists()) / (double) player.getDeaths());
         }
 
         this.participantChampionImgList = info.getParticipants().stream()
                 .map(p -> new ChampionImgInfo(
-                        imgBaseUrl + p.getChampionName(),
+                        imgBaseUrl + p.getChampionId(),
                         p.getPuuid().equals(puuid)
                 ))
                 .toList();

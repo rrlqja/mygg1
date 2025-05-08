@@ -44,7 +44,7 @@ public class ImageController {
                 .body(resource);
     }
 
-    @GetMapping(value = "item/{itemId}", produces = MediaType.IMAGE_PNG_VALUE)
+    @GetMapping(value = "/item/{itemId}", produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<UrlResource> getItem(@PathVariable("itemId") int itemId) throws IOException {
         UrlResource resource = imageService.getItem(itemId);
 
@@ -53,7 +53,7 @@ public class ImageController {
                 .body(resource);
     }
 
-    @GetMapping(value = "spell/{spellId}", produces = MediaType.IMAGE_PNG_VALUE)
+    @GetMapping(value = "/spell/{spellId}", produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<UrlResource> getSpell(@PathVariable("spellId") int spellId) throws IOException {
         UrlResource resource = imageService.getSpell(spellId);
 
@@ -62,9 +62,9 @@ public class ImageController {
                 .body(resource);
     }
 
-    @GetMapping(value = "/champion/{championName}", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<UrlResource> getChampion(@PathVariable("championName") String championName) throws IOException {
-        UrlResource resource = imageService.getChampion(championName);
+    @GetMapping(value = "/champion/{championKey}", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<UrlResource> getChampion(@PathVariable("championKey") Long championKey) throws IOException {
+        UrlResource resource = imageService.getChampion(championKey);
 
         return ResponseEntity.ok()
                 .cacheControl(maxAge(5, MINUTES).cachePublic())

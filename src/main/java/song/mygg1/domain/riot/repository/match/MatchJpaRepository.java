@@ -1,4 +1,4 @@
-package song.mygg1.domain.riot.repository;
+package song.mygg1.domain.riot.repository.match;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

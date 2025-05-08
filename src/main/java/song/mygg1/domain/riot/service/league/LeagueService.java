@@ -1,12 +1,17 @@
-package song.mygg1.domain.riot.service;
+package song.mygg1.domain.riot.service.league;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import song.mygg1.domain.common.exception.riot.league.exceptions.LeagueListNotFoundException;
 import song.mygg1.domain.riot.dto.league.LeagueEntryDto;
+import song.mygg1.domain.riot.dto.league.LeagueListDto;
 import song.mygg1.domain.riot.entity.league.LeagueEntry;
-import song.mygg1.domain.riot.repository.LeagueEntryJpaRepository;
+import song.mygg1.domain.riot.entity.league.LeagueList;
+import song.mygg1.domain.riot.repository.league.LeagueEntryJpaRepository;
+import song.mygg1.domain.riot.repository.league.LeagueListJpaRepository;
+import song.mygg1.domain.riot.service.ApiService;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -20,6 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LeagueService {
     private final LeagueEntryJpaRepository leagueEntryRepository;
+    private final LeagueListJpaRepository leagueListRepository;
     private final ApiService apiService;
 
     @Transactional
@@ -70,5 +76,15 @@ public class LeagueService {
         leagueEntryRepository.saveAll(deleted);
 
         return new HashSet<>(updateLeagueEntrySet);
+    }
+
+    @Transactional
+    public LeagueListDto getLeagueList(String queue) {
+        LeagueListDto leagueListDto = apiService.getLeagueList(queue)
+                .orElseThrow(LeagueListNotFoundException::new);
+
+        LeagueList saveLeagueList = leagueListRepository.save(leagueListDto.toEntity());
+
+        return new LeagueListDto(saveLeagueList);
     }
 }

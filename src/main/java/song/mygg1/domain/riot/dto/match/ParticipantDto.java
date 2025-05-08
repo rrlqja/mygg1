@@ -18,6 +18,7 @@ public class ParticipantDto {
     private Integer deaths;
     private Integer kills;
     private Integer champLevel;
+    private Integer championId;
     private String championName;
     private String summonerName;
     private Boolean win;
@@ -61,7 +62,7 @@ public class ParticipantDto {
     private double takenPercent;
 
     public Participant toEntity(Info info) {
-        return Participant.create(participantId, assists, deaths, kills, champLevel, championName, summonerName, win, teamId,
+        return Participant.create(participantId, assists, deaths, kills, champLevel, championId, championName, summonerName, win, teamId,
                 totalDamageDealt, totalDamageDealtToChampions, totalDamageTaken, totalHeal, totalHealsOnTeammates, totalMinionsKilled,
                 item0, item1, item2, item3, item4, item5, item6, puuid, riotIdGameName, riotIdTagLine, summonerId,
                 info, goldEarned, goldSpent, visionScore, visionWardsBoughtInGame, wardsKilled, wardsPlaced,
@@ -74,11 +75,13 @@ public class ParticipantDto {
         this.deaths = participant.getDeaths();
         this.kills = participant.getKills();
         this.champLevel = participant.getChampLevel();
+        this.championId = participant.getChampionId();
         this.championName = participant.getChampionName();
         this.summonerName = participant.getSummonerName();
         this.win = participant.getWin();
         this.teamId = participant.getTeamId();
         this.totalDamageDealt = participant.getTotalDamageDealt();
+        this.totalDamageDealtToChampions = participant.getTotalDamageDealtToChampions();
         this.totalDamageTaken = participant.getTotalDamageTaken();
         this.totalHeal = participant.getTotalHeal();
         this.totalHealsOnTeammates = participant.getTotalHealsOnTeammates();

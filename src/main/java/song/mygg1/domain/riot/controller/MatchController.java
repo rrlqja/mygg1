@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.entity.QueueType;
-import song.mygg1.domain.riot.service.MatchService;
+import song.mygg1.domain.riot.service.match.MatchService;
 
 import java.util.List;
 

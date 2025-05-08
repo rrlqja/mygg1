@@ -53,44 +53,50 @@
 </head>
 <body>
 <div th:replace="common/fragments :: header"></div>
-<div style="width: 100%; min-height: 800px; display: flex; flex-direction: row; justify-content: center; align-items: center; padding-top: 10px;">
-    <div style="width: 1000px; min-height: 1200px; padding: 12px; background-color: white; border: solid 1px rgba(0, 0, 0, 0.17); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: start;">
-        <div style="width: 960px; height: 300px; display: flex; flex-direction: column; align-items: start; justify-content: start;">
-            <div style="width: 100%; height: 140px; display: flex; flex-direction: row;">
-                <div style="width: 125px; height: 125px; border-radius: 10px;">
-                    <img th:src="@{/image/profile/{iconId}(iconId=${search.summoner.profileIconId})}" style="width: 100%; height: 100%; border-radius: 10px;">
+<div class="row justify-content-center align-items-start" style="width: 100%; min-height: 800px; padding-top: 10px; gap: 10px;">
+    <div class="col-md-2" style="height: 100px; border-radius: 10px;"></div>
+    <div class="col-md-4" style="width: 1000px; min-height: 800px; border-radius: 10px; background-color: white; border: solid 1px rgba(0, 0, 0, 0.17); display: flex; flex-direction: row; justify-content: center; align-items: center; padding-top: 12px;">
+        <div style="width: 100%; min-height: 1200px; display: flex; flex-direction: column; align-items: center; justify-content: start;">
+            <div style="width: 100%; height: 300px; display: flex; flex-direction: column; align-items: start; justify-content: start;">
+                <div style="width: 100%; height: 140px; display: flex; flex-direction: row;">
+                    <div style="width: 125px; height: 125px; border-radius: 10px;">
+                        <img th:src="@{/image/profile/{iconId}(iconId=${search.summoner.profileIconId})}" style="width: 100%; height: 100%; border-radius: 10px;">
+                    </div>
+                    <div style="width: 775px; height: 125px; display: flex; flex-direction: column; align-items: start; justify-content: start; padding-left: 16px;">
+                        <div style="width: 100%; height: 100%;">
+                            <span th:text="${search.account.gameName}" style="font-size: 26px; font-weight: 700;"></span>
+                            <span th:text="${'#' + search.account.tagLine}" style="font-size: 16px; font-weight: 400;"></span><br/>
+                            <span th:text="${'레벨: ' + search.summoner.summonerLevel}" style="font-size: 13px; font-weight: 500;"></span>
+                        </div>
+                        <div style="width: 100%; height: 100%; display: flex; flex-direction: row; align-items: center; justify-content: start;">
+                            <form id="refresh-form" th:action="@{/kr/search/refresh}" method="get" th:attr="data-last-refresh=${search.account.lastRefreshDateTimeRaw}" style="display:inline;">
+                                <input type="hidden" name="query" th:value="${search.account.gameName}" />
+                                <input type="hidden" name="puuid" th:value="${search.account.puuid}" />
+                                <button type="submit" class="btn btn-outline-secondary">전적갱신</button>
+                            </form>
+                            <span th:text="${'마지막 갱신일: ' + search.account.lastRefreshDateTime}" style="font-size: 12px; font-weight: 400; padding-left: 12px;"></span>
+                        </div>
+                    </div>
                 </div>
-                <div style="width: 775px; height: 125px; display: flex; flex-direction: column; align-items: start; justify-content: start; padding-left: 16px;">
-                    <div style="width: 100%; height: 100%;">
-                        <span th:text="${search.account.gameName}" style="font-size: 26px; font-weight: 700;"></span>
-                        <span th:text="${'#' + search.account.tagLine}" style="font-size: 16px; font-weight: 400;"></span><br/>
-                        <span th:text="${'레벨: ' + search.summoner.summonerLevel}" style="font-size: 13px; font-weight: 500;"></span>
-                    </div>
-                    <div style="width: 100%; height: 100%; display: flex; flex-direction: row; align-items: center; justify-content: start;">
-                        <form id="refresh-form" th:action="@{/kr/search/refresh}" method="get" th:attr="data-last-refresh=${search.account.lastRefreshDateTimeRaw}" style="display:inline;">
-                            <input type="hidden" name="query" th:value="${search.account.gameName}" />
-                            <input type="hidden" name="puuid" th:value="${search.account.puuid}" />
-                            <button type="submit" class="btn btn-outline-secondary">전적갱신</button>
-                        </form>
-                        <span th:text="${'마지막 갱신일: ' + search.account.lastRefreshDateTime}" style="font-size: 12px; font-weight: 400; padding-left: 12px;"></span>
-                    </div>
+                <div style="width:100%; height:150px; display:flex; align-items:center; justify-content:center;">
+                    <div th:replace="common/fragments :: rank(leagueEntry = ${search.leagueEntrySet.?[queueType=='RANKED_SOLO_5x5']}, title = '랭크 개인/2인')"></div>
+                    <div th:replace="common/fragments :: rank(leagueEntry = ${search.leagueEntrySet.?[queueType=='RANKED_FLEX_SR']}, title = '랭크 자유 대전')"></div>
                 </div>
             </div>
-            <div style="width:100%; height:150px; display:flex; align-items:center; justify-content:center;">
-                <div th:replace="common/fragments :: rank(leagueEntry = ${search.leagueEntrySet.?[queueType=='RANKED_SOLO_5x5']}, title = '랭크 개인/2인')"></div>
-                <div th:replace="common/fragments :: rank(leagueEntry = ${search.leagueEntrySet.?[queueType=='RANKED_FLEX_SR']}, title = '랭크 자유 대전')"></div>
+            <div class="match-list-div" style="width: 100%; min-height: 150px;">
+                <div id="match-list-container"
+                     th:attr="data-puuid=${search.account.puuid}">
+                    <div th:replace="common/fragments :: matchItems(${search.matchList}, ${search.account.puuid})"></div>
+                </div>
+                <div id="load-more" class="btn btn-outline-primary"
+                     style="width:100%; text-align:center; margin:10px 0; cursor:pointer;">
+                    더보기
+                </div>
             </div>
         </div>
-        <div class="match-list-div" style="width: 100%; min-height: 150px;">
-            <div id="match-list-container"
-                 th:attr="data-puuid=${search.account.puuid}">
-                <div th:replace="common/fragments :: matchItems(${search.matchList}, ${search.account.puuid})"></div>
-            </div>
-            <div id="load-more" class="btn btn-outline-primary"
-                 style="width:100%; text-align:center; margin:10px 0; cursor:pointer;">
-                더보기
-            </div>
-        </div>
+    </div>
+    <div class="col-md-2" style="min-height: 100px; border-radius: 10px; background-color: white; border: solid 1px rgba(0, 0, 0, 0.17);">
+        <div th:replace="common/fragments :: recentSearch(recentSearchList = ${recentSearch})"></div>
     </div>
 </div>
 

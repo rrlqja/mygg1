@@ -64,17 +64,17 @@ public class InfoDto {
         this.queueId = info.getQueueId();
 
         this.maxDealt = info.getParticipants().stream()
-                .mapToInt(Participant::getTotalDamageDealt)
+                .mapToInt(Participant::getTotalDamageDealtToChampions)
                 .max().orElse(1);
 
         this.maxTaken = info.getParticipants().stream()
-                .mapToInt(Participant::getTotalDamageTaken)
+                .mapToInt(Participant::getTotalDamageDealtToChampions)
                 .max().orElse(1);
 
         this.participants = info.getParticipants().stream()
                 .map(ParticipantDto::new)
                 .map(p -> {
-                    p.setDealtPercent(p.getTotalDamageDealt() * 100.0 / maxDealt);
+                    p.setDealtPercent(p.getTotalDamageDealtToChampions() * 100.0 / maxDealt);
                     p.setTakenPercent(p.getTotalDamageTaken() * 100.0 / maxTaken);
                     return p;
                 })

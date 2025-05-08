@@ -1,4 +1,4 @@
-package song.mygg1.domain.riot.service;
+package song.mygg1.domain.riot.service.match;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,7 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import song.mygg1.domain.common.exception.riot.match.exceptions.MatchNotFoundException;
 import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.entity.match.Matches;
-import song.mygg1.domain.riot.repository.MatchJpaRepository;
+import song.mygg1.domain.riot.repository.match.MatchJpaRepository;
+import song.mygg1.domain.riot.service.ApiService;
 
 import java.util.List;
 import java.util.Map;

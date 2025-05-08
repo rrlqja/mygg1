@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import song.mygg1.domain.riot.service.champion.ChampionService;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor
 public class ImageService {
     private final DataDragonService dataDragonService;
+    private final ChampionService championService;
     @Value("${ddragon.path}")
     private Path ddragonPath;
 
@@ -45,11 +47,13 @@ public class ImageService {
         );
     }
 
-    public UrlResource getChampion(String champName) throws IOException {
+    public UrlResource getChampion(Long championKey) throws IOException {
+        String championId = championService.getChampionId(championKey);
+        log.info("championId: {}", championId);
         return loadImage(
                 "champion",
-                champName + ".png",
-                () -> dataDragonService.getChampionIcon(champName)
+                championId + ".png",
+                () -> dataDragonService.getChampionIcon(championId)
         );
     }
 

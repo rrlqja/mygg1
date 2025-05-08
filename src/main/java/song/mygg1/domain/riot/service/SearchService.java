@@ -9,6 +9,10 @@ import song.mygg1.domain.riot.entity.account.Account;
 import song.mygg1.domain.riot.entity.league.LeagueEntry;
 import song.mygg1.domain.riot.entity.match.Matches;
 import song.mygg1.domain.riot.entity.summoner.Summoner;
+import song.mygg1.domain.riot.service.account.AccountService;
+import song.mygg1.domain.riot.service.league.LeagueService;
+import song.mygg1.domain.riot.service.match.MatchService;
+import song.mygg1.domain.riot.service.summoner.SummonerService;
 
 import java.util.List;
 import java.util.Set;

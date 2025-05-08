@@ -17,15 +17,20 @@ import org.springframework.web.client.RestTemplate;
 import song.mygg1.domain.common.exception.MyggException;
 import song.mygg1.domain.common.exception.riot.riotapi.RiotApiException;
 import song.mygg1.domain.riot.dto.account.AccountDto;
+import song.mygg1.domain.riot.dto.champion.ChampionRotationsDto;
 import song.mygg1.domain.riot.dto.league.LeagueEntryDto;
+import song.mygg1.domain.riot.dto.league.LeagueListDto;
+import song.mygg1.domain.riot.dto.champion.ChampionMasteryDto;
 import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.dto.summoner.SummonerDto;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -71,6 +76,21 @@ public class ApiService {
         );
     }
 
+    public Optional<JsonNode> getChampionJson(String version) {
+        return doExchange(
+                riotDataDragonUrl,
+                GET_CHAMPION_JSON.getPath(),
+                HttpMethod.GET,
+                JsonNode.class,
+                Map.of("version", version)
+        );
+    }
+
+    public ChampionRotationsDto getChampionRotations(String version) {
+        return doExchange(riotKrUrl, GET_CHAMPION_ROTATIONS.getPath(), HttpMethod.GET, ChampionRotationsDto.class, Map.of())
+                .orElseThrow(RiotApiException::new);
+    }
+
     public Optional<byte[]> getSpellIcon(String version, int spellId) {
         Optional<JsonNode> optionalSummoner = doExchange(
                 riotDataDragonUrl,
@@ -84,25 +104,25 @@ public class ApiService {
         }
 
         JsonNode dataNode = optionalSummoner.get().get("data");
-        String group = null, icon = null;
+        String group = null, full = null;
         for (Iterator<Map.Entry<String, JsonNode>> it = dataNode.fields(); it.hasNext(); ) {
             JsonNode node = it.next().getValue();
             if (node.get("key").asInt() == spellId) {
                 JsonNode image = node.get("image");
                 group = image.get("group").asText();
-                icon  = image.get("full").asText();
+                full  = image.get("full").asText();
                 break;
             }
         }
-        if (group == null || icon == null) {
+        if (group == null || full == null) {
             return Optional.empty();
         }
 
         return fetchIcon(
-                GET_SPELL_ICON.getPath(),
+                GET_ICON.getPath(),
                 Map.of("version", version,
                         "group",   group,
-                        "full",    icon)
+                        "full",    full)
         );
     }
 
@@ -151,6 +171,10 @@ public class ApiService {
         return doExchange(riotKrUrl, GET_SUMMONER.getPath(), HttpMethod.GET, SummonerDto.class, Map.of("puuid", puuid));
     }
 
+    public Optional<SummonerDto> getSummonerBySummonerId(String summonerId) {
+        return doExchange(riotKrUrl, GET_SUMMONER_BY_SUMMONER_ID.getPath(), HttpMethod.GET, SummonerDto.class, Map.of("summonerId", summonerId));
+    }
+
     public Set<LeagueEntryDto> getLeagueEntry(String puuid) {
         ParameterizedTypeReference<List<LeagueEntryDto>> typeRef = new ParameterizedTypeReference<>() {};
 
@@ -158,6 +182,16 @@ public class ApiService {
                 .orElseGet(List::of);
 
         return new HashSet<>(leagueEntryList);
+    }
+
+    public Optional<LeagueListDto> getLeagueList(String queue) {
+        return doExchange(riotKrUrl, GET_LEAGUE_LIST.getPath(), HttpMethod.GET, LeagueListDto.class, Map.of("queue", queue));
+    }
+
+    public List<ChampionMasteryDto> getChampionMastery(String puuid, Integer count) {
+        ParameterizedTypeReference<List<ChampionMasteryDto>> typeRef = new ParameterizedTypeReference<>() {};
+        return doExchange(riotKrUrl, GET_CHAMPION_MASTERY_TOP_BY_PUUID.getPath(), HttpMethod.GET, typeRef, Map.of("puuid", puuid, "count", count))
+                .orElseGet(ArrayList::new);
     }
 
     private HttpEntity<Object> getHttpEntity() {
@@ -185,9 +219,9 @@ public class ApiService {
         } catch (HttpClientErrorException.NotFound e) {
             return Optional.empty();
         } catch (RestClientException e) {
-            throw new RiotApiException("잘못된 요청입니다.");
+            throw new RiotApiException("잘못된 요청입니다.", e);
         } catch (Exception e) {
-            throw new MyggException("예상하지 못한 오류가 발생하였습니다.");
+            throw new MyggException("예상하지 못한 오류가 발생하였습니다.", e);
         }
     }
 
