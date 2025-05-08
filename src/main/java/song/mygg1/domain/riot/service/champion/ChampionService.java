@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import song.mygg1.domain.common.exception.riot.champion.ChampionNotFoundException;
 import song.mygg1.domain.common.exception.riot.riotapi.RiotApiException;
 import song.mygg1.domain.common.service.DataDragonService;
+import song.mygg1.domain.riot.dto.champion.ChampionDto;
 import song.mygg1.domain.riot.entity.champion.Champion;
 import song.mygg1.domain.riot.repository.champion.ChampionJpaRepository;
 import song.mygg1.domain.riot.service.ApiService;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -54,5 +56,11 @@ public class ChampionService {
                 .orElseThrow(ChampionNotFoundException::new);
 
         return champion.getId();
+    }
+
+    public List<ChampionDto> getChampion(List<Long> championIdList) {
+        List<Champion> championList = championRepository.findChampionByKeyIn(championIdList);
+
+        return championList.stream().map(ChampionDto::new).toList();
     }
 }

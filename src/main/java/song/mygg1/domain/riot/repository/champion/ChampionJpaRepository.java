@@ -6,6 +6,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import song.mygg1.domain.riot.entity.champion.Champion;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -14,4 +16,9 @@ public interface ChampionJpaRepository extends JpaRepository<Champion, Long> {
             " from Champion c " +
             "where c.key = :key ")
     Optional<Champion> findChampionByKey(@Param("key") Long key);
+
+    @Query("select c " +
+            " from Champion c " +
+            "where c.key in :keys")
+    List<Champion> findChampionByKeyIn(@Param("keys") Collection<Long> keys);
 }

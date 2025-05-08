@@ -82,14 +82,16 @@ public class RedisService {
         redis.expire(key, Duration.ofDays(7L));
     }
 
-    public List<String> getFreeChampion() {
+    public List<Long> getFreeChampion() {
         String key = "rotation:freeChampion";
-        return redis.opsForList().range(key, 0, -1);
+        List<String> value = redis.opsForList().range(key, 0, -1);
+        return value.stream().map(Long::valueOf).toList();
     }
 
-    public List<String> getFreeChampionForNewP() {
+    public List<Long> getFreeChampionForNewP() {
         String key = "rotation:freeChampion:forNewP";
-        return redis.opsForList().range(key, 0, -1);
+        List<String> value = redis.opsForList().range(key, 0, -1);
+        return value.stream().map(Long::valueOf).toList();
     }
 
     public LeagueListDto setChallengerLeague() {

@@ -40,7 +40,7 @@ public class ParticipantDto {
 
     private String puuid;
     private String riotIdGameName;
-    private String riotIdTagLine;
+    private String riotIdTagline;
 
     private String summonerId;
 
@@ -64,7 +64,7 @@ public class ParticipantDto {
     public Participant toEntity(Info info) {
         return Participant.create(participantId, assists, deaths, kills, champLevel, championId, championName, summonerName, win, teamId,
                 totalDamageDealt, totalDamageDealtToChampions, totalDamageTaken, totalHeal, totalHealsOnTeammates, totalMinionsKilled,
-                item0, item1, item2, item3, item4, item5, item6, puuid, riotIdGameName, riotIdTagLine, summonerId,
+                item0, item1, item2, item3, item4, item5, item6, puuid, riotIdGameName, riotIdTagline, summonerId,
                 info, goldEarned, goldSpent, visionScore, visionWardsBoughtInGame, wardsKilled, wardsPlaced,
                 summoner1Id, summoner2Id);
     }
@@ -95,7 +95,7 @@ public class ParticipantDto {
         this.item6 = participant.getItem6();
         this.puuid = participant.getPuuid();
         this.riotIdGameName = participant.getRiotIdGameName();
-        this.riotIdTagLine = participant.getRiotIdTagLine();
+        this.riotIdTagline = participant.getRiotIdTagline();
         this.summonerId = participant.getSummonerId();
         this.goldEarned = participant.getGoldEarned();
         this.goldSpent = participant.getGoldSpent();

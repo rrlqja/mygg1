@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import song.mygg1.domain.redis.service.RedisService;
 import song.mygg1.domain.riot.dto.league.LeagueItemSummonerDto;
+import song.mygg1.domain.riot.service.champion.ChampionService;
 import song.mygg1.domain.riot.service.league.LeagueItemService;
 
 import java.util.List;
@@ -20,13 +21,19 @@ import java.util.List;
 public class HomeController {
     private final RedisService redisService;
     private final LeagueItemService leagueItemService;
+    private final ChampionService championService;
 
     @GetMapping("/")
     public String getHome(HttpSession session,
                           Model model) {
         model.addAttribute("recentSearch", redisService.getRecentSearch(session.getId()));
-        model.addAttribute("freeChampion", redisService.getFreeChampion());
-        model.addAttribute("freeChampionForN", redisService.getFreeChampionForNewP());
+
+        model.addAttribute("freeChampion", championService.getChampion(
+                redisService.getFreeChampion())
+        );
+        model.addAttribute("freeChampionForN", championService.getChampion(
+                redisService.getFreeChampionForNewP())
+        );
 
         List<LeagueItemSummonerDto> leagueItemList = leagueItemService.getLeagueItemList(
                 redisService.getChallengerLeagueBySummonerId()

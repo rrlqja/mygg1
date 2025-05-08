@@ -51,7 +51,7 @@ public class Participant {
 
     private String puuid;
     private String riotIdGameName;
-    private String riotIdTagLine;
+    private String riotIdTagline;
 
     private String summonerId;
 
@@ -69,13 +69,13 @@ public class Participant {
                                      String summonerName, Boolean win, Integer teamId, Integer totalDamageDealt, Integer totalDamageDealtToChampions,
                                      Integer totalDamageTaken, Integer totalHeal, Integer totalHealsOnTeammates, Integer totalMinionsKilled,
                                      Integer item0, Integer item1, Integer item2, Integer item3, Integer item4, Integer item5, Integer item6,
-                                     String puuid, String riotIdGameName, String riotIdTagLine, String summonerId,
+                                     String puuid, String riotIdGameName, String riotIdTagline, String summonerId,
                                      Info info, Integer goldEarned, Integer goldSpent,
                                      Integer visionScore, Integer visionWardsBoughtInGame, Integer wardsKilled, Integer wardsPlaced,
                                      Integer summoner1Id, Integer summoner2Id) {
         return new Participant(participantId, assists, deaths, kills, championLevel, championId, championName, summonerName, win, teamId, totalDamageDealt,
                 totalDamageDealtToChampions, totalDamageTaken, totalHeal, totalHealsOnTeammates, totalMinionsKilled,
-                item0, item1, item2, item3, item4, item5, item6, puuid, riotIdGameName, riotIdTagLine, summonerId,
+                item0, item1, item2, item3, item4, item5, item6, puuid, riotIdGameName, riotIdTagline, summonerId,
                 info, goldEarned, goldSpent, visionScore, visionWardsBoughtInGame, wardsKilled, wardsPlaced,
                 summoner1Id, summoner2Id);
     }
@@ -84,7 +84,7 @@ public class Participant {
                         String summonerName, Boolean win, Integer teamId, Integer totalDamageDealt, Integer totalDamageDealtToChampions,
                         Integer totalDamageTaken, Integer totalHeal, Integer totalHealsOnTeammates, Integer totalMinionsKilled,
                         Integer item0, Integer item1, Integer item2, Integer item3, Integer item4, Integer item5, Integer item6,
-                        String puuid, String riotIdGameName, String riotIdTagLine, String summonerId,
+                        String puuid, String riotIdGameName, String riotIdTagline, String summonerId,
                         Info info, Integer goldEarned, Integer goldSpent,
                         Integer visionScore, Integer visionWardsBoughtInGame, Integer wardsKilled, Integer wardsPlaced,
                         Integer summoner1Id, Integer summoner2Id) {
@@ -115,7 +115,7 @@ public class Participant {
 
         this.puuid = puuid;
         this.riotIdGameName = riotIdGameName;
-        this.riotIdTagLine = riotIdTagLine;
+        this.riotIdTagline = riotIdTagline;
         this.summonerId = summonerId;
 
         this.info = info;
