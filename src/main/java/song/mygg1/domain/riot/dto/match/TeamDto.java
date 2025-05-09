@@ -18,7 +18,7 @@ public class TeamDto {
     }
 
     public TeamDto(Team team) {
-        this.teamId = team.getTeamId();
+        this.teamId = team.getId().getTeamId();
         this.win = team.isWin();
     }
 }

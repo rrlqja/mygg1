@@ -16,10 +16,11 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Account {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+//    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
+    @Id
     private String puuid;
+
     private String gameName;
     private String tagLine;
 

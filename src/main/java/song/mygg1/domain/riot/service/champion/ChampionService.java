@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -28,7 +27,7 @@ public class ChampionService {
     private final ApiService apiService;
 
     @Transactional
-    public void getChampionList() {
+    public void setChampionList() {
         JsonNode root = apiService.getChampionJson(dataDragonService.getVersion())
                 .orElseThrow(RiotApiException::new);
 

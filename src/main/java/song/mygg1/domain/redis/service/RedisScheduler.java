@@ -1,6 +1,5 @@
 package song.mygg1.domain.redis.service;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -13,12 +12,6 @@ import song.mygg1.domain.riot.dto.league.LeagueListDto;
 @RequiredArgsConstructor
 public class RedisScheduler {
     private final RedisService redisService;
-
-    @PostConstruct
-    public void initRedis() {
-        setChampionRotation();
-        setChallengerLeague();
-    }
 
     @Scheduled(cron = "0 0 12 * * TUE", zone = "Asia/Seoul")
     public void setChampionRotation() {

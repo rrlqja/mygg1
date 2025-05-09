@@ -1,8 +1,9 @@
 package song.mygg1.domain.riot.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.RequiredArgsConstructor;
+import io.github.bucket4j.Bucket;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -25,12 +26,10 @@ import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.dto.summoner.SummonerDto;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -39,7 +38,6 @@ import static song.mygg1.domain.riot.entity.RiotDataDragonEndpoint.*;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ApiService {
     @Value("${api.riot.api-key}")
     private String riotApiKey;
@@ -51,9 +49,27 @@ public class ApiService {
     private String riotDataDragonUrl;
 
     private final RestTemplate restTemplate;
+    private final Bucket baseBucket;
+    private final Bucket rotationLimiter;
+    private final Bucket accountLimiter;
+    private final Bucket summonerLimiter;
+    private final Bucket leagueLimiter;
+    private final Bucket matchLimiter;
+
+    public ApiService(RestTemplate restTemplate, @Qualifier("baseLimiter") Bucket baseBucket, @Qualifier("rotationLimiter") Bucket rotationLimiter,
+                      @Qualifier("accountLimiter") Bucket accountLimiter, @Qualifier("summonerLimiter") Bucket summonerLimiter,
+                      @Qualifier("leagueLimiter") Bucket leagueLimiter, @Qualifier("matchLimiter") Bucket matchLimiter) {
+        this.baseBucket = baseBucket;
+        this.rotationLimiter = rotationLimiter;
+        this.restTemplate = restTemplate;
+        this.accountLimiter = accountLimiter;
+        this.summonerLimiter = summonerLimiter;
+        this.leagueLimiter = leagueLimiter;
+        this.matchLimiter = matchLimiter;
+    }
 
     public Optional<String[]> getDataDragonVersions() {
-        return doExchange(riotDataDragonUrl, GET_DATA_DRAGON_VERSION.getPath(), HttpMethod.GET, String[].class, Map.of());
+        return doExchange(baseBucket, riotDataDragonUrl, GET_DATA_DRAGON_VERSION.getPath(), HttpMethod.GET, String[].class, Map.of());
     }
 
     public Optional<byte[]> getProfileIcon(String version, int iconId) {
@@ -78,6 +94,7 @@ public class ApiService {
 
     public Optional<JsonNode> getChampionJson(String version) {
         return doExchange(
+                baseBucket,
                 riotDataDragonUrl,
                 GET_CHAMPION_JSON.getPath(),
                 HttpMethod.GET,
@@ -87,12 +104,13 @@ public class ApiService {
     }
 
     public ChampionRotationsDto getChampionRotations(String version) {
-        return doExchange(riotKrUrl, GET_CHAMPION_ROTATIONS.getPath(), HttpMethod.GET, ChampionRotationsDto.class, Map.of())
+        return doExchange(baseBucket, riotKrUrl, GET_CHAMPION_ROTATIONS.getPath(), HttpMethod.GET, ChampionRotationsDto.class, Map.of())
                 .orElseThrow(RiotApiException::new);
     }
 
     public Optional<byte[]> getSpellIcon(String version, int spellId) {
         Optional<JsonNode> optionalSummoner = doExchange(
+                baseBucket,
                 riotDataDragonUrl,
                 GET_SUMMONER_JSON.getPath(),
                 HttpMethod.GET,
@@ -129,6 +147,7 @@ public class ApiService {
     private Optional<byte[]> fetchIcon(String path, Map<String, ?> uriVars) {
         try {
             return doExchange(
+                    baseBucket,
                     riotDataDragonUrl,
                     path,
                     HttpMethod.GET,
@@ -142,55 +161,55 @@ public class ApiService {
     }
 
     public Optional<AccountDto> getAccount(String gameName, String tagLine) {
-        return doExchange(riotAsiaUrl, GET_ACCOUNT.getPath(), HttpMethod.GET, AccountDto.class, Map.of("gameName", gameName, "tagLine", tagLine));
+        return doExchange(baseBucket, riotAsiaUrl, GET_ACCOUNT.getPath(), HttpMethod.GET, AccountDto.class, Map.of("gameName", gameName, "tagLine", tagLine));
     }
 
     public Optional<AccountDto> getAccount(String puuid) {
-        return doExchange(riotAsiaUrl, GET_ACCOUNT_BY_PUUID.getPath(), HttpMethod.GET, AccountDto.class, Map.of("puuid", puuid));
+        return doExchange(baseBucket, riotAsiaUrl, GET_ACCOUNT_BY_PUUID.getPath(), HttpMethod.GET, AccountDto.class, Map.of("puuid", puuid));
     }
 
     public List<String> getMatches(String puuid, Integer start, Integer count) {
         ParameterizedTypeReference<List<String>> typeRef = new ParameterizedTypeReference<>() {};
 
-        return doExchange(riotAsiaUrl, GET_MATCHES.getPath(), HttpMethod.GET, typeRef, Map.of("puuid", puuid, "start", start, "count", count))
+        return doExchange(baseBucket, riotAsiaUrl, GET_MATCHES.getPath(), HttpMethod.GET, typeRef, Map.of("puuid", puuid, "start", start, "count", count))
                 .orElseGet(ArrayList::new);
     }
 
     public List<String> getMatches(String puuid) {
         ParameterizedTypeReference<List<String>> typeRef = new ParameterizedTypeReference<>() {};
 
-        return doExchange(riotAsiaUrl, GET_MATCHES.getPath(), HttpMethod.GET, typeRef, Map.of("puuid", puuid, "start", 0, "count", 20))
+        return doExchange(baseBucket, riotAsiaUrl, GET_MATCHES.getPath(), HttpMethod.GET, typeRef, Map.of("puuid", puuid, "start", 0, "count", 20))
                 .orElseGet(ArrayList::new);
     }
 
     public Optional<MatchDto> getMatchDetail(String matchId) {
-        return doExchange(riotAsiaUrl, GET_MATCH.getPath(), HttpMethod.GET, MatchDto.class, Map.of("matchId", matchId));
+        return doExchange(baseBucket, riotAsiaUrl, GET_MATCH.getPath(), HttpMethod.GET, MatchDto.class, Map.of("matchId", matchId));
     }
 
     public Optional<SummonerDto> getSummoner(String puuid) {
-        return doExchange(riotKrUrl, GET_SUMMONER.getPath(), HttpMethod.GET, SummonerDto.class, Map.of("puuid", puuid));
+        return doExchange(baseBucket, riotKrUrl, GET_SUMMONER.getPath(), HttpMethod.GET, SummonerDto.class, Map.of("puuid", puuid));
     }
 
     public Optional<SummonerDto> getSummonerBySummonerId(String summonerId) {
-        return doExchange(riotKrUrl, GET_SUMMONER_BY_SUMMONER_ID.getPath(), HttpMethod.GET, SummonerDto.class, Map.of("summonerId", summonerId));
+        return doExchange(baseBucket, riotKrUrl, GET_SUMMONER_BY_SUMMONER_ID.getPath(), HttpMethod.GET, SummonerDto.class, Map.of("summonerId", summonerId));
     }
 
     public Set<LeagueEntryDto> getLeagueEntry(String puuid) {
         ParameterizedTypeReference<List<LeagueEntryDto>> typeRef = new ParameterizedTypeReference<>() {};
 
-        List<LeagueEntryDto> leagueEntryList = doExchange(riotKrUrl, GET_LEAGUE_ENTRY.getPath(), HttpMethod.GET, typeRef, Map.of("puuid", puuid))
+        List<LeagueEntryDto> leagueEntryList = doExchange(baseBucket, riotKrUrl, GET_LEAGUE_ENTRY.getPath(), HttpMethod.GET, typeRef, Map.of("puuid", puuid))
                 .orElseGet(List::of);
 
         return new HashSet<>(leagueEntryList);
     }
 
     public Optional<LeagueListDto> getLeagueList(String queue) {
-        return doExchange(riotKrUrl, GET_LEAGUE_LIST.getPath(), HttpMethod.GET, LeagueListDto.class, Map.of("queue", queue));
+        return doExchange(baseBucket, riotKrUrl, GET_LEAGUE_LIST.getPath(), HttpMethod.GET, LeagueListDto.class, Map.of("queue", queue));
     }
 
     public List<ChampionMasteryDto> getChampionMastery(String puuid, Integer count) {
         ParameterizedTypeReference<List<ChampionMasteryDto>> typeRef = new ParameterizedTypeReference<>() {};
-        return doExchange(riotKrUrl, GET_CHAMPION_MASTERY_TOP_BY_PUUID.getPath(), HttpMethod.GET, typeRef, Map.of("puuid", puuid, "count", count))
+        return doExchange(baseBucket, riotKrUrl, GET_CHAMPION_MASTERY_TOP_BY_PUUID.getPath(), HttpMethod.GET, typeRef, Map.of("puuid", puuid, "count", count))
                 .orElseGet(ArrayList::new);
     }
 
@@ -205,8 +224,10 @@ public class ApiService {
         return headers;
     }
 
-    private <T> Optional<T> doExchange(String baseUrl, String endPoint, HttpMethod method, ParameterizedTypeReference<T> type, Map<String, ?> param) {
+    private <T> Optional<T> doExchange(Bucket bucket, String baseUrl, String endPoint, HttpMethod method, ParameterizedTypeReference<T> type, Map<String, ?> param) {
         try {
+            bucket.asBlocking().consume(1);
+
             ResponseEntity<T> response = restTemplate.exchange(
                     baseUrl + endPoint,
                     method,
@@ -218,6 +239,9 @@ public class ApiService {
             return Optional.ofNullable(response.getBody());
         } catch (HttpClientErrorException.NotFound e) {
             return Optional.empty();
+        } catch (IllegalArgumentException e) {
+            log.error(e.getMessage(), e);
+            return Optional.empty();
         } catch (RestClientException e) {
             throw new RiotApiException("잘못된 요청입니다.", e);
         } catch (Exception e) {
@@ -225,8 +249,10 @@ public class ApiService {
         }
     }
 
-    private <T> Optional<T> doExchange(String baseUrl, String endPoint, HttpMethod method, Class<T> type, Map<String, ?> param) {
+    private <T> Optional<T> doExchange(Bucket bucket, String baseUrl, String endPoint, HttpMethod method, Class<T> type, Map<String, ?> param) {
         try {
+            bucket.asBlocking().consume(1);
+
             ResponseEntity<T> response = restTemplate.exchange(
                     baseUrl + endPoint,
                     method,

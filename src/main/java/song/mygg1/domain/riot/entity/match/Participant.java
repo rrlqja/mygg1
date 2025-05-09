@@ -1,5 +1,6 @@
 package song.mygg1.domain.riot.entity.match;
 
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -7,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,14 +19,16 @@ import lombok.ToString;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Participant {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+//    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
+    @EmbeddedId
+    private ParticipantId id;
 
+    @MapsId("infoId")
     @JoinColumn(name = "info_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Info info;
 
-    private Integer participantId;
     private Integer assists;
     private Integer deaths;
     private Integer kills;
@@ -88,7 +92,7 @@ public class Participant {
                         Info info, Integer goldEarned, Integer goldSpent,
                         Integer visionScore, Integer visionWardsBoughtInGame, Integer wardsKilled, Integer wardsPlaced,
                         Integer summoner1Id, Integer summoner2Id) {
-        this.participantId = participantId;
+        this.id = new ParticipantId(info.getGameId(), participantId);
         this.assists = assists;
         this.deaths = deaths;
         this.kills = kills;

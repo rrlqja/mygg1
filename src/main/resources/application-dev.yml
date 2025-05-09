@@ -9,6 +9,7 @@ spring:
     password: ENC(ql2W2noMkt+b/il6+6aVv/PNmXs/2JE8)
   jpa:
     hibernate:
+#      ddl-auto: create
       ddl-auto: update
 
 jasypt:

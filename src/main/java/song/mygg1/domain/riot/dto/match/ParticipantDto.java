@@ -13,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ParticipantDto {
+    private Long infoId;
     private Integer participantId;
     private Integer assists;
     private Integer deaths;
@@ -70,7 +71,8 @@ public class ParticipantDto {
     }
 
     public ParticipantDto(Participant participant) {
-        this.participantId = participant.getParticipantId();
+        this.infoId = participant.getId().getInfoId();
+        this.participantId = participant.getId().getParticipantId();
         this.assists = participant.getAssists();
         this.deaths = participant.getDeaths();
         this.kills = participant.getKills();

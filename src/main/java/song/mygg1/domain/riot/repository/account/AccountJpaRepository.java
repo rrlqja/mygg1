@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface AccountJpaRepository extends JpaRepository<Account, Long> {
+public interface AccountJpaRepository extends JpaRepository<Account, String> {
     @Query("select a " +
             " from Account a " +
             "where a.gameName = :gameName " +
