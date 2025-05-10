@@ -5,106 +5,70 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import song.mygg1.domain.common.exception.riot.match.exceptions.MatchNotFoundException;
+import song.mygg1.domain.redis.service.CacheService;
 import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.entity.match.Matches;
+import song.mygg1.domain.riot.mapper.match.MatchMapper;
 import song.mygg1.domain.riot.repository.match.MatchJpaRepository;
 import song.mygg1.domain.riot.service.ApiService;
 
+import java.time.Duration;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class MatchService {
+    private final CacheService<MatchDto> CacheService;
     private final MatchJpaRepository matchRepository;
     private final ApiService apiService;
+    private final MatchMapper matchMapper;
 
-    @Transactional
-    public List<Matches> getMatchList(String puuid, Integer start, Integer count) {
-        List<String> matchIdList = apiService.getMatches(puuid, start, count);
+    private static final Duration MATCH_DETAIL_TTL = Duration.ofMinutes(10);
 
-        List<Matches> matchesList = matchRepository.findMatchesByMatchIdIn(matchIdList);
-
-        Set<String> existingMatchIdList = matchesList.stream()
-                .map(Matches::getMatchId)
-                .collect(Collectors.toSet());
-
-        List<String> missingMatchIdList = matchIdList.stream()
-                .filter(matchId -> !existingMatchIdList.contains(matchId))
-                .toList();
-
-        List<Matches> missingMatchesList = missingMatchIdList.stream()
-                .map(apiService::getMatchDetail)
-                .flatMap(Optional::stream)
-                .map(MatchDto::toEntity)
-                .toList();
-
-        matchRepository.saveAll(missingMatchesList);
-
-        Map<String, Matches> matchMap = Stream.concat(matchesList.stream(), missingMatchesList.stream())
-                .collect(Collectors.toMap(Matches::getMatchId, Function.identity()));
-
-        return matchIdList.stream()
-                .map(matchMap::get)
-                .toList();
-    }
-
-    @Transactional
+    @Transactional(readOnly = true)
     public MatchDto getMatchDetail(String matchId, String puuid) {
-        Matches match = matchRepository.findMatchesByMatchId(matchId)
+        String key = "match:detail:" + matchId;
+
+        return CacheService.getOrLoad(
+                key,
+                () -> matchMapper.toDto(getOrFetchMatch(matchId), puuid),
+                MATCH_DETAIL_TTL
+        );
+    }
+
+    private Matches getOrFetchMatch(String matchId) {
+        return matchRepository.findMatchesByMatchId(matchId)
                 .orElseGet(() -> {
-                    MatchDto matchDto = apiService.getMatchDetail(matchId)
+                    MatchDto dto = apiService.getMatchDetail(matchId)
                             .orElseThrow(MatchNotFoundException::new);
-
-                    return matchRepository.save(matchDto.toEntity());
+                    return matchRepository.save(matchMapper.toEntity(dto));
                 });
+    }
 
-        return new MatchDto(match, puuid);
+    @Transactional(readOnly = true)
+    public List<MatchDto> getMatchList(String puuid, int start, int count) {
+        List<String> matchIds = apiService.getMatches(puuid, start, count);
+        return matchIds.stream()
+                .map(id -> getMatchDetail(id, puuid))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<MatchDto> getMoreMatchList(String puuid, int start, int count) {
+        return getMatchList(puuid, start, count);
     }
 
     @Transactional
-    public List<MatchDto> getMoreMatchList(String puuid, Integer start, Integer count) {
-        List<Matches> matchList = getMatchList(puuid, start, count);
+    public List<MatchDto> refreshMatchList(String puuid, int start, int count) {
+        List<String> matchIds = apiService.getMatches(puuid, start, count);
 
-        return matchList.stream()
-                .map(m->new MatchDto(m, puuid))
-                .toList();
-    }
-
-    @Transactional
-    public List<Matches> refreshMatchList(String puuid, Integer start, Integer count) {
-        List<String> latestMatchList = apiService.getMatches(puuid, start, count);
-
-        List<Matches> existMatchList = matchRepository.findMatchesByMatchIdIn(latestMatchList);
-
-        List<String> existMatchIdList = existMatchList
-                .stream()
-                .map(m -> m.getMetadata().getMatchId())
-                .toList();
-
-        List<String> newMatchId = latestMatchList.stream()
-                .filter(lm -> !existMatchIdList.contains(lm))
-                .toList();
-
-        List<Matches> newMatchList = newMatchId.stream()
-                .map(apiService::getMatchDetail)
-                .flatMap(Optional::stream)
-                .map(MatchDto::toEntity)
-                .toList();
-
-        matchRepository.saveAll(newMatchList);
-
-        Map<String, Matches> matchMap = Stream.concat(existMatchList.stream(), newMatchList.stream())
-                .collect(Collectors.toMap(Matches::getMatchId, Function.identity()));
-
-        return latestMatchList.stream()
-                .map(matchMap::get)
+        return matchIds.stream()
+                .map(id -> {
+                    CacheService.evict("match:detail:" + id);
+                    return getMatchDetail(id, puuid);
+                })
                 .toList();
     }
 }

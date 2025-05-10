@@ -56,6 +56,6 @@ public class LeagueItem {
 
     private void setLeagueList(LeagueList leagueList) {
         this.leagueList = leagueList;
-        leagueList.getEntries().add(this);
+        leagueList.addEntry(this);
     }
 }

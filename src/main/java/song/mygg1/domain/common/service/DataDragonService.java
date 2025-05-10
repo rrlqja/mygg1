@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import song.mygg1.domain.common.exception.MyggException;
 import song.mygg1.domain.common.exception.riot.riotapi.RiotApiException;
-import song.mygg1.domain.riot.dto.champion.ChampionRotationsDto;
 import song.mygg1.domain.riot.service.ApiService;
 
 import java.io.IOException;
@@ -68,9 +67,5 @@ public class DataDragonService {
                         throw new MyggException(e.getMessage(), e);
                     }
                 });
-    }
-
-    public ChampionRotationsDto getChampionRotations() {
-        return apiService.getChampionRotations(version);
     }
 }

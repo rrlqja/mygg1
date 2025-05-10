@@ -1,11 +1,9 @@
 package song.mygg1.domain.riot.entity.match;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
@@ -19,11 +17,10 @@ import lombok.ToString;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Team {
-//    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
     @EmbeddedId
     private TeamId id;
 
+    @JsonIgnore
     @MapsId("infoId")
     @JoinColumn(name = "info_id")
     @ManyToOne(fetch = FetchType.LAZY)

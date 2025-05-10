@@ -28,7 +28,8 @@
         <div th:replace="common/fragments :: leagueList(leagueItemList = ${leagueItemList}, title = '소환사 랭킹' , subTitle = '챌린저 리그')"></div>
     </div>
     <div class="col-md-4" style="width: 1000px; min-height: 800px; border-radius: 10px; background-color: white; border: solid 1px rgba(0, 0, 0, 0.17); display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; padding-top: 12px; gap: 10px;">
-        <div style="width: 100%; min-height: 100px; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; border-radius: 8px; background-color: red;">
+        <div style="width: 100%; min-height: 100px; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; border-radius: 8px;">
+            <canvas  id="chartContainer" style="height: 300px; width: 100%;"></canvas >
         </div>
         <div style="width: 100%; min-height: 100px; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; border-radius: 8px; gap: 10px;">
             <div th:replace="common/fragments :: rotationChampions(rotationChampions=${freeChampion}, title='- 로테이션 챔피언')"></div>
@@ -40,5 +41,38 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var labels  = /*[[${winRate.![date]}]]*/ [];
+    var dataSet = /*[[${winRate.![winRate]}]]*/ [];
+    const minVal = Math.min(...dataSet);
+    const maxVal = Math.max(...dataSet);
+    const padding = 3;
+
+    var ctx = document.getElementById('chartContainer');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '승률(%)',
+                data: dataSet,
+                fill: false,
+                tension: 0.1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    min: Math.max(0, minVal - padding),
+                    max: Math.min(100, maxVal + padding)
+                }
+            }
+        }
+    });
+    /*]]>*/
+</script>
 </body>
 </html>

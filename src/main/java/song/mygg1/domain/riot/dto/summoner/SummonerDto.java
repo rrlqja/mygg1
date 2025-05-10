@@ -19,13 +19,4 @@ public class SummonerDto {
     public Summoner toEntity() {
         return Summoner.create(id, accountId, puuid, profileIconId, revisionDate, summonerLevel);
     }
-
-    public SummonerDto(Summoner summoner) {
-        this.id = summoner.getId();
-        this.accountId = summoner.getAccountId();
-        this.puuid = summoner.getPuuid();
-        this.profileIconId = summoner.getProfileIconId();
-        this.revisionDate = summoner.getRevisionDate();
-        this.summonerLevel = summoner.getSummonerLevel();
-    }
 }

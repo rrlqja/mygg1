@@ -3,8 +3,6 @@ package song.mygg1.domain.riot.dto.match;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import song.mygg1.domain.riot.entity.match.Info;
-import song.mygg1.domain.riot.entity.match.Participant;
 
 import java.util.Arrays;
 import java.util.List;
@@ -62,63 +60,28 @@ public class ParticipantDto {
     private double dealtPercent;
     private double takenPercent;
 
-    public Participant toEntity(Info info) {
-        return Participant.create(participantId, assists, deaths, kills, champLevel, championId, championName, summonerName, win, teamId,
-                totalDamageDealt, totalDamageDealtToChampions, totalDamageTaken, totalHeal, totalHealsOnTeammates, totalMinionsKilled,
-                item0, item1, item2, item3, item4, item5, item6, puuid, riotIdGameName, riotIdTagline, summonerId,
-                info, goldEarned, goldSpent, visionScore, visionWardsBoughtInGame, wardsKilled, wardsPlaced,
-                summoner1Id, summoner2Id);
-    }
-
-    public ParticipantDto(Participant participant) {
-        this.infoId = participant.getId().getInfoId();
-        this.participantId = participant.getId().getParticipantId();
-        this.assists = participant.getAssists();
-        this.deaths = participant.getDeaths();
-        this.kills = participant.getKills();
-        this.champLevel = participant.getChampLevel();
-        this.championId = participant.getChampionId();
-        this.championName = participant.getChampionName();
-        this.summonerName = participant.getSummonerName();
-        this.win = participant.getWin();
-        this.teamId = participant.getTeamId();
-        this.totalDamageDealt = participant.getTotalDamageDealt();
-        this.totalDamageDealtToChampions = participant.getTotalDamageDealtToChampions();
-        this.totalDamageTaken = participant.getTotalDamageTaken();
-        this.totalHeal = participant.getTotalHeal();
-        this.totalHealsOnTeammates = participant.getTotalHealsOnTeammates();
-        this.totalMinionsKilled = participant.getTotalMinionsKilled();
-        this.item0 = participant.getItem0();
-        this.item1 = participant.getItem1();
-        this.item2 = participant.getItem2();
-        this.item3 = participant.getItem3();
-        this.item4 = participant.getItem4();
-        this.item5 = participant.getItem5();
-        this.item6 = participant.getItem6();
-        this.puuid = participant.getPuuid();
-        this.riotIdGameName = participant.getRiotIdGameName();
-        this.riotIdTagline = participant.getRiotIdTagline();
-        this.summonerId = participant.getSummonerId();
-        this.goldEarned = participant.getGoldEarned();
-        this.goldSpent = participant.getGoldSpent();
-        this.visionScore = participant.getVisionScore();
-        this.visionWardsBoughtInGame = participant.getVisionWardsBoughtInGame();
-        this.wardsKilled = participant.getWardsKilled();
-        this.wardsPlaced = participant.getWardsPlaced();
-        this.summoner1Id = participant.getSummoner1Id();
-        this.summoner2Id = participant.getSummoner2Id();
-
-        this.kda            = participant.getKills() + " / " + participant.getDeaths() + " / " + participant.getAssists();
-        this.kdaAvg         = String.format("%.2f", (participant.getKills() + participant.getAssists()) / (double) participant.getDeaths());
-    }
-
     public List<Integer> getItemList() {
         return Arrays.asList(item0, item1, item2, item3, item4, item5);
+    }
+
+    public void setItemList(List<Integer> itemList) {
+        this.item0 = (itemList != null && itemList.size() > 0) ? itemList.get(0) : null;
+        this.item1 = (itemList != null && itemList.size() > 1) ? itemList.get(1) : null;
+        this.item2 = (itemList != null && itemList.size() > 2) ? itemList.get(2) : null;
+        this.item3 = (itemList != null && itemList.size() > 3) ? itemList.get(3) : null;
+        this.item4 = (itemList != null && itemList.size() > 4) ? itemList.get(4) : null;
+        this.item5 = (itemList != null && itemList.size() > 5) ? itemList.get(5) : null;
     }
 
     public List<Integer> getSummonerIdList() {
         return Arrays.asList(summoner1Id, summoner2Id);
     }
+
+    public void setSummonerIdList(List<Integer> summonerIdList) {
+        this.summoner1Id = (summoner2Id != null && summonerIdList.size() > 0) ? summonerIdList.get(0) : null;
+        this.summoner1Id = (summoner2Id != null && summonerIdList.size() > 1) ? summonerIdList.get(1) : null;
+    }
+
     public void setDealtPercent(double dealtPercent) {
         this.dealtPercent = dealtPercent;
     }

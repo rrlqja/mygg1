@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.TestPropertySource;
+import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.entity.match.Matches;
 import song.mygg1.domain.riot.service.match.MatchService;
 
@@ -28,7 +29,7 @@ class MatchesServiceTest {
     @Rollback(value = false)
     @Test
     void getMatches() throws JsonProcessingException {
-        List<Matches> matchesList = matchService.getMatchList("RcyPGGrO09p4HXbXvOD8kG41bjIAfkLvlHQVy3XzFHk7avTsxtsmYqGnng40x3yQ-ph4Zb3qOax8CA", 0, 10);
+        List<MatchDto> matchesList = matchService.getMatchList("RcyPGGrO09p4HXbXvOD8kG41bjIAfkLvlHQVy3XzFHk7avTsxtsmYqGnng40x3yQ-ph4Zb3qOax8CA", 0, 10);
         String res = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(matchesList);
         log.info(res);
     }

@@ -54,6 +54,8 @@ dependencies {
 //	implementation 'com.google.guava:guava:33.4.8-jre'
 //	implementation 'io.github.resilience4j:resilience4j-all:2.2.0'
 	implementation 'com.bucket4j:bucket4j_jdk17-core:8.14.0'
+
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
 	}
 
 tasks.named('test') {

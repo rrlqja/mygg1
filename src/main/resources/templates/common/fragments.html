@@ -169,7 +169,7 @@
         </div>
 
         <div style="width: 110px; height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-left: 1px solid black; border-right: 1px solid black; line-height: 70px;">
-            <div th:text="${match.info.getGameDuration()}" style="width: 100%; height: 100%;"></div>
+            <div th:text="|${T(java.lang.Math).floorDiv(match.info.gameDuration, 60)}분 ${T(java.lang.Math).floorMod(match.info.gameDuration, 60)}초|" style="width: 100%; height: 100%;"></div>
         </div>
 
         <div class="match-toggle" th:attr="data-match-id=${match.metadata.matchId}, data-puuid=${puuid}" style="">

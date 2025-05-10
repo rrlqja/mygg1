@@ -7,7 +7,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import song.mygg1.domain.common.exception.riot.account.exceptions.AccountNotFoundException;
 import song.mygg1.domain.common.exception.riot.account.exceptions.CannotRefreshAccountException;
+import song.mygg1.domain.redis.service.CacheService;
 import song.mygg1.domain.riot.dto.account.AccountDto;
+import song.mygg1.domain.riot.mapper.account.AccountMapper;
 import song.mygg1.domain.riot.repository.account.AccountJpaRepository;
 import song.mygg1.domain.riot.entity.account.Account;
 import song.mygg1.domain.riot.service.ApiService;
@@ -23,11 +25,25 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AccountService {
+    private final CacheService<AccountDto> cacheService;
     private final AccountJpaRepository accountRepository;
     private final ApiService apiService;
+    private final AccountMapper accountMapper;
+
+    private static final Duration ACCOUNT_TTL = Duration.ofHours(6);
 
     @Transactional
-    public Account findAccountByGameNameAndTagLine(String gameName, String tagLine) {
+    public AccountDto findAccountByGameNameAndTagLine(String gameName, String tagLine) {
+        String key = "account:gameName:" + gameName + "#" + tagLine;
+
+        return cacheService.getOrLoad(
+                key,
+                () -> accountMapper.toDto(getOrFetchAccount(gameName, tagLine)),
+                ACCOUNT_TTL
+        );
+    }
+
+    private Account getOrFetchAccount(String gameName, String tagLine) {
         return accountRepository.findAccountByGameNameAndTagLine(gameName, tagLine)
                 .orElseGet(() -> {
                     AccountDto accountDto = apiService.getAccount(gameName, tagLine)
@@ -35,12 +51,14 @@ public class AccountService {
                                 log.warn("Riot Api: {}#{} 유저를 찾을 수 없습니다.", gameName, tagLine);
                                 return new AccountNotFoundException("사용자를 찾을 수 없습니다.");
                             });
-                    return accountRepository.save(accountDto.toEntity());
+                    Account entity = accountMapper.toEntity(accountDto);
+
+                    return accountRepository.save(entity);
                 });
     }
 
     @Transactional
-    public Account refreshAccount(String puuid) {
+    public AccountDto refreshAccount(String puuid) {
         AccountDto puuidAccount = apiService.getAccount(puuid)
                 .orElseThrow(AccountNotFoundException::new);
 
@@ -52,7 +70,13 @@ public class AccountService {
         }
 
         account.update(puuidAccount.getGameName(), puuidAccount.getTagLine());
-        return accountRepository.save(account);
+        Account updated = accountRepository.save(account);
+
+        String key = "account:gameName:" + updated.getGameName() + "#" + updated.getTagLine();
+        AccountDto dto = accountMapper.toDto(updated);
+        cacheService.put(key, dto, ACCOUNT_TTL);
+
+        return dto;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -72,7 +96,7 @@ public class AccountService {
                 .toList();
 
         List<Account> fetchedEntities = fetchDtoList.stream()
-                .map(AccountDto::toEntity)
+                .map(accountMapper::toEntity)
                 .toList();
 
         List<Account> saved = accountRepository.saveAll(fetchedEntities);

@@ -1,13 +1,11 @@
 package song.mygg1.domain.riot.dto.match;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import song.mygg1.domain.riot.entity.QueueType;
-import song.mygg1.domain.riot.entity.match.Info;
-import song.mygg1.domain.riot.entity.match.Participant;
-import song.mygg1.domain.riot.entity.match.Team;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,66 +33,7 @@ public class InfoDto {
     private Integer maxDealt;
     private Integer maxTaken;
 
-    public Info toEntity() {
-        Info info = Info.create(gameId, endOfGameResult, gameMode, gameName, gameStartTimestamp, gameType, gameVersion, queueId,
-                gameCreation, gameDuration, gameEndTimestamp);
-
-        List<Participant> participantList = participants.stream()
-                .map(participantDto -> participantDto.toEntity(info))
-                .toList();
-
-        List<Team> teamList = teams.stream()
-                .map(teamDto -> teamDto.toEntity(info))
-                .toList();
-
-        info.setParticipants(participantList);
-        info.setTeams(teamList);
-
-        return info;
-    }
-
-    public InfoDto(Info info) {
-        this.gameId = info.getGameId();
-        this.endOfGameResult = info.getEndOfGameResult();
-        this.gameMode = info.getGameMode();
-        this.gameName = info.getGameName();
-        this.gameStartTimestamp = info.getGameStartTimestamp();
-        this.gameType = info.getGameType();
-        this.gameVersion = info.getGameVersion();
-        this.queueId = info.getQueueId();
-
-        this.maxDealt = info.getParticipants().stream()
-                .mapToInt(Participant::getTotalDamageDealtToChampions)
-                .max().orElse(1);
-
-        this.maxTaken = info.getParticipants().stream()
-                .mapToInt(Participant::getTotalDamageDealtToChampions)
-                .max().orElse(1);
-
-        this.participants = info.getParticipants().stream()
-                .map(ParticipantDto::new)
-                .map(p -> {
-                    p.setDealtPercent(p.getTotalDamageDealtToChampions() * 100.0 / maxDealt);
-                    p.setTakenPercent(p.getTotalDamageTaken() * 100.0 / maxTaken);
-                    return p;
-                })
-                .toList();
-
-        this.teams = info.getTeams().stream()
-                .map(TeamDto::new)
-                .toList();
-
-        this.gameCreation = info.getGameCreation();
-        this.gameDuration = info.getGameDuration();
-        this.gameEndTimestamp = info.getGameEndTimestamp();
-    }
-
-    public String getGameDuration() {
-        long minutes = gameDuration / 60;
-        long seconds = gameDuration % 60;
-        return String.format("%d분 %d초", minutes, seconds);
-    }
-
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getQueueType() {
         return QueueType.fromId(queueId).getDisplayName();
     }

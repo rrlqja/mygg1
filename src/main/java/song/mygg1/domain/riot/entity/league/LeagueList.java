@@ -36,4 +36,8 @@ public class LeagueList {
         this.queue = queue;
         this.name = name;
     }
+
+    public void addEntry(LeagueItem item) {
+        this.entries.add(item);
+    }
 }

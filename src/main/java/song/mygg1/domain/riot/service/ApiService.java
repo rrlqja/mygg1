@@ -103,7 +103,7 @@ public class ApiService {
         );
     }
 
-    public ChampionRotationsDto getChampionRotations(String version) {
+    public ChampionRotationsDto getChampionRotations() {
         return doExchange(baseBucket, riotKrUrl, GET_CHAMPION_ROTATIONS.getPath(), HttpMethod.GET, ChampionRotationsDto.class, Map.of())
                 .orElseThrow(RiotApiException::new);
     }
