@@ -36,7 +36,8 @@ public class HomeController {
         model.addAttribute("leagueItemList", leagueItemService.getLeagueItemList(leagueService.getChallengerLeague()));
         model.addAttribute("leagueItemList", leagueItemService.getLeagueItemList(leagueService.getGrandmasterLeague()));
 
-        model.addAttribute("winRate", participantService.getChampionWinRatePerDate("Ezreal"));
+        model.addAttribute("dailyWinRateList", participantService.getWinRateDaily());
+        model.addAttribute("weeklyWinRateList", participantService.getWinRateWeekly());
 
         return "common/home";
     }

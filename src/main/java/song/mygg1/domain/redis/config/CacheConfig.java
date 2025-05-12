@@ -15,8 +15,9 @@ import song.mygg1.domain.riot.dto.champion.ChampionRotationsDto;
 import song.mygg1.domain.riot.dto.league.LeagueEntryDto;
 import song.mygg1.domain.riot.dto.league.LeagueItemSummonerDto;
 import song.mygg1.domain.riot.dto.league.LeagueListDto;
-import song.mygg1.domain.riot.dto.match.ChampionWinRatePerDateDto;
+import song.mygg1.domain.riot.dto.match.participant.ChampionWinRatePerDateDto;
 import song.mygg1.domain.riot.dto.match.MatchDto;
+import song.mygg1.domain.riot.dto.match.participant.WinRateDto;
 import song.mygg1.domain.riot.dto.summoner.SummonerDto;
 
 import java.util.List;
@@ -33,6 +34,17 @@ public class CacheConfig {
     ) {
         JavaType type = mapper.getTypeFactory()
                 .constructCollectionType(List.class, ChampionWinRatePerDateDto.class);
+
+        return new BaseCacheService<>(redis, mapper, type);
+    }
+
+    @Bean
+    public CacheService<List<WinRateDto>> winRateDailyCacheService(
+            StringRedisTemplate redis,
+            ObjectMapper mapper
+    ) {
+        JavaType type = mapper.getTypeFactory()
+                .constructCollectionType(List.class, WinRateDto.class);
 
         return new BaseCacheService<>(redis, mapper, type);
     }

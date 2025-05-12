@@ -1,4 +1,4 @@
-package song.mygg1.domain.riot.dto.match;
+package song.mygg1.domain.riot.dto.match.participant;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

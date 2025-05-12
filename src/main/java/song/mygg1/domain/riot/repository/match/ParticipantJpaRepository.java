@@ -1,10 +1,12 @@
 package song.mygg1.domain.riot.repository.match;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import song.mygg1.domain.riot.dto.match.ChampionWinRatePerDateDto;
+import song.mygg1.domain.riot.dto.match.participant.ChampionWinRatePerDateDto;
+import song.mygg1.domain.riot.dto.match.participant.WinRateDto;
 import song.mygg1.domain.riot.entity.match.Participant;
 import song.mygg1.domain.riot.entity.match.ParticipantId;
 
@@ -12,7 +14,7 @@ import java.util.List;
 
 @Repository
 public interface ParticipantJpaRepository extends JpaRepository<Participant, ParticipantId> {
-    @Query("select new song.mygg1.domain.riot.dto.match.ChampionWinRatePerDateDto( " +
+    @Query("select new song.mygg1.domain.riot.dto.match.participant.ChampionWinRatePerDateDto( " +
             " date(from_unixtime(i.gameCreation / 1000)), " +
             " p.championName, " +
             " count(p), " +
@@ -29,4 +31,27 @@ public interface ParticipantJpaRepository extends JpaRepository<Participant, Par
     List<ChampionWinRatePerDateDto> findChampionDailyWinRate(@Param("championName") String championName,
                                                              @Param("start") Long start,
                                                              @Param("end") Long end);
+
+    @Query("select new song.mygg1.domain.riot.dto.match.participant.WinRateDto( " +
+            " p.championName, " +
+            " p.championId, " +
+            " sum(case when date(from_unixtime(i.gameCreation / 1000)) = :date then 1 else 0 end), " +
+            " sum(case when date(from_unixtime(i.gameCreation / 1000)) = :date and p.win = true then 1 else 0 end), " +
+            " round((sum(case when date(from_unixtime(i.gameCreation / 1000)) = :date and p.win = true then 1 else 0 end) * 100.0) " +
+            "   / nullif(sum(case when date(from_unixtime(i.gameCreation / 1000)) = :date then 1 else 0 end), 0), 2), " +
+            " sum(case when date(from_unixtime(i.gameCreation / 1000)) = :prevDate then 1 else 0 end), " +
+            " sum(case when date(from_unixtime(i.gameCreation / 1000)) = :prevDate and p.win = true then 1 else 0 end), " +
+            " round((sum(case when date(from_unixtime(i.gameCreation / 1000)) = :prevDate and p.win = true then 1 else 0 end) * 100.0) " +
+            "   / nullif(sum(case when date(from_unixtime(i.gameCreation / 1000)) = :prevDate then 1 else 0 end), 0), 2) " +
+            ") " +
+            "  from Participant p " +
+            "  join p.info i" +
+            " group by p.championName, p.championId " +
+            "having sum(case when date(from_unixtime(i.gameCreation / 1000)) = :date then 1 else 0 end) > 0 " +
+            "    or sum(case when date(from_unixtime(i.gameCreation / 1000)) = :prevDate then 1 else 0 end) > 0 " +
+            " order by 3 desc")
+    List<WinRateDto> findWinRateList(@Param("date") Long date,
+                                     @Param("prevDate") Long prevDate,
+                                     Pageable pageable
+    );
 }
