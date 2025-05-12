@@ -8,6 +8,7 @@ import song.mygg1.domain.riot.entity.league.LeagueItem;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface LeagueItemJpaRepository extends JpaRepository<LeagueItem, String> {
@@ -15,4 +16,9 @@ public interface LeagueItemJpaRepository extends JpaRepository<LeagueItem, Strin
             " from LeagueItem li " +
             "where li.summonerId in :summonerIds")
     List<LeagueItem> findLeagueItemsBySummonerIdIn(@Param("summonerIds") Collection<String> summonerIds);
+
+    @Query("select li " +
+            " from LeagueItem li " +
+            "where li.summonerId = :summonerId")
+    Optional<LeagueItem> findLeagueItemBySummonerId(@Param("summonerId") String summonerId);
 }

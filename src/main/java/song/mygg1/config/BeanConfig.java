@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
@@ -15,6 +16,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -50,7 +52,16 @@ public class BeanConfig {
 
     @Bean
     public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory cf) {
-        return new StringRedisTemplate(cf);
+        StringRedisTemplate template = new StringRedisTemplate(cf);
+        StringRedisSerializer utf8 = new StringRedisSerializer(StandardCharsets.UTF_8);
+
+        template.setKeySerializer(utf8);
+        template.setValueSerializer(utf8);
+        template.setHashKeySerializer(utf8);
+        template.setHashValueSerializer(utf8);
+
+        template.afterPropertiesSet();
+        return template;
     }
 
     private void disabledSSL() throws NoSuchAlgorithmException, KeyManagementException {

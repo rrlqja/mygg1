@@ -3,9 +3,11 @@ package song.mygg1.domain.riot.service.match;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import song.mygg1.domain.common.exception.riot.match.exceptions.MatchNotFoundException;
 import song.mygg1.domain.redis.service.CacheService;
+import song.mygg1.domain.redis.service.match.MatchCacheLimiterService;
 import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.entity.match.Matches;
 import song.mygg1.domain.riot.mapper.match.MatchMapper;
@@ -20,22 +22,27 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class MatchService {
-    private final CacheService<MatchDto> CacheService;
+    private final CacheService<MatchDto> cacheService;
+    private final MatchCacheLimiterService cacheLimiterService;
     private final MatchJpaRepository matchRepository;
     private final ApiService apiService;
     private final MatchMapper matchMapper;
 
     private static final Duration MATCH_DETAIL_TTL = Duration.ofMinutes(10);
 
-    @Transactional(readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public MatchDto getMatchDetail(String matchId, String puuid) {
         String key = "match:detail:" + matchId;
 
-        return CacheService.getOrLoad(
+        MatchDto dto = cacheService.getOrLoad(
                 key,
                 () -> matchMapper.toDto(getOrFetchMatch(matchId), puuid),
                 MATCH_DETAIL_TTL
         );
+
+//        cacheLimiterService.trackAndTrim(key);
+
+        return dto;
     }
 
     private Matches getOrFetchMatch(String matchId) {
@@ -43,11 +50,12 @@ public class MatchService {
                 .orElseGet(() -> {
                     MatchDto dto = apiService.getMatchDetail(matchId)
                             .orElseThrow(MatchNotFoundException::new);
-                    return matchRepository.save(matchMapper.toEntity(dto));
+                    Matches entity = matchMapper.toEntity(dto);
+                    return matchRepository.save(entity);
                 });
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<MatchDto> getMatchList(String puuid, int start, int count) {
         List<String> matchIds = apiService.getMatches(puuid, start, count);
         return matchIds.stream()
@@ -55,18 +63,19 @@ public class MatchService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<MatchDto> getMoreMatchList(String puuid, int start, int count) {
         return getMatchList(puuid, start, count);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<MatchDto> refreshMatchList(String puuid, int start, int count) {
         List<String> matchIds = apiService.getMatches(puuid, start, count);
 
         return matchIds.stream()
                 .map(id -> {
-                    CacheService.evict("match:detail:" + id);
+                    log.info("refreshMatchList: {}", id);
+                    cacheService.evict("match:detail:" + id);
                     return getMatchDetail(id, puuid);
                 })
                 .toList();

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RequiredArgsConstructor
 public class BaseCacheService<T> implements CacheService<T> {
-    private final RedisTemplate<String, String> redis;
+    private final StringRedisTemplate redis;
     private final ObjectMapper mapper;
     private final JavaType type;
 

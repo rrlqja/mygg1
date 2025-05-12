@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import song.mygg1.domain.common.exception.riot.league.exceptions.LeagueListNotFoundException;
 import song.mygg1.domain.redis.service.CacheService;
@@ -23,7 +24,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -41,7 +44,7 @@ public class LeagueService {
     private static final Duration LEAGUE_ENTRY_TTL = Duration.ofHours(1);
     private static final Duration LEAGUE_LIST_TTL = Duration.ofHours(24);
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Set<LeagueEntryDto> getLeague(String puuid) {
         String key = "league:entry:puuid:" + puuid;
 
@@ -67,7 +70,7 @@ public class LeagueService {
         );
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Set<LeagueEntryDto> refreshLeague(String puuid) {
         Set<LeagueEntry> puuidLeagueSet = leagueEntryRepository.findLeagueEntriesById_Puuid(puuid);
         Map<String, LeagueEntry> existingByQueue = puuidLeagueSet.stream()
@@ -110,29 +113,55 @@ public class LeagueService {
         return updateSet;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public LeagueListDto getChallengerLeague() {
-        String key = "league:challenger";
+        return getLeague("league:challenger", () ->
+                apiService.getChallengerLeagueList(LeagueQueue.RANKED_SOLO_5x5.getQueue())
+        );
+    }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public LeagueListDto getGrandmasterLeague() {
+        return getLeague("league:grandmaster", () ->
+                apiService.getGrandmasterLeagueList(LeagueQueue.RANKED_SOLO_5x5.getQueue())
+        );
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public LeagueListDto getMasterLeague() {
+        return getLeague("league:master", () ->
+                apiService.getMasterLeagueList(LeagueQueue.RANKED_SOLO_5x5.getQueue())
+        );
+    }
+
+    private LeagueListDto getLeague(String cacheKey,
+                                    Supplier<Optional<LeagueListDto>> apiCall) {
         return leagueListCacheService.getOrLoad(
-                key,
+                cacheKey,
                 () -> {
-                    LeagueListDto dto = apiService.getLeagueList(LeagueQueue.RANKED_SOLO_5x5.getQueue())
+                    LeagueListDto dto = apiCall.get()
                             .orElseThrow(LeagueListNotFoundException::new);
-
                     LeagueList entity = leagueListMapper.toEntity(dto);
                     LeagueList saved = leagueListRepository.save(entity);
-
                     return leagueListMapper.toDto(saved);
-                    },
+                },
                 LEAGUE_LIST_TTL
         );
     }
 
     @Scheduled(cron="0 0 0 * * ?")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void refreshChallengerLeague() {
         String key = "league:challenger";
         leagueListCacheService.evict(key);
         getChallengerLeague();
+    }
+
+    @Scheduled(cron="0 0 0 * * ?")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void refreshGrandmasterLeague() {
+        String key = "league:grandmaster";
+        leagueListCacheService.evict(key);
+        getGrandmasterLeague();
     }
 }

@@ -50,7 +50,6 @@ public class ParticipantDto {
     private Integer wardsKilled;
     private Integer wardsPlaced;
 
-    private String summonerBaseUrl = "/image/champion/";
     private Integer summoner1Id;
     private Integer summoner2Id;
 
@@ -78,8 +77,8 @@ public class ParticipantDto {
     }
 
     public void setSummonerIdList(List<Integer> summonerIdList) {
-        this.summoner1Id = (summoner2Id != null && summonerIdList.size() > 0) ? summonerIdList.get(0) : null;
-        this.summoner1Id = (summoner2Id != null && summonerIdList.size() > 1) ? summonerIdList.get(1) : null;
+        this.summoner1Id = (summoner1Id != null && summonerIdList.size() > 0) ? summonerIdList.get(0) : null;
+        this.summoner2Id = (summoner2Id != null && summonerIdList.size() > 1) ? summonerIdList.get(1) : null;
     }
 
     public void setDealtPercent(double dealtPercent) {

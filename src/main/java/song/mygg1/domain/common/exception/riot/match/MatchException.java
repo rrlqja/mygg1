@@ -1,8 +1,8 @@
 package song.mygg1.domain.common.exception.riot.match;
 
-import song.mygg1.domain.common.exception.MyggException;
+import song.mygg1.domain.common.exception.riot.SearchException;
 
-public class MatchException extends MyggException {
+public class MatchException extends SearchException {
     public MatchException() {
         super("Match Exception");
     }

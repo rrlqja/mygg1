@@ -5,11 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import song.mygg1.domain.redis.service.BaseCacheService;
 import song.mygg1.domain.redis.service.CacheService;
 import song.mygg1.domain.riot.dto.account.AccountDto;
 import song.mygg1.domain.riot.dto.champion.ChampionDto;
+import song.mygg1.domain.riot.dto.champion.ChampionMasteryDto;
 import song.mygg1.domain.riot.dto.champion.ChampionRotationsDto;
 import song.mygg1.domain.riot.dto.league.LeagueEntryDto;
 import song.mygg1.domain.riot.dto.league.LeagueItemSummonerDto;
@@ -27,7 +28,7 @@ public class CacheConfig {
 
     @Bean
     public CacheService<List<ChampionWinRatePerDateDto>> championWinRateCacheService(
-            RedisTemplate<String, String> redis,
+            StringRedisTemplate redis,
             ObjectMapper mapper
     ) {
         JavaType type = mapper.getTypeFactory()
@@ -38,7 +39,7 @@ public class CacheConfig {
 
     @Bean
     public CacheService<AccountDto> accountCacheService(
-            RedisTemplate<String, String> redis,
+            StringRedisTemplate redis,
             ObjectMapper mapper
     ) {
         JavaType type = mapper.getTypeFactory()
@@ -49,7 +50,7 @@ public class CacheConfig {
 
     @Bean
     public CacheService<SummonerDto> summonerCacheService(
-            RedisTemplate<String, String> redis,
+            StringRedisTemplate redis,
             ObjectMapper mapper
     ) {
         JavaType type = mapper.getTypeFactory()
@@ -60,7 +61,7 @@ public class CacheConfig {
 
     @Bean
     public CacheService<Set<LeagueEntryDto>> leagueEntrySetCacheService(
-            RedisTemplate<String, String> redis,
+            StringRedisTemplate redis,
             ObjectMapper mapper
     ) {
         JavaType type = mapper.getTypeFactory()
@@ -71,7 +72,7 @@ public class CacheConfig {
 
     @Bean
     public CacheService<LeagueListDto> leagueListCacheService(
-            RedisTemplate<String, String> redis,
+            StringRedisTemplate redis,
             ObjectMapper mapper
     ) {
         JavaType type = mapper.getTypeFactory()
@@ -82,7 +83,7 @@ public class CacheConfig {
 
     @Bean
     public CacheService<MatchDto> matchCacheService(
-            RedisTemplate<String,String> redis,
+            StringRedisTemplate redis,
             ObjectMapper mapper
     ) {
         JavaType type = mapper.getTypeFactory()
@@ -93,7 +94,7 @@ public class CacheConfig {
 
     @Bean
     public CacheService<String> searchCacheService(
-            RedisTemplate<String, String> redis,
+            StringRedisTemplate redis,
             ObjectMapper mapper
     ) {
         JavaType type = mapper.getTypeFactory()
@@ -104,7 +105,7 @@ public class CacheConfig {
 
     @Bean
     public CacheService<ChampionDto> championCacheService(
-            RedisTemplate<String, String> redis,
+            StringRedisTemplate redis,
             ObjectMapper mapper
     ) {
         JavaType type = mapper.getTypeFactory()
@@ -115,7 +116,7 @@ public class CacheConfig {
 
     @Bean
     public CacheService<ChampionRotationsDto> rotationCacheService(
-            RedisTemplate<String,String> redis,
+            StringRedisTemplate redis,
             ObjectMapper mapper
     ) {
         JavaType type = mapper.getTypeFactory()
@@ -125,12 +126,23 @@ public class CacheConfig {
     }
 
     @Bean
-    public CacheService<List<LeagueItemSummonerDto>> leagueItemCacheService(
-            RedisTemplate<String,String> redis,
+    public CacheService<LeagueItemSummonerDto> leagueItemCacheService(
+            StringRedisTemplate redis,
             ObjectMapper mapper
     ) {
         JavaType type = mapper.getTypeFactory()
-                .constructCollectionType(List.class, LeagueItemSummonerDto.class);
+                .constructType(LeagueItemSummonerDto.class);
+
+        return new BaseCacheService<>(redis, mapper, type);
+    }
+
+    @Bean
+    public CacheService<ChampionMasteryDto> championMasterCacheService(
+            StringRedisTemplate redis,
+            ObjectMapper mapper
+    ) {
+        JavaType type = mapper.getTypeFactory()
+                .constructType(ChampionMasteryDto.class);
 
         return new BaseCacheService<>(redis, mapper, type);
     }

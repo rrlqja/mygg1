@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import song.mygg1.domain.common.exception.riot.champion.ChampionNotFoundException;
+import song.mygg1.domain.common.exception.riot.champion.exceptons.ChampionNotFoundException;
 import song.mygg1.domain.common.exception.riot.riotapi.RiotApiException;
 import song.mygg1.domain.common.service.DataDragonService;
 import song.mygg1.domain.redis.service.CacheService;

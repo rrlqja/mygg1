@@ -3,8 +3,8 @@ package song.mygg1.domain.riot.service.match;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import song.mygg1.domain.redis.service.BaseCacheService;
 import song.mygg1.domain.redis.service.CacheService;
 import song.mygg1.domain.riot.dto.match.ChampionWinRatePerDateDto;
 import song.mygg1.domain.riot.repository.match.ParticipantJpaRepository;
@@ -25,7 +25,7 @@ public class ParticipantService {
 
     private static final Duration WIN_RATE_PER_DATE_TTL = Duration.ofDays(1L);
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<ChampionWinRatePerDateDto> getChampionWinRatePerDate(String championName) {
         String key = "champion:winRatePerDate:" + championName;
 

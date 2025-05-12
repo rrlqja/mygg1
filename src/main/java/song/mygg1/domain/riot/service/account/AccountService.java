@@ -32,7 +32,7 @@ public class AccountService {
 
     private static final Duration ACCOUNT_TTL = Duration.ofHours(6);
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public AccountDto findAccountByGameNameAndTagLine(String gameName, String tagLine) {
         String key = "account:gameName:" + gameName + "#" + tagLine;
 
@@ -57,7 +57,7 @@ public class AccountService {
                 });
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public AccountDto refreshAccount(String puuid) {
         AccountDto puuidAccount = apiService.getAccount(puuid)
                 .orElseThrow(AccountNotFoundException::new);
@@ -103,5 +103,24 @@ public class AccountService {
 
         existingAccountList.addAll(saved);
         return existingAccountList;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public AccountDto findAccountByPuuid(String puuid) {
+        String key = "account:puuid:" + puuid;
+
+        return cacheService.getOrLoad(
+                key,
+                () -> {
+                    Account entity = accountRepository.findAccountByPuuid(puuid)
+                            .orElseGet(() -> {
+                                AccountDto dto = apiService.getAccount(puuid)
+                                        .orElseThrow(AccountNotFoundException::new);
+                                return accountRepository.save(accountMapper.toEntity(dto));
+                            });
+                    return accountMapper.toDto(entity);
+                },
+                ACCOUNT_TTL
+        );
     }
 }

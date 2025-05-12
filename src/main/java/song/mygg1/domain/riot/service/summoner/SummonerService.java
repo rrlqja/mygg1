@@ -81,7 +81,7 @@ public class SummonerService {
         return existingSummoerList;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public SummonerDto refreshSummoner(String puuid) {
         SummonerDto puuidSummoner = apiService.getSummoner(puuid)
                 .orElseThrow(SummonerNotFoundException::new);

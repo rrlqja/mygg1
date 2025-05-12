@@ -11,6 +11,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
@@ -203,11 +206,25 @@ public class ApiService {
         return new HashSet<>(leagueEntryList);
     }
 
-    public Optional<LeagueListDto> getLeagueList(String queue) {
-        return doExchange(baseBucket, riotKrUrl, GET_LEAGUE_LIST.getPath(), HttpMethod.GET, LeagueListDto.class, Map.of("queue", queue));
+    public Optional<LeagueListDto> getChallengerLeagueList(String queue) {
+        return doExchange(baseBucket, riotKrUrl, GET_CHALLENGER_LEAGUE_LIST.getPath(), HttpMethod.GET, LeagueListDto.class, Map.of("queue", queue));
     }
 
-    public List<ChampionMasteryDto> getChampionMastery(String puuid, Integer count) {
+    public Optional<LeagueListDto> getGrandmasterLeagueList(String queue) {
+        return doExchange(baseBucket, riotKrUrl, GET_GRANDMASTER_LEAGUE_LIST.getPath(), HttpMethod.GET, LeagueListDto.class, Map.of("queue", queue));
+    }
+
+    public Optional<LeagueListDto> getMasterLeagueList(String queue) {
+        return doExchange(baseBucket, riotKrUrl, GET_MASTER_LEAGUE_LIST.getPath(), HttpMethod.GET, LeagueListDto.class, Map.of("queue", queue));
+    }
+
+    public List<ChampionMasteryDto> getChampionMastery(String puuid) {
+        ParameterizedTypeReference<List<ChampionMasteryDto>> typeRef = new ParameterizedTypeReference<>() {};
+        return doExchange(baseBucket, riotKrUrl, GET_CHAMPION_MASTERY.getPath(), HttpMethod.GET, typeRef, Map.of("puuid", puuid))
+                .orElseGet(ArrayList::new);
+    }
+
+    public List<ChampionMasteryDto> getChampionMasteryTop(String puuid, Integer count) {
         ParameterizedTypeReference<List<ChampionMasteryDto>> typeRef = new ParameterizedTypeReference<>() {};
         return doExchange(baseBucket, riotKrUrl, GET_CHAMPION_MASTERY_TOP_BY_PUUID.getPath(), HttpMethod.GET, typeRef, Map.of("puuid", puuid, "count", count))
                 .orElseGet(ArrayList::new);
@@ -224,9 +241,14 @@ public class ApiService {
         return headers;
     }
 
+    @Retryable(
+            retryFor = {RestClientException.class, },
+            backoff = @Backoff(delay = 240000, multiplier = 2)
+    )
     private <T> Optional<T> doExchange(Bucket bucket, String baseUrl, String endPoint, HttpMethod method, ParameterizedTypeReference<T> type, Map<String, ?> param) {
         try {
             bucket.asBlocking().consume(1);
+            log.info("executing {} {} with param ({}) [bucket remaining token : {}]", method, baseUrl + endPoint, param, bucket.getAvailableTokens());
 
             ResponseEntity<T> response = restTemplate.exchange(
                     baseUrl + endPoint,
@@ -249,9 +271,14 @@ public class ApiService {
         }
     }
 
+    @Retryable(
+            retryFor = {RestClientException.class, },
+            backoff = @Backoff(delay = 240000, multiplier = 2)
+    )
     private <T> Optional<T> doExchange(Bucket bucket, String baseUrl, String endPoint, HttpMethod method, Class<T> type, Map<String, ?> param) {
         try {
             bucket.asBlocking().consume(1);
+            log.info("executing {} {} with param ({}) [bucket remaining token : {}]", method, baseUrl + endPoint, param, bucket.getAvailableTokens());
 
             ResponseEntity<T> response = restTemplate.exchange(
                     baseUrl + endPoint,
@@ -272,5 +299,19 @@ public class ApiService {
         } catch (Exception e) {
             throw new MyggException("예상하지 못한 오류가 발생하였습니다.", e);
         }
+    }
+
+    @Recover
+    private <T> Optional<T> recover(RiotApiException e,
+                                    Bucket bucket,
+                                    String baseUrl,
+                                    String endPoint,
+                                    HttpMethod method,
+                                    Class<T> type,
+                                    Map<String, ?> params) {
+        log.error("doExchange retry failed for {}{} params={}, error={}",
+                baseUrl, endPoint, params, e.getMessage());
+
+        return Optional.empty();
     }
 }

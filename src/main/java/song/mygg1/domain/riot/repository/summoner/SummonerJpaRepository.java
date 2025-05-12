@@ -21,4 +21,9 @@ public interface SummonerJpaRepository extends JpaRepository<Summoner, String> {
             " from Summoner s " +
             "where s.id in :ids")
     List<Summoner> findSummonersByIdIn(@Param("ids") Collection<String> ids);
+
+    @Query("select s " +
+            " from Summoner s " +
+            "where s.id = :id")
+    Optional<Summoner> findSummonerById(@Param("id") String id);
 }

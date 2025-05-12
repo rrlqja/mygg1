@@ -34,6 +34,7 @@ public class HomeController {
         model.addAttribute("freeChampion", championService.getChampion(championRotationService.getFreeChampionIds()));
         model.addAttribute("freeChampionForN", championService.getChampion(championRotationService.getFreeChampionIdsForNewPlayers()));
         model.addAttribute("leagueItemList", leagueItemService.getLeagueItemList(leagueService.getChallengerLeague()));
+        model.addAttribute("leagueItemList", leagueItemService.getLeagueItemList(leagueService.getGrandmasterLeague()));
 
         model.addAttribute("winRate", participantService.getChampionWinRatePerDate("Ezreal"));
 

@@ -8,7 +8,10 @@ public enum RiotApiEndpoint {
     GET_SUMMONER("/lol/summoner/v4/summoners/by-puuid/{puuid}"),
     GET_SUMMONER_BY_SUMMONER_ID("/lol/summoner/v4/summoners/{summonerId}"),
     GET_LEAGUE_ENTRY("/lol/league/v4/entries/by-puuid/{puuid}"),
-    GET_LEAGUE_LIST("/lol/league/v4/challengerleagues/by-queue/{queue}"),
+    GET_CHALLENGER_LEAGUE_LIST("/lol/league/v4/challengerleagues/by-queue/{queue}"),
+    GET_GRANDMASTER_LEAGUE_LIST("/lol/league/v4/grandmasterleagues/by-queue/{queue}"),
+    GET_MASTER_LEAGUE_LIST("/lol/league/v4/masterleagues/by-queue/{queue}"),
+    GET_CHAMPION_MASTERY("/lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}"),
     GET_CHAMPION_MASTERY_TOP_BY_PUUID("/lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}/top?count={count}"),
     GET_CHAMPION_ROTATIONS("/lol/platform/v3/champion-rotations")
     ;
