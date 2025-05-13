@@ -35,23 +35,24 @@ public interface ParticipantJpaRepository extends JpaRepository<Participant, Par
     @Query("select new song.mygg1.domain.riot.dto.match.participant.WinRateDto( " +
             " p.championName, " +
             " p.championId, " +
-            " sum(case when date(from_unixtime(i.gameCreation / 1000)) = :date then 1 else 0 end), " +
-            " sum(case when date(from_unixtime(i.gameCreation / 1000)) = :date and p.win = true then 1 else 0 end), " +
-            " round((sum(case when date(from_unixtime(i.gameCreation / 1000)) = :date and p.win = true then 1 else 0 end) * 100.0) " +
-            "   / nullif(sum(case when date(from_unixtime(i.gameCreation / 1000)) = :date then 1 else 0 end), 0), 2), " +
-            " sum(case when date(from_unixtime(i.gameCreation / 1000)) = :prevDate then 1 else 0 end), " +
-            " sum(case when date(from_unixtime(i.gameCreation / 1000)) = :prevDate and p.win = true then 1 else 0 end), " +
-            " round((sum(case when date(from_unixtime(i.gameCreation / 1000)) = :prevDate and p.win = true then 1 else 0 end) * 100.0) " +
-            "   / nullif(sum(case when date(from_unixtime(i.gameCreation / 1000)) = :prevDate then 1 else 0 end), 0), 2) " +
+            " sum(case when date(from_unixtime(i.gameCreation / 1000)) between :curStartDate and :curEndDate then 1 else 0 end), " +
+            " sum(case when date(from_unixtime(i.gameCreation / 1000)) between :curStartDate and :curEndDate and p.win = true then 1 else 0 end), " +
+            " round((sum(case when date(from_unixtime(i.gameCreation / 1000)) between :curStartDate and :curEndDate and p.win = true then 1 else 0 end) * 100.0) " +
+            "   / nullif(sum(case when date(from_unixtime(i.gameCreation / 1000)) between :curStartDate and :curEndDate then 1 else 0 end), 0), 2), " +
+            " sum(case when date(from_unixtime(i.gameCreation / 1000)) between :prevStartDate and :prevEndDate then 1 else 0 end), " +
+            " sum(case when date(from_unixtime(i.gameCreation / 1000)) between :prevStartDate and :prevEndDate and p.win = true then 1 else 0 end), " +
+            " round((sum(case when date(from_unixtime(i.gameCreation / 1000)) between :prevStartDate and :prevEndDate and p.win = true then 1 else 0 end) * 100.0) " +
+            "   / nullif(sum(case when date(from_unixtime(i.gameCreation / 1000)) between :prevStartDate and :prevEndDate then 1 else 0 end), 0), 2) " +
             ") " +
             "  from Participant p " +
             "  join p.info i" +
             " group by p.championName, p.championId " +
-            "having sum(case when date(from_unixtime(i.gameCreation / 1000)) = :date then 1 else 0 end) > 0 " +
-            "    or sum(case when date(from_unixtime(i.gameCreation / 1000)) = :prevDate then 1 else 0 end) > 0 " +
+            "having sum(case when date(from_unixtime(i.gameCreation / 1000)) between :curStartDate and :curEndDate then 1 else 0 end) > 0 " +
+            "    or sum(case when date(from_unixtime(i.gameCreation / 1000)) between :prevStartDate and :prevEndDate then 1 else 0 end) > 0 " +
             " order by 3 desc")
-    List<WinRateDto> findWinRateList(@Param("date") Long date,
-                                     @Param("prevDate") Long prevDate,
-                                     Pageable pageable
-    );
+    List<WinRateDto> findWinRateList(@Param("curStartDate") Long curStartDate,
+                                     @Param("curEndDate") Long curEndDate,
+                                     @Param("prevStartDate") Long prevStartDate,
+                                     @Param("prevEndDate") Long prevEndDate,
+                                     Pageable pageable);
 }

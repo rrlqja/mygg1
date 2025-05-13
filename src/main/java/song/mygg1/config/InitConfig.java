@@ -49,9 +49,12 @@ public class InitConfig {
         public void init() {
             log.info("get league");
             List<LeagueListDto> leagues = new ArrayList<>();
-//            leagues.add(leagueService.getChallengerLeague());
-//            leagues.add(leagueService.getGrandmasterLeague());
-//            leagues.add(leagueService.getMasterLeague());
+            LeagueListDto challenger = leagueService.getChallengerLeague();
+            LeagueListDto grandmaster = leagueService.getGrandmasterLeague();
+//            LeagueListDto master = leagueService.getMasterLeague();
+//            leagues.add(challenger);
+//            leagues.add(grandmaster);
+//            leagues.add(master);
 
             for (LeagueListDto league : leagues) {
                 log.info("get leagueItem");

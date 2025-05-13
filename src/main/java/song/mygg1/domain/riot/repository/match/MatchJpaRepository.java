@@ -1,5 +1,7 @@
 package song.mygg1.domain.riot.repository.match;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,4 +27,14 @@ public interface MatchJpaRepository extends JpaRepository<Matches, Long> {
             " join fetch m.metadata " +
             "where m.matchId = :matchId")
     Optional<Matches> findMatchesByMatchId(@Param("matchId") String matchId);
+
+    @Query("select distinct m " +
+            " from Matches m " +
+            " join fetch m.metadata mm" +
+            " join fetch m.info mi" +
+            " join m.info.participants p " +
+            "where p.championId = :championId " +
+            "order by mi.gameCreation desc")
+    Page<Matches> findMatchesByChampion(@Param("championId") Long championId,
+                                        Pageable pageable);
 }

@@ -2,12 +2,15 @@ package song.mygg1.domain.riot.service.match;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import song.mygg1.domain.common.exception.riot.match.exceptions.MatchNotFoundException;
 import song.mygg1.domain.redis.service.CacheService;
 import song.mygg1.domain.redis.service.match.MatchCacheLimiterService;
+import song.mygg1.domain.riot.dto.match.participant.ChampionMatchDto;
 import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.entity.match.Matches;
 import song.mygg1.domain.riot.mapper.match.MatchMapper;
@@ -78,6 +81,16 @@ public class MatchService {
                     cacheService.evict("match:detail:" + id);
                     return getMatchDetail(id, puuid);
                 })
+                .toList();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public List<ChampionMatchDto> getChampionMatchList(Long championId, Pageable pageable) {
+        Page<Matches> matchList = matchRepository.findMatchesByChampion(championId, pageable);
+
+        return matchList.stream()
+                .map(m -> getMatchDetail(m.getMatchId(), null))
+                .map(mdto-> matchMapper.toChampionMatchDto(mdto, championId.intValue()))
                 .toList();
     }
 }

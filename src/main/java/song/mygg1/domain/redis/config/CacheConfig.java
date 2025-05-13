@@ -11,10 +11,12 @@ import song.mygg1.domain.redis.service.CacheService;
 import song.mygg1.domain.riot.dto.account.AccountDto;
 import song.mygg1.domain.riot.dto.champion.ChampionDto;
 import song.mygg1.domain.riot.dto.champion.ChampionMasteryDto;
+import song.mygg1.domain.riot.dto.champion.ChampionMasteryRankingDto;
 import song.mygg1.domain.riot.dto.champion.ChampionRotationsDto;
 import song.mygg1.domain.riot.dto.league.LeagueEntryDto;
 import song.mygg1.domain.riot.dto.league.LeagueItemSummonerDto;
 import song.mygg1.domain.riot.dto.league.LeagueListDto;
+import song.mygg1.domain.riot.dto.match.info.ChampionUsageDto;
 import song.mygg1.domain.riot.dto.match.participant.ChampionWinRatePerDateDto;
 import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.dto.match.participant.WinRateDto;
@@ -45,6 +47,17 @@ public class CacheConfig {
     ) {
         JavaType type = mapper.getTypeFactory()
                 .constructCollectionType(List.class, WinRateDto.class);
+
+        return new BaseCacheService<>(redis, mapper, type);
+    }
+
+    @Bean
+    public CacheService<List<ChampionUsageDto>> championUsageCacheService(
+            StringRedisTemplate redis,
+            ObjectMapper mapper
+    ) {
+        JavaType type = mapper.getTypeFactory()
+                .constructCollectionType(List.class, ChampionUsageDto.class);
 
         return new BaseCacheService<>(redis, mapper, type);
     }
@@ -122,6 +135,17 @@ public class CacheConfig {
     ) {
         JavaType type = mapper.getTypeFactory()
                 .constructType(ChampionDto.class);
+
+        return new BaseCacheService<>(redis, mapper, type);
+    }
+
+    @Bean
+    public CacheService<List<ChampionMasteryRankingDto>> championMasteryRankingCacheService(
+            StringRedisTemplate redis,
+            ObjectMapper mapper
+    ) {
+        JavaType type = mapper.getTypeFactory()
+                .constructCollectionType(List.class, ChampionMasteryRankingDto.class);
 
         return new BaseCacheService<>(redis, mapper, type);
     }

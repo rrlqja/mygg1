@@ -24,7 +24,7 @@ import java.util.List;
 public class ParticipantService {
     private final ParticipantJpaRepository participantRepository;
     private final CacheService<List<ChampionWinRatePerDateDto>> championWinRateCacheService;
-    private final CacheService<List<WinRateDto>> winRateDailyCacheService;
+    private final CacheService<List<WinRateDto>> winRateCacheService;
 
     private static final ZoneId kst = ZoneId.of("Asia/Seoul");
     private static final Duration WIN_RATE_TTL = Duration.ofDays(1L);
@@ -64,45 +64,62 @@ public class ParticipantService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<WinRateDto> getWinRateDaily() {
-        LocalDate today = LocalDate.now(kst);
-        String key = "winrate:daily:" + today;
+        LocalDate yesterday      = LocalDate.now(kst).minusDays(1);
+        LocalDate dayBefore      = LocalDate.now(kst).minusDays(2);
+        String key = "winrate:daily:" + yesterday;
 
-        return winRateDailyCacheService.getOrLoad(
+        return winRateCacheService.getOrLoad(
                 key,
-                () -> getWinRate(today, today),
+                () -> getWinRate(yesterday, dayBefore),
                 WIN_RATE_TTL
         );
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<WinRateDto> getWinRateWeekly() {
-        LocalDate today     = LocalDate.now(kst);
-        LocalDate weekStart = today.minusDays(6);
-        String key = "winrate:weekly:" + weekStart + ":" + today;
+        LocalDate yesterday      = LocalDate.now(kst).minusDays(1);
+        LocalDate thisWeekStart  = yesterday.minusDays(6);
+        LocalDate prevWeekEnd    = thisWeekStart.minusDays(1);
+        LocalDate prevWeekStart  = prevWeekEnd.minusDays(6);
+        String key = "winrate:weekly:"
+                + thisWeekStart + ":" + yesterday
+                + ":" + prevWeekStart + ":" + prevWeekEnd;
 
-        return winRateDailyCacheService.getOrLoad(
+        return winRateCacheService.getOrLoad(
                 key,
-                () -> getWinRate(weekStart, today),
+                () -> getWinRate(thisWeekStart, yesterday, prevWeekStart, prevWeekEnd),
                 WIN_RATE_TTL
         );
     }
 
-    private List<WinRateDto> getWinRate(LocalDate date, LocalDate prev) {
-        Instant startDate = date
-                .atStartOfDay(kst)
-                .toInstant();
-
-        Instant prevDate = prev
-                .atTime(LocalTime.MAX)
-                .atZone(kst)
-                .toInstant();
-
-        long start = startDate.toEpochMilli();
-        long end = prevDate.toEpochMilli();
+    private List<WinRateDto> getWinRate(LocalDate currentDate, LocalDate prevDate) {
+        Instant currentStart = currentDate.atStartOfDay(kst).toInstant();
+        Instant currentEnd   = currentDate.atTime(LocalTime.MAX).atZone(kst).toInstant();
+        Instant prevStart    = prevDate.atStartOfDay(kst).toInstant();
+        Instant prevEnd      = prevDate.atTime(LocalTime.MAX).atZone(kst).toInstant();
 
         return participantRepository.findWinRateList(
-                start,
-                end,
+                currentStart.toEpochMilli(),
+                currentEnd.toEpochMilli(),
+                prevStart.toEpochMilli(),
+                prevEnd.toEpochMilli(),
+                PageRequest.of(0, 10)
+        );
+    }
+
+    private List<WinRateDto> getWinRate(
+            LocalDate curStart, LocalDate curEnd,
+            LocalDate prevStart, LocalDate prevEnd) {
+        Instant cs = curStart.atStartOfDay(kst).toInstant();
+        Instant ce = curEnd  .atTime(LocalTime.MAX).atZone(kst).toInstant();
+        Instant ps = prevStart.atStartOfDay(kst).toInstant();
+        Instant pe = prevEnd  .atTime(LocalTime.MAX).atZone(kst).toInstant();
+
+        return participantRepository.findWinRateList(
+                cs.toEpochMilli(),
+                ce.toEpochMilli(),
+                ps.toEpochMilli(),
+                pe.toEpochMilli(),
                 PageRequest.of(0, 10)
         );
     }
