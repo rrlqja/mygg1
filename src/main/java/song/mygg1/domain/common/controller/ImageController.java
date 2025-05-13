@@ -15,6 +15,7 @@ import song.mygg1.domain.common.service.ImageService;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.springframework.http.CacheControl.*;
 
@@ -31,7 +32,7 @@ public class ImageController {
         UrlResource resource = imageService.getTier(tierName);
 
         return ResponseEntity.ok()
-                .cacheControl(maxAge(5, MINUTES).cachePublic())
+                .cacheControl(maxAge(30, DAYS).cachePublic())
                 .body(resource);
     }
 
@@ -40,7 +41,7 @@ public class ImageController {
         UrlResource resource = imageService.getProfile(iconId);
 
         return ResponseEntity.ok()
-                .cacheControl(maxAge(5, MINUTES).cachePublic())
+                .cacheControl(maxAge(30, DAYS).cachePublic())
                 .body(resource);
     }
 
@@ -49,7 +50,7 @@ public class ImageController {
         UrlResource resource = imageService.getItem(itemId);
 
         return ResponseEntity.ok()
-                .cacheControl(maxAge(5, MINUTES).cachePublic())
+                .cacheControl(maxAge(30, DAYS).cachePublic())
                 .body(resource);
     }
 
@@ -58,7 +59,7 @@ public class ImageController {
         UrlResource resource = imageService.getSpell(spellId);
 
         return ResponseEntity.ok()
-                .cacheControl(maxAge(5, MINUTES).cachePublic())
+                .cacheControl(maxAge(30, DAYS).cachePublic())
                 .body(resource);
     }
 
@@ -67,7 +68,7 @@ public class ImageController {
         UrlResource resource = imageService.getChampion(championKey);
 
         return ResponseEntity.ok()
-                .cacheControl(maxAge(5, MINUTES).cachePublic())
+                .cacheControl(maxAge(30, DAYS).cachePublic())
                 .body(resource);
     }
 }
