@@ -57,33 +57,33 @@ public class InitConfig {
             leagues.add(master);
 
             for (LeagueListDto league : leagues) {
-                log.info("[leage: {}] get leagueItem", league.getTier());
+                log.info("[league: {}] get leagueItem", league.getTier());
                 List<LeagueItemSummonerDto> leagueItemList = leagueItemService.getLeagueItemList(league, 9999);
 
-                log.info("[leage: {}] get account, summoner", league.getTier());
+                log.info("[league: {}] get account, summoner", league.getTier());
                 List<AccountDto> accountList = new ArrayList<>();
                 List<SummonerDto> summonerList = new ArrayList<>();
                 for (LeagueItemSummonerDto dto : leagueItemList) {
-                    log.info("[leage: {}] get account by leagueItemSummonerDto [gameName: {}#{}, total: {}, current: {}]", league.getTier(), dto.getGameName(), dto.getTagLine(), leagueItemList.size(), accountList.size());
+                    log.info("[league: {}] get account by leagueItemSummonerDto [gameName: {}#{}, total: {}, current: {}]", league.getTier(), dto.getGameName(), dto.getTagLine(), leagueItemList.size(), accountList.size());
                     accountList.add(accountService.findAccountByGameNameAndTagLine(dto.getGameName(), dto.getTagLine()));
 
-                    log.info("[leage: {}] get summoner by leagueItemSummonerDto [puuid: {}]", league.getTier(), dto.getPuuid());
+                    log.info("[league: {}] get summoner by leagueItemSummonerDto [puuid: {}]", league.getTier(), dto.getPuuid());
                     summonerList.add(summonerService.getSummoner(dto.getPuuid()));
                 }
 
-                log.info("[leage: {}] get leagueEntry", league.getTier());
+                log.info("[league: {}] get leagueEntry", league.getTier());
                 List<Set<LeagueEntryDto>> leagueEntrySetList = new ArrayList<>();
                 for (SummonerDto dto : summonerList) {
-                    log.info("[leage: {}] get leagueEntry by summonerDto [puuid: {}]", league.getTier(), dto.getPuuid());
+                    log.info("[league: {}] get leagueEntry by summonerDto [puuid: {}]", league.getTier(), dto.getPuuid());
                     leagueEntrySetList.add(leagueService.refreshLeague(dto.getPuuid()));
-                    log.info("[leage: {}] leagueEntrySet total: {} current: {}", league.getTier(), summonerList.size(), leagueEntrySetList.size());
+                    log.info("[league: {}] leagueEntrySet total: {} current: {}", league.getTier(), summonerList.size(), leagueEntrySetList.size());
                 }
 
-                log.info("[leage: {}] get match", league.getTier());
+                log.info("[league: {}] get match", league.getTier());
                 List<List<MatchDto>> matchListList = new ArrayList<>();
                 for (AccountDto account : accountList) {
                     matchListList.add(matchService.refreshMatchList(account.getPuuid(), 0, 30));
-                    log.info("[leage: {}] get match by accountDto [puuid: {}, total: {}, current: {}]", league.getTier(), account.getPuuid(), accountList.size(), matchListList.size());
+                    log.info("[league: {}] get match by accountDto [puuid: {}, total: {}, current: {}]", league.getTier(), account.getPuuid(), accountList.size(), matchListList.size());
                 }
             }
         }

@@ -12,6 +12,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,12 @@ import static song.mygg1.domain.riot.entity.RiotDataDragonEndpoint.*;
 
 @Slf4j
 @Service
+@EnableRetry
+@Retryable(
+        retryFor = {RestClientException.class, },
+        backoff = @Backoff(delay = 240000, multiplier = 2),
+        maxAttempts = 4
+)
 public class ApiService {
     @Value("${api.riot.api-key}")
     private String riotApiKey;
