@@ -45,6 +45,7 @@ public class LeagueItemService {
     public List<LeagueItemSummonerDto> getLeagueItemList(LeagueListDto leagueDto, int limit) {
         List<String> ids = leagueDto.getEntries().stream()
                 .map(LeagueItemDto::getSummonerId)
+                .limit(limit)
                 .toList();
 
         return ids.stream()

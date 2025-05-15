@@ -30,7 +30,7 @@
 </div>
 
 <div th:fragment="leagueList(leagueItemList, title, subTitle)">
-    <div style="width: 100%; height: 30px; font-size: 14px; font-weight: 400; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; border-bottom: 1px solid #e0e0e0;">
+    <div th:onclick="|location.href='@{/leagueList}'|" style="width: 100%; height: 30px; font-size: 14px; font-weight: 400; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; border-bottom: 1px solid #e0e0e0; cursor: pointer;">
         <span th:text="${title}">league</span>
         <span th:text="${'&nbsp;- ' + subTitle}" style="font-size: 12px; font-weight: 500;">subTitle</span>
     </div>
