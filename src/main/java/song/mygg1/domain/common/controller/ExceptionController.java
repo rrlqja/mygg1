@@ -13,6 +13,13 @@ public class ExceptionController {
     public String handleSearchException(SearchException e) {
         log.error(e.getMessage());
 
-        return "riot/4xx";
+        return "common/4xx";
+    }
+
+    @ExceptionHandler({RuntimeException.class})
+    public String handleRuntimeException(RuntimeException e) {
+        log.error(e.getMessage());
+
+        return "common/5xx";
     }
 }

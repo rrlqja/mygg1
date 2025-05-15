@@ -266,13 +266,9 @@ public class ApiService {
             );
 
             return Optional.ofNullable(response.getBody());
-        } catch (HttpClientErrorException.NotFound e) {
-            return Optional.empty();
-        } catch (IllegalArgumentException e) {
+        } catch (RestClientException | IllegalArgumentException e) {
             log.error(e.getMessage(), e);
             return Optional.empty();
-        } catch (RestClientException e) {
-            throw new RiotApiException("잘못된 요청입니다.", e);
         } catch (Exception e) {
             throw new MyggException("예상하지 못한 오류가 발생하였습니다.", e);
         }
@@ -296,13 +292,9 @@ public class ApiService {
             );
 
             return Optional.ofNullable(response.getBody());
-        } catch (HttpClientErrorException.NotFound e) {
-            return Optional.empty();
-        } catch (IllegalArgumentException e) {
+        } catch (RestClientException | IllegalArgumentException e) {
             log.error(e.getMessage(), e);
             return Optional.empty();
-        } catch (RestClientException e) {
-            throw new RiotApiException("잘못된 요청입니다.", e);
         } catch (Exception e) {
             throw new MyggException("예상하지 못한 오류가 발생하였습니다.", e);
         }

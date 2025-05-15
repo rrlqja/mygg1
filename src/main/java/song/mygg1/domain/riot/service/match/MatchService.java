@@ -19,6 +19,7 @@ import song.mygg1.domain.riot.service.ApiService;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -62,7 +63,15 @@ public class MatchService {
     public List<MatchDto> getMatchList(String puuid, int start, int count) {
         List<String> matchIds = apiService.getMatches(puuid, start, count);
         return matchIds.stream()
-                .map(id -> getMatchDetail(id, puuid))
+                .map(id -> {
+                    try {
+                        return getMatchDetail(id, puuid);
+                    } catch (Exception e) {
+                        log.warn("매치 상세 조회 실패 (id={}): {}", id, e.getMessage());
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
