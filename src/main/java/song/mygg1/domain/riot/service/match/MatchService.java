@@ -4,18 +4,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import song.mygg1.domain.common.exception.riot.match.exceptions.MatchNotFoundException;
 import song.mygg1.domain.redis.service.CacheService;
 import song.mygg1.domain.redis.service.match.MatchCacheLimiterService;
+import song.mygg1.domain.riot.dto.league.LeagueItemDto;
+import song.mygg1.domain.riot.dto.league.LeagueListDto;
 import song.mygg1.domain.riot.dto.match.participant.ChampionMatchDto;
 import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.entity.match.Matches;
 import song.mygg1.domain.riot.mapper.match.MatchMapper;
 import song.mygg1.domain.riot.repository.match.MatchJpaRepository;
 import song.mygg1.domain.riot.service.ApiService;
+import song.mygg1.domain.riot.service.league.LeagueService;
 
 import java.time.Duration;
 import java.util.List;
@@ -28,6 +32,7 @@ import java.util.stream.Collectors;
 public class MatchService {
     private final CacheService<MatchDto> cacheService;
     private final MatchCacheLimiterService cacheLimiterService;
+    private final LeagueService leagueService;
     private final MatchJpaRepository matchRepository;
     private final ApiService apiService;
     private final MatchMapper matchMapper;
@@ -101,5 +106,22 @@ public class MatchService {
                 .map(m -> getMatchDetail(m.getMatchId(), null))
                 .map(mdto-> matchMapper.toChampionMatchDto(mdto, championId.intValue()))
                 .toList();
+    }
+
+    @Scheduled(cron = "0 0 1 * * ?")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void getChallengerLeagueMatches() {
+        LeagueListDto challengerLeague = leagueService.getChallengerLeague();
+
+        challengerLeague.getEntries().stream()
+                .map(LeagueItemDto::getPuuid)
+                .forEach(puuid -> {
+                    try {
+                        List<MatchDto> matches = refreshMatchList(puuid, 0, 10);
+                        log.info("[MatchService] update challenger match, puuid = {},", puuid);
+                    } catch (Exception e) {
+                        log.error("[MatchService] update failed challenger match, puuid = {} 매치 조회/저장 오류: {}", puuid, e.getMessage(), e);
+                    }
+                });
     }
 }
