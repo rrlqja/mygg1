@@ -64,11 +64,11 @@
             <div style="width: 70px; display: flex; flex-direction: row; justify-content: center; align-items: center; font-size: 14px;">전 승률</div>
             <div style="width: 70px; display: flex; flex-direction: row; justify-content: center; align-items: center; font-size: 14px;">승률 차이</div>
         </div>
-        <div th:each="rank : ${list}" style="width: 100%; min-height: 40px; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; padding-left: 6px; gap: 6px;">
+        <div class="rank-item" th:each="rank : ${list}" th:onclick="|location.href='@{/champion/{championId}(championId=${rank.championId})}'|" style="width: 100%; min-height: 40px; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; padding-left: 6px; gap: 6px; cursor: pointer;">
             <div style="width: 35px; height: 35px;">
                 <img th:src="@{/image/champion/{championId}(championId=${rank.championId})}" style="width: 100%; height: 100%; border-radius: 8px;">
             </div>
-            <div th:text="${rank.championName}" th:onclick="|location.href='@{/champion/{championId}(championId=${rank.championId})}'|" style="width: 85px; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer;"></div>
+            <div th:text="${rank.championName}" style="width: 85px; min-height: 40px; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"></div>
             <div th:text="${rank.totalGames}" style="width: 75px; display: flex; flex-direction: row; justify-content: center; align-items: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"></div>
             <div style="width: 60px; display: flex; flex-direction: row; justify-content: center; align-items: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
                 <span th:text="${rank.winRate}" style="font-size: 15px; font-weight: 700;"></span>
@@ -96,11 +96,11 @@
         <span th:text="${title}"></span>
     </div>
     <div style="width: 100%; min-height: 30px; background-color: #e9ebef; border-bottom-right-radius: 8px; border-bottom-left-radius: 8px; display: flex; flex-direction: row; justify-content: flex-start; align-items: flex-start; font-size: 15px; font-weight: 600; gap: 6px; flex-wrap: wrap; padding: 8px;">
-        <div th:each="champion : ${rotationChampions}" style="width: 90px; min-height: 90px; display: flex; flex-direction: column; justify-content: flex-start; align-items: center;">
-            <div th:onclick="|location.href='@{/champion/{championId}(championId=${champion.key})}'|" style="width: 100%; height: 90px; cursor: pointer;">
+        <div class="rotation-item" th:each="champion : ${rotationChampions}" th:onclick="|location.href='@{/champion/{championId}(championId=${champion.key})}'|" style="width: 90px; min-height: 90px; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; cursor: pointer; border-radius: 10px;">
+            <div style="width: 100%; height: 90px;">
                 <img th:src="@{/image/champion/{championId}(championId=${champion.key})}" style="width: 100%; height: 100%; border-radius: 10px;">
             </div>
-            <div th:text="${champion.id}" th:onclick="|location.href='@{/champion/{championId}(championId=${champion.key})}'|" style="width: 100%; height: 20px; display: flex; justify-content: center; align-items: center; font-size: 14px; cursor: pointer;">
+            <div th:text="${champion.id}" style="width: 100%; height: 20px; display: flex; justify-content: center; align-items: center; font-size: 14px;">
             </div>
         </div>
     </div>
@@ -222,12 +222,12 @@
     <div class="match-detail">
         <div style="width: 100%; min-height: 250px; display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start;">
             <div style="width: 100%; min-height: 50px; background-color: white; display: flex; flex-direction: column; align-items: center; border: 1px solid #d7d8da;">
-                <div th:each="p : ${match.info.participants.?[teamId == 100]}" style="width: 100%; height: 50px; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; border-bottom: 1px solid #d7d8da;">
+                <div class="match-participant" th:each="p : ${match.info.participants.?[teamId == 100]}" th:onclick="|location.href='@{/kr/search(query=${p.riotIdGameName + '#' + p.riotIdTagline})}'|" style="width: 100%; height: 50px; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; border-bottom: 1px solid #d7d8da; cursor: pointer;">
                     <div style="width: 40px; height: 40px; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-left: 8px;">
                         <img th:src="@{/image/champion/{champ}(champ=${p.championId})}" th:alt="${p.championName}" style="width: 100%; height: 100%; border-radius: 4px;" />
                     </div>
 
-                    <div th:text="${p.riotIdGameName}" th:onclick="|location.href='@{/kr/search(query=${p.riotIdGameName + '#' + p.riotIdTagline})}'|" style="width: 120px; height: 40px; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 14px; cursor: pointer;">
+                    <div th:text="${p.riotIdGameName}" style="width: 120px; height: 40px; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 14px; cursor: pointer;">
                         아이디
                     </div>
 
@@ -302,12 +302,12 @@
                 </div>
             </div>
             <div style="width: 100%; min-height: 50px; background-color: white; display: flex; flex-direction: column; align-items: center; border: 1px solid #d7d8da;">
-                <div th:each="p : ${match.info.participants.?[teamId == 200]}" style="width: 100%; height: 50px; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; border-bottom: 1px solid #d7d8da;">
+                <div class="match-participant" th:each="p : ${match.info.participants.?[teamId == 200]}" th:onclick="|location.href='@{/kr/search(query=${p.riotIdGameName + '#' + p.riotIdTagline})}'|" style="width: 100%; height: 50px; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; border-bottom: 1px solid #d7d8da; cursor: pointer;">
                     <div style="width: 40px; height: 40px; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-left: 8px;">
                         <img th:src="@{/image/champion/{champ}(champ=${p.championId})}" th:alt="${p.championName}" style="width: 100%; height: 100%; border-radius: 4px;" />
                     </div>
 
-                    <div th:text="${p.riotIdGameName}" th:onclick="|location.href='@{/kr/search(query=${p.riotIdGameName + '#' + p.riotIdTagline})}'|" style="width: 120px; height: 40px; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 14px; cursor: pointer;">
+                    <div th:text="${p.riotIdGameName}" th:onclick="|location.href='@{/kr/search(query=${p.riotIdGameName + '#' + p.riotIdTagline})}'|" style="width: 120px; height: 40px; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 14px;">
                         아이디
                     </div>
 
