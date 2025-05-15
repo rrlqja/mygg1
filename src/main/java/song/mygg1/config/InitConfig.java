@@ -3,6 +3,7 @@ package song.mygg1.config;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,10 +31,16 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class InitConfig {
     private final InitService initService;
+    private final ApplicationArguments args;
 
     @PostConstruct
     public void setInit() {
-        initService.init();
+        if (args.containsOption("init")) {
+            log.info("initial data load");
+            initService.init();
+        } else {
+            log.info("initial data not load");
+        }
     }
 
     @Component
