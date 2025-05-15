@@ -91,9 +91,14 @@ public class MatchService {
 
         return matchIds.stream()
                 .map(id -> {
-                    log.info("refreshMatchList: {}", id);
-                    cacheService.evict("match:detail:" + id);
-                    return getMatchDetail(id, puuid);
+                    try {
+                        log.info("refreshMatchList: {}", id);
+                        cacheService.evict("match:detail:" + id);
+                        return getMatchDetail(id, puuid);
+                    } catch (Exception e) {
+                        log.warn("매치 상세 조회 실패 (id={}): {}", id, e.getMessage());
+                        return null;
+                    }
                 })
                 .toList();
     }

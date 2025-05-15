@@ -70,7 +70,7 @@
                         </div>
                         <div style="width: 100%; height: 100%; display: flex; flex-direction: row; align-items: center; justify-content: start;">
                             <form id="refresh-form" th:action="@{/kr/search/refresh}" method="get" th:attr="data-last-refresh=${search.account.lastRefreshDateTimeRaw}" style="display:inline;">
-                                <input type="hidden" name="query" th:value="${search.account.gameName}" />
+                                <input type="hidden" name="query" th:value="${search.account.gameName + '#' + search.account.tagLine}" />
                                 <input type="hidden" name="puuid" th:value="${search.account.puuid}" />
                                 <button type="submit" class="btn btn-outline-secondary">전적갱신</button>
                             </form>
