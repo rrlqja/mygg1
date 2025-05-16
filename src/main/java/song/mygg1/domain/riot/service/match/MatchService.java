@@ -122,7 +122,7 @@ public class MatchService {
                 .map(LeagueItemDto::getPuuid)
                 .forEach(puuid -> {
                     try {
-                        List<MatchDto> matches = refreshMatchList(puuid, 0, 10);
+                        List<MatchDto> matches = refreshMatchList(puuid, 0, 20);
                         log.info("[MatchService] update challenger match, puuid = {},", puuid);
                     } catch (Exception e) {
                         log.error("[MatchService] update failed challenger match, puuid = {} 매치 조회/저장 오류: {}", puuid, e.getMessage(), e);

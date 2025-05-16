@@ -61,7 +61,7 @@ public class InitConfig {
             LeagueListDto master = leagueService.getMasterLeague();
             leagues.add(challenger);
             leagues.add(grandmaster);
-            leagues.add(master);
+//            leagues.add(master);
 
             for (LeagueListDto league : leagues) {
                 log.info("[league: {}] get leagueItem", league.getTier());
