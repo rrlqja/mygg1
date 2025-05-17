@@ -34,7 +34,7 @@ public class LogFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
         String method = request.getMethod();
 
-        log.info("[Log Filter] ipAddress = {}, origin = {}, name = {}, uri = {}, method = {}", ipAddress, origin, name, requestURI, method);
+        log.info("[Log Filter] ipAddress = {}, origin = {}, name = {}, uri = {}?{}, method = {}", ipAddress, origin, name, requestURI, request.getQueryString(), method);
 
         filterChain.doFilter(request, response);
     }
