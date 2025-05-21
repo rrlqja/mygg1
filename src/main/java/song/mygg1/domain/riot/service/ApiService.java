@@ -28,6 +28,7 @@ import song.mygg1.domain.riot.dto.league.LeagueListDto;
 import song.mygg1.domain.riot.dto.champion.ChampionMasteryDto;
 import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.dto.summoner.SummonerDto;
+import song.mygg1.domain.riot.dto.timeline.TimelineDto;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -107,6 +108,17 @@ public class ApiService {
                 baseBucket,
                 riotDataDragonUrl,
                 GET_CHAMPION_JSON.getPath(),
+                HttpMethod.GET,
+                JsonNode.class,
+                Map.of("version", version)
+        );
+    }
+
+    public Optional<JsonNode> getItemJson(String version) {
+        return doExchange(
+                baseBucket,
+                riotDataDragonUrl,
+                GET_ITEM_JSON.getPath(),
                 HttpMethod.GET,
                 JsonNode.class,
                 Map.of("version", version)
@@ -194,6 +206,10 @@ public class ApiService {
 
     public Optional<MatchDto> getMatchDetail(String matchId) {
         return doExchange(baseBucket, riotAsiaUrl, GET_MATCH.getPath(), HttpMethod.GET, MatchDto.class, Map.of("matchId", matchId));
+    }
+
+    public Optional<TimelineDto> getMatchTimeline(String matchId) {
+        return doExchange(baseBucket, riotAsiaUrl, GET_MATCH_TIMELINE.getPath(), HttpMethod.GET, TimelineDto.class, Map.of("matchId", matchId));
     }
 
     public Optional<SummonerDto> getSummoner(String puuid) {

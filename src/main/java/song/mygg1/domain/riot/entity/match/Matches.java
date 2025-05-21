@@ -20,11 +20,11 @@ public class Matches {
     private String matchId;
 
     @JoinColumn(name = "metadata_id")
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE, orphanRemoval = true)
     private Metadata metadata;
 
     @JoinColumn(name = "info_id")
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE, orphanRemoval = true)
     private Info info;
 
     public static Matches create(Metadata metadata, Info info) {

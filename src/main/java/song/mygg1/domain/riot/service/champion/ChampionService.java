@@ -4,13 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import song.mygg1.domain.common.exception.riot.champion.exceptons.ChampionNotFoundException;
 import song.mygg1.domain.common.exception.riot.riotapi.RiotApiException;
-import song.mygg1.domain.common.service.DataDragonService;
+import song.mygg1.domain.riot.service.datadragon.DataDragonService;
 import song.mygg1.domain.redis.service.CacheService;
 import song.mygg1.domain.riot.dto.account.AccountDto;
 import song.mygg1.domain.riot.dto.champion.ChampionDto;
@@ -18,19 +17,16 @@ import song.mygg1.domain.riot.dto.champion.ChampionInfoDto;
 import song.mygg1.domain.riot.dto.champion.ChampionMasteryRankingDto;
 import song.mygg1.domain.riot.dto.league.LeagueItemDto;
 import song.mygg1.domain.riot.dto.league.LeagueListDto;
-import song.mygg1.domain.riot.dto.match.participant.ChampionMatchDto;
 import song.mygg1.domain.riot.dto.match.info.ChampionUsageDto;
 import song.mygg1.domain.riot.dto.match.participant.ChampionWinRatePerDateDto;
 import song.mygg1.domain.riot.dto.summoner.SummonerDto;
 import song.mygg1.domain.riot.entity.champion.Champion;
-import song.mygg1.domain.riot.entity.champion.ChampionMastery;
 import song.mygg1.domain.riot.repository.champion.ChampionJpaRepository;
 import song.mygg1.domain.riot.repository.champion.ChampionMasterJpaRepository;
 import song.mygg1.domain.riot.service.ApiService;
 import song.mygg1.domain.riot.service.account.AccountService;
 import song.mygg1.domain.riot.service.league.LeagueService;
 import song.mygg1.domain.riot.service.match.InfoService;
-import song.mygg1.domain.riot.service.match.MatchService;
 import song.mygg1.domain.riot.service.match.ParticipantService;
 import song.mygg1.domain.riot.service.summoner.SummonerService;
 
@@ -52,7 +48,6 @@ public class ChampionService {
     private final ChampionJpaRepository championRepository;
     private final ChampionMasterJpaRepository championMasterRepository;
     private final DataDragonService dataDragonService;
-    private final MatchService matchService;
     private final ParticipantService participantService;
     private final InfoService infoService;
     private final LeagueService leagueService;
@@ -122,11 +117,10 @@ public class ChampionService {
         String key = "champion:key:" + id;
         ChampionDto champion = getChampionDto(id, key);
 
-        List<ChampionMatchDto> matchList = matchService.getChampionMatchList(id, PageRequest.of(0, 10));
         List<ChampionWinRatePerDateDto> championWinRatePerDate = participantService.getChampionWinRatePerDate(champion.getId());
         List<ChampionUsageDto> championUsage = infoService.getChampionUsage(champion.getKey());
 
-        return new ChampionInfoDto(champion, matchList, championWinRatePerDate, championUsage);
+        return new ChampionInfoDto(champion, championWinRatePerDate, championUsage);
     }
 
     private ChampionDto getChampionDto(Long id, String key) {

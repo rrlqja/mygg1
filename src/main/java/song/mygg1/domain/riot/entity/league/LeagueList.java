@@ -23,7 +23,7 @@ public class LeagueList {
     private String queue;
     private String name;
 
-    @OneToMany(mappedBy = "leagueList", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "leagueList", fetch = FetchType.LAZY, cascade = CascadeType.MERGE, orphanRemoval = true)
     private List<LeagueItem> entries = new ArrayList<>();
 
     public static LeagueList create(String leagueId, String tier, String queue, String name) {

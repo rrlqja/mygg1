@@ -21,10 +21,10 @@ public class Info {
     @Id
     private Long gameId;
 
-    @OneToMany(mappedBy = "info", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "info", fetch = FetchType.LAZY, cascade = CascadeType.MERGE, orphanRemoval = true)
     private List<Participant> participants = new ArrayList<>();
 
-    @OneToMany(mappedBy = "info", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "info", fetch = FetchType.LAZY, cascade = CascadeType.MERGE, orphanRemoval = true)
     private List<Team> teams = new ArrayList<>();
 
     private String endOfGameResult;

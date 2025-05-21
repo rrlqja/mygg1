@@ -13,7 +13,6 @@ import song.mygg1.domain.redis.service.CacheService;
 import song.mygg1.domain.redis.service.match.MatchCacheLimiterService;
 import song.mygg1.domain.riot.dto.league.LeagueItemDto;
 import song.mygg1.domain.riot.dto.league.LeagueListDto;
-import song.mygg1.domain.riot.dto.match.participant.ChampionMatchDto;
 import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.entity.match.Matches;
 import song.mygg1.domain.riot.mapper.match.MatchMapper;
@@ -104,13 +103,8 @@ public class MatchService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public List<ChampionMatchDto> getChampionMatchList(Long championId, Pageable pageable) {
-        Page<Matches> matchList = matchRepository.findMatchesByChampion(championId, pageable);
-
-        return matchList.stream()
-                .map(m -> getMatchDetail(m.getMatchId(), null))
-                .map(mdto-> matchMapper.toChampionMatchDto(mdto, championId.intValue()))
-                .toList();
+    public void getMatchTimeline(String matchId) {
+        apiService.getMatchTimeline(matchId);
     }
 
     @Scheduled(cron = "0 0 1 * * ?")

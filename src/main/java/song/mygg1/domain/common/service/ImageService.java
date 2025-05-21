@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import song.mygg1.domain.riot.service.champion.ChampionService;
+import song.mygg1.domain.riot.service.datadragon.DataDragonService;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

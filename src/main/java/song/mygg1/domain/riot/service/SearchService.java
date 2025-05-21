@@ -42,6 +42,9 @@ public class SearchService {
         SummonerDto summoner = summonerService.getSummoner(account.getPuuid());
         Set<LeagueEntryDto> leagueEntrySet = leagueService.getLeague(account.getPuuid());
         List<MatchDto> matchesList = matchService.getMatchList(account.getPuuid(), start, count);
+        for (MatchDto matchDto : matchesList) {
+            log.info("matchDto: {}", matchDto);
+        }
 
         return searchMapper.toDto(account, summoner, leagueEntrySet, matchesList);
     }

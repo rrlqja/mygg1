@@ -5,6 +5,7 @@ public enum RiotApiEndpoint {
     GET_ACCOUNT_BY_PUUID("/riot/account/v1/accounts/by-puuid/{puuid}"),
     GET_MATCHES("/lol/match/v5/matches/by-puuid/{puuid}/ids?start={start}&count={count}"),
     GET_MATCH("/lol/match/v5/matches/{matchId}"),
+    GET_MATCH_TIMELINE("/lol/match/v5/matches/{matchId}/timeline"),
     GET_SUMMONER("/lol/summoner/v4/summoners/by-puuid/{puuid}"),
     GET_SUMMONER_BY_SUMMONER_ID("/lol/summoner/v4/summoners/{summonerId}"),
     GET_LEAGUE_ENTRY("/lol/league/v4/entries/by-puuid/{puuid}"),

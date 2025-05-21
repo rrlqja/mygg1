@@ -160,7 +160,7 @@
 
         <div class="my-champ" style="width: 70px; height: 70px; margin-right: 5px;">
             <img th:src="@{${match.championImgUrl}}"
-                 th:alt="${match.player.championName}"
+                 th:alt="${match.getPlayer().getChampionName()}"
                  style="width:100%; height:100%; border-radius:10px;" />
         </div>
 

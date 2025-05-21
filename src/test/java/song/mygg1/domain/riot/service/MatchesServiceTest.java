@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.TestPropertySource;
-import song.mygg1.domain.riot.dto.match.participant.ChampionMatchDto;
 import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.service.match.MatchService;
 
@@ -37,9 +36,9 @@ class MatchesServiceTest {
 
     @Test
     void getChampionMatches() throws JsonProcessingException {
-        List<ChampionMatchDto> matchList = matchService.getChampionMatchList(110L, PageRequest.of(0, 10));
-        String res = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(matchList);
-        log.info(res);
+//        List<ChampionMatchDto> matchList = matchService.getChampionMatchList(110L, PageRequest.of(0, 10));
+//        String res = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(matchList);
+//        log.info(res);
     }
 
 }

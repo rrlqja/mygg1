@@ -1,4 +1,4 @@
-package song.mygg1.domain.common.service;
+package song.mygg1.domain.riot.service.datadragon;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import song.mygg1.domain.common.exception.MyggException;
 import song.mygg1.domain.common.exception.riot.riotapi.RiotApiException;
+import song.mygg1.domain.riot.repository.datadragon.DataDragonVersionJpaRepository;
 import song.mygg1.domain.riot.service.ApiService;
 
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.util.function.Supplier;
 @Service
 @RequiredArgsConstructor
 public class DataDragonService {
+    private final DataDragonVersionJpaRepository dataDragonVersionRepository;
     private final ApiService apiService;
     private String version;
     @Value("${ddragon.path}")
