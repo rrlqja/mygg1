@@ -2,8 +2,6 @@ package song.mygg1.domain.riot.service.match;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -19,6 +17,7 @@ import song.mygg1.domain.riot.mapper.match.MatchMapper;
 import song.mygg1.domain.riot.repository.match.MatchJpaRepository;
 import song.mygg1.domain.riot.service.ApiService;
 import song.mygg1.domain.riot.service.league.LeagueService;
+import song.mygg1.domain.riot.service.timeline.TimeLineService;
 
 import java.time.Duration;
 import java.util.List;
@@ -32,6 +31,7 @@ public class MatchService {
     private final CacheService<MatchDto> cacheService;
     private final MatchCacheLimiterService cacheLimiterService;
     private final LeagueService leagueService;
+    private final TimeLineService timeLineService;
     private final MatchJpaRepository matchRepository;
     private final ApiService apiService;
     private final MatchMapper matchMapper;
@@ -47,6 +47,8 @@ public class MatchService {
                 () -> matchMapper.toDto(getOrFetchMatch(matchId), puuid),
                 MATCH_DETAIL_TTL
         );
+
+        timeLineService.getTimeline(matchId);
 
 //        cacheLimiterService.trackAndTrim(key);
 

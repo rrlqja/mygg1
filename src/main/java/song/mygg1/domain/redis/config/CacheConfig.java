@@ -22,6 +22,7 @@ import song.mygg1.domain.riot.dto.match.participant.ChampionWinRatePerDateDto;
 import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.dto.match.participant.WinRateDto;
 import song.mygg1.domain.riot.dto.summoner.SummonerDto;
+import song.mygg1.domain.riot.dto.timeline.TimelineDto;
 
 import java.util.List;
 import java.util.Set;
@@ -115,6 +116,17 @@ public class CacheConfig {
     ) {
         JavaType type = mapper.getTypeFactory()
                 .constructType(MatchDto.class);
+
+        return new BaseCacheService<>(redis, mapper, type);
+    }
+
+    @Bean
+    public CacheService<TimelineDto> timelineCacheService(
+            StringRedisTemplate redis,
+            ObjectMapper mapper
+    ) {
+        JavaType type = mapper.getTypeFactory()
+                .constructType(TimelineDto.class);
 
         return new BaseCacheService<>(redis, mapper, type);
     }

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ParticipantFrameDto {
-    private Integer participantId;
+    private String participantId;
     private ChampionStatsDto championStats;
     private Integer currentGold;
     private DamageStatsDto damageStats;
