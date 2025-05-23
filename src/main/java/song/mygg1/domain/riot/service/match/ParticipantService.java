@@ -28,6 +28,7 @@ public class ParticipantService {
 
     private static final ZoneId kst = ZoneId.of("Asia/Seoul");
     private static final Duration WIN_RATE_TTL = Duration.ofDays(1L);
+    private static final Duration DAILY_WIN_RATE_TTL = Duration.ofHours(1L);
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<ChampionWinRatePerDateDto> getChampionWinRatePerDate(String championName) {
@@ -71,7 +72,7 @@ public class ParticipantService {
         return winRateCacheService.getOrLoad(
                 key,
                 () -> getWinRate(yesterday, dayBefore),
-                WIN_RATE_TTL
+                DAILY_WIN_RATE_TTL
         );
     }
 
