@@ -1,11 +1,12 @@
 package song.mygg1.domain.riot.dto.timeline;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import song.mygg1.domain.riot.entity.timeline.Position;
 
-@Data
+@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class PositionDto {
