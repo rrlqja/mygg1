@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import song.mygg1.domain.riot.dto.timeline.event.BuildingKillEventDto;
 import song.mygg1.domain.riot.dto.timeline.event.ChampionKillEventDto;
 import song.mygg1.domain.riot.dto.timeline.event.ChampionSpecialKillEventDto;
+import song.mygg1.domain.riot.dto.timeline.event.ChampionTransformEventDto;
 import song.mygg1.domain.riot.dto.timeline.event.CommonEventDto;
 import song.mygg1.domain.riot.dto.timeline.event.DragonSoulGivenEventDto;
 import song.mygg1.domain.riot.dto.timeline.event.EliteMonsterKillEventDto;
@@ -46,6 +47,7 @@ import song.mygg1.domain.riot.dto.timeline.event.WardPlaceEventDto;
         @JsonSubTypes.Type(value = LevelUpEventDto.class, name = "LEVEL_UP"),
         @JsonSubTypes.Type(value = WardPlaceEventDto.class, name = "WARD_PLACED"),
         @JsonSubTypes.Type(value = ChampionSpecialKillEventDto.class, name = "CHAMPION_SPECIAL_KILL"),
+        @JsonSubTypes.Type(value = ChampionTransformEventDto.class, name = "CHAMPION_TRANSFORM"),
         @JsonSubTypes.Type(value = ItemDestroyEventDto.class, name = "ITEM_DESTROYED"),
         @JsonSubTypes.Type(value = ItemUndoEventDto.class, name = "ITEM_UNDO"),
         @JsonSubTypes.Type(value = WardKillEventDto.class, name = "WARD_KILL"),

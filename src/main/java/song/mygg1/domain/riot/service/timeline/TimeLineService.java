@@ -45,7 +45,7 @@ public class TimeLineService {
                 .orElseGet(() -> {
                     TimelineDto timelineDto = apiService.getMatchTimeline(matchId)
                             .orElseThrow(MatchNotFoundException::new);
-                    log.info("get timeline: {}", timelineDto.getMetadata().getMatchId());
+                    log.info("save timeline: {}", timelineDto.getMetadata().getMatchId());
                     Timeline entity = mapper.toEntity(timelineDto);
                     return timeLineRepository.save(entity);
                 });

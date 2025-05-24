@@ -48,7 +48,7 @@ public class MatchService {
                 MATCH_DETAIL_TTL
         );
 
-        timeLineService.getTimeline(matchId);
+        timeLineService.saveMatchTimeline(matchId);
 
 //        cacheLimiterService.trackAndTrim(key);
 

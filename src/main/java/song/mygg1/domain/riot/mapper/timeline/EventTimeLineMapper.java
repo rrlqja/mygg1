@@ -9,6 +9,7 @@ import song.mygg1.domain.riot.dto.timeline.PositionDto;
 import song.mygg1.domain.riot.dto.timeline.event.BuildingKillEventDto;
 import song.mygg1.domain.riot.dto.timeline.event.ChampionKillEventDto;
 import song.mygg1.domain.riot.dto.timeline.event.ChampionSpecialKillEventDto;
+import song.mygg1.domain.riot.dto.timeline.event.ChampionTransformEventDto;
 import song.mygg1.domain.riot.dto.timeline.event.CommonEventDto;
 import song.mygg1.domain.riot.dto.timeline.event.DragonSoulGivenEventDto;
 import song.mygg1.domain.riot.dto.timeline.event.EliteMonsterKillEventDto;
@@ -33,6 +34,7 @@ import song.mygg1.domain.riot.entity.timeline.Position;
 import song.mygg1.domain.riot.entity.timeline.events.BuildingKillEvent;
 import song.mygg1.domain.riot.entity.timeline.events.ChampionKillEvent;
 import song.mygg1.domain.riot.entity.timeline.events.ChampionSpecialKillEvent;
+import song.mygg1.domain.riot.entity.timeline.events.ChampionTransformEvent;
 import song.mygg1.domain.riot.entity.timeline.events.CommonEvent;
 import song.mygg1.domain.riot.entity.timeline.events.DragonSoulGivenEvent;
 import song.mygg1.domain.riot.entity.timeline.events.EliteMonsterKillEvent;
@@ -140,6 +142,13 @@ public class EventTimeLineMapper {
             subDto.setKillType(championSpecialKillEvent.getKillType());
             subDto.setKillId(championSpecialKillEvent.getKillId());
             subDto.setPosition(new PositionDto(championSpecialKillEvent.getPosition()));
+
+            dto = subDto;
+        } else if (entity instanceof ChampionTransformEvent championTransformEvent) {
+            ChampionTransformEventDto subDto = new ChampionTransformEventDto();
+
+            subDto.setParticipantId(championTransformEvent.getParticipantId());
+            subDto.setTransformType(championTransformEvent.getTransformType());
 
             dto = subDto;
         } else if (entity instanceof ItemDestroyEvent itemDestroyEvent) {
@@ -309,6 +318,13 @@ public class EventTimeLineMapper {
             subEntity.setKillType(championSpecialKillEvent.getKillType());
             subEntity.setKillId(championSpecialKillEvent.getKillId());
             subEntity.setPosition(new Position(championSpecialKillEvent.getPosition()));
+
+            entity = subEntity;
+        } else if (dto instanceof ChampionTransformEventDto championTransformEvent) {
+            ChampionTransformEvent subEntity = new ChampionTransformEvent();
+
+            subEntity.setParticipantId(championTransformEvent.getParticipantId());
+            subEntity.setTransformType(championTransformEvent.getTransformType());
 
             entity = subEntity;
         } else if (dto instanceof ItemDestroyEventDto itemDestroyEvent) {

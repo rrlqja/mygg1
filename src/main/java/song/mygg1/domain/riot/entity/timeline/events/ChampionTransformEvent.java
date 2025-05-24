@@ -1,5 +1,6 @@
 package song.mygg1.domain.riot.entity.timeline.events;
 
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,8 @@ import song.mygg1.domain.riot.entity.timeline.EventTimeLine;
 @Entity
 @Getter @Setter
 @NoArgsConstructor
-public class CommonEvent extends EventTimeLine {
-
+@DiscriminatorValue("CHAMPION_TRANSFORM")
+public class ChampionTransformEvent extends EventTimeLine {
+    private Integer participantId;
+    private String transformType;
 }
