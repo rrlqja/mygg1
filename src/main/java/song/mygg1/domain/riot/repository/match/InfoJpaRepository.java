@@ -19,8 +19,7 @@ public interface InfoJpaRepository extends JpaRepository<Info, Long> {
             ") " +
             "  from Info i " +
             "  left join i.participants p " +
-            " where date(from_unixtime(i.gameCreation / 1000)) " +
-            "between :startDate and :endDate " +
+            " where date(from_unixtime(i.gameCreation / 1000)) between :startDate and :endDate " +
             " group by date(from_unixtime(i.gameCreation / 1000)) " +
             " order by date(from_unixtime(i.gameCreation / 1000)) asc")
     List<ChampionUsageDto> findChampionUsage(@Param("championId") Long championId,

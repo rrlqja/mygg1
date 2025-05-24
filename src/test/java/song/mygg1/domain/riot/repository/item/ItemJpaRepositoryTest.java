@@ -27,4 +27,10 @@ class ItemJpaRepositoryTest {
         log.info("itemList: {}", itemList);
     }
 
+    @Test
+    void getCoreItems() {
+        List<Item> coreItemList = itemRepository.findCoreItemList();
+        log.info("coreItemList: {}", coreItemList);
+    }
+
 }

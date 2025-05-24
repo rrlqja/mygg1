@@ -41,7 +41,7 @@ server:
         path: /
 
 logging.level:
-  p6spy: debug
+  p6spy: warn
   org:
     hibernate.SQL: warn
     springframework:

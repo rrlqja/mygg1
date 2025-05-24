@@ -5,8 +5,10 @@ import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import song.mygg1.domain.riot.entity.timeline.EventTimeLine;
 
+@ToString
 @Entity
 @Getter @Setter
 @NoArgsConstructor

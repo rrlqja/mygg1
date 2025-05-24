@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import song.mygg1.domain.riot.dto.match.championbuild.MatchPlayerInfo;
 import song.mygg1.domain.riot.entity.match.Matches;
 
 import java.util.Collection;
@@ -37,4 +38,16 @@ public interface MatchJpaRepository extends JpaRepository<Matches, Long> {
             "order by mi.gameCreation desc")
     Page<Matches> findMatchesByChampion(@Param("championId") Long championId,
                                         Pageable pageable);
+
+    @Query("select new song.mygg1.domain.riot.dto.match.championbuild.MatchPlayerInfo(m.matchId, p.id.participantId, p.win) " +
+            " from Matches m " +
+            " join m.info i " +
+            " join i.participants p " +
+            "where date(from_unixtime(i.gameCreation / 1000)) BETWEEN :startTime AND :endTime " +
+            "  and p.championId = :championId")
+    List<MatchPlayerInfo> findMatchPlayerInfoByChampionAndPeriod(
+            @Param("championId") Integer championId,
+            @Param("startTime") Long startTime,
+            @Param("endTime") Long endTime
+    );
 }

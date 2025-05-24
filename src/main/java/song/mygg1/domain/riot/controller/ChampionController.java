@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import song.mygg1.domain.riot.service.champion.ChampionBuildService;
 import song.mygg1.domain.riot.service.champion.ChampionService;
 import song.mygg1.domain.riot.service.league.LeagueItemService;
 import song.mygg1.domain.riot.service.league.LeagueService;
@@ -22,6 +23,7 @@ public class ChampionController {
     private final RecentSearchService recentSearchService;
     private final LeagueService leagueService;
     private final LeagueItemService leagueItemService;
+    private final ChampionBuildService championBuildService;
 
     @GetMapping("/{championId}")
     public String getChampion(@PathVariable("championId") Long championId,
@@ -31,9 +33,10 @@ public class ChampionController {
         model.addAttribute("championInfo", championService.getChampionInfo(championId));
         model.addAttribute("championMasteryRanking", championService.getChampionMasteryRanking(championId));
 
-
         model.addAttribute("leagueItemList", leagueItemService.getLeagueItemList(leagueService.getChallengerLeague()));
         model.addAttribute("recentSearch", recentSearchService.get(session.getId()));
+
+        model.addAttribute("championItemBuild", championBuildService.getChampionItemBuild(championId.intValue()));
 
         return "riot/champion";
     }

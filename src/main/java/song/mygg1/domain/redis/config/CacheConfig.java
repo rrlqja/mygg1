@@ -17,6 +17,7 @@ import song.mygg1.domain.riot.dto.item.ItemDto;
 import song.mygg1.domain.riot.dto.league.LeagueEntryDto;
 import song.mygg1.domain.riot.dto.league.LeagueItemSummonerDto;
 import song.mygg1.domain.riot.dto.league.LeagueListDto;
+import song.mygg1.domain.riot.dto.match.championbuild.AggregatedCoreItemStatsDto;
 import song.mygg1.domain.riot.dto.match.info.ChampionUsageDto;
 import song.mygg1.domain.riot.dto.match.participant.ChampionWinRatePerDateDto;
 import song.mygg1.domain.riot.dto.match.MatchDto;
@@ -31,7 +32,6 @@ import java.util.Set;
 @Configuration
 public class CacheConfig {
 
-
     @Bean
     public CacheService<List<ChampionWinRatePerDateDto>> championWinRateCacheService(
             StringRedisTemplate redis,
@@ -39,6 +39,17 @@ public class CacheConfig {
     ) {
         JavaType type = mapper.getTypeFactory()
                 .constructCollectionType(List.class, ChampionWinRatePerDateDto.class);
+
+        return new BaseCacheService<>(redis, mapper, type);
+    }
+
+    @Bean
+    public CacheService<AggregatedCoreItemStatsDto> championBuildCacheService(
+            StringRedisTemplate redis,
+            ObjectMapper mapper
+    ) {
+        JavaType type = mapper.getTypeFactory()
+                .constructType(AggregatedCoreItemStatsDto.class);
 
         return new BaseCacheService<>(redis, mapper, type);
     }
