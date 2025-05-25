@@ -3,48 +3,164 @@ package song.mygg1.domain.riot.service.champion;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import song.mygg1.domain.redis.service.CacheService;
+import song.mygg1.domain.riot.dto.champion.ChampionSkillTreeDto;
+import song.mygg1.domain.riot.dto.champion.SkillSlotCounter;
 import song.mygg1.domain.riot.dto.match.championbuild.AggregatedCoreItemStatsDto;
 import song.mygg1.domain.riot.dto.match.championbuild.CoreItemStatDto;
 import song.mygg1.domain.riot.dto.match.championbuild.ItemStatCounter;
 import song.mygg1.domain.riot.dto.match.championbuild.MatchPlayerInfo;
 import song.mygg1.domain.riot.entity.item.Item;
+import song.mygg1.domain.riot.entity.timeline.EventTimeLine;
+import song.mygg1.domain.riot.entity.timeline.FrameTimeLine;
+import song.mygg1.domain.riot.entity.timeline.ParticipantFrame;
+import song.mygg1.domain.riot.entity.timeline.Timeline;
 import song.mygg1.domain.riot.entity.timeline.events.ItemPurchaseEvent;
+import song.mygg1.domain.riot.entity.timeline.events.SkillLevelUpEvent;
 import song.mygg1.domain.riot.repository.item.ItemJpaRepository;
 import song.mygg1.domain.riot.repository.match.MatchJpaRepository;
 import song.mygg1.domain.riot.repository.timeline.ItemPurchaseEventJpaRepository;
+import song.mygg1.domain.riot.repository.timeline.TimeLineJpaRepository;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChampionBuildService {
-    private final CacheService<AggregatedCoreItemStatsDto> cacheService;
+    private final CacheService<AggregatedCoreItemStatsDto> itemBuildCacheService;
+    private final CacheService<ChampionSkillTreeDto> skillTreeCacheService;
     private final MatchJpaRepository matchRepository;
+    private final TimeLineJpaRepository timeLineRepository;
     private final ItemPurchaseEventJpaRepository itemPurchaseEventRepository;
     private final ItemJpaRepository itemRepository;
 
     private static final ZoneId kst = ZoneId.of("Asia/Seoul");
-    private static final Duration MATCH_TIMELINE_TTL = Duration.ofDays(7);
+    private static final Duration ITEM_BUILD_TTL = Duration.ofDays(7);
+    private static final Duration SKILL_TREE_TTL = Duration.ofDays(7);
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public ChampionSkillTreeDto getChampionSkillTree(Integer championId) {
+        String key = "champion:build:skill:" + championId;
+
+        skillTreeCacheService.getOrLoad(
+                key,
+                () -> buildSkillTree(championId),
+                SKILL_TREE_TTL
+        );
+
+        return buildSkillTree(championId);
+    }
+
+    private ChampionSkillTreeDto buildSkillTree(Integer championId) {
+        LocalDate today = LocalDate.now(kst);
+        ZonedDateTime endZonedDateTime = today.atStartOfDay(kst);
+        Instant endInstant = endZonedDateTime.toInstant();
+        long endTimestamp = endInstant.toEpochMilli();
+
+        LocalDate startDateValue = today.minusMonths(3).withDayOfMonth(1);
+        ZonedDateTime startZonedDateTime = startDateValue.atStartOfDay(kst);
+        Instant startInstant = startZonedDateTime.toInstant();
+        long startTimestamp = startInstant.toEpochMilli();
+
+        List<MatchPlayerInfo> targetPlayers = matchRepository.findMatchPlayerInfoByChampionAndPeriod(championId, startTimestamp, endTimestamp);
+
+        Map<Integer, SkillSlotCounter> aggregatedSkillCountsByLevel = new HashMap<>();
+        for (int i = 1; i <= 18; i++) {
+            aggregatedSkillCountsByLevel.put(i, new SkillSlotCounter());
+        }
+
+        for (MatchPlayerInfo playerInfo : targetPlayers) {
+            Timeline timeline = timeLineRepository.findById(playerInfo.getMatchId()).orElse(null);
+            if (timeline == null || timeline.getInfo() == null || timeline.getInfo().getFrames() == null) {
+                log.warn("타임라인 정보를 찾을 수 없습니다: {}", playerInfo.getMatchId());
+                continue;
+            }
+
+            Set<String> skillUpProcessedForLevelInGame = new HashSet<>();
+
+            List<FrameTimeLine> frames = timeline.getInfo().getFrames();
+            frames.sort(Comparator.comparing(frame -> frame.getId().getTimestamp()));
+
+            for (FrameTimeLine frame : frames) {
+                if (frame.getEvents() == null) continue;
+
+                List<EventTimeLine> frameEvents = new ArrayList<>(frame.getEvents());
+                frameEvents.sort(Comparator.comparing(EventTimeLine::getTimestamp));
+
+                for (EventTimeLine event : frameEvents) {
+                    if (event instanceof SkillLevelUpEvent suEvent &&
+                            suEvent.getParticipantId() != null &&
+                            suEvent.getParticipantId().equals(playerInfo.getParticipantId()) &&
+                            "NORMAL".equalsIgnoreCase(suEvent.getLevelUpType())) {
+
+                        Integer championLevelAtEvent = null;
+                        if (frame.getParticipantFrames() != null) {
+                            for (ParticipantFrame pf : frame.getParticipantFrames()) {
+                                if (pf.getId() != null && Integer.valueOf(pf.getId().getParticipantId()).equals(suEvent.getParticipantId())) {
+                                    championLevelAtEvent = pf.getLevel();
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (championLevelAtEvent != null && championLevelAtEvent > 0 && championLevelAtEvent <= 18) {
+                            String levelSkillKey = championLevelAtEvent + "-" + suEvent.getSkillSlot();
+                            if (!skillUpProcessedForLevelInGame.contains(levelSkillKey)) {
+                                aggregatedSkillCountsByLevel.get(championLevelAtEvent).incrementSkill(suEvent.getSkillSlot());
+                                skillUpProcessedForLevelInGame.add(levelSkillKey);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        List<String> finalSkillTree = new ArrayList<>();
+        for (int level = 1; level <= 18; level++) {
+            SkillSlotCounter counter = aggregatedSkillCountsByLevel.get(level);
+            int mostPickedSlot = 0;
+            if (counter != null) {
+                mostPickedSlot = counter.getMostPickedSkillSlot();
+            }
+            finalSkillTree.add(skillSlotToString(mostPickedSlot));
+        }
+
+        return new ChampionSkillTreeDto(finalSkillTree);
+    }
+
+    private String skillSlotToString(int skillSlot) {
+        return switch (skillSlot) {
+            case 1 -> "Q";
+            case 2 -> "W";
+            case 3 -> "E";
+            case 4 -> "R";
+            default -> "";
+        };
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public AggregatedCoreItemStatsDto getChampionItemBuild(Integer championId) {
         String key = "champion:build:item:" + championId;
 
-        AggregatedCoreItemStatsDto dto = cacheService.getOrLoad(
+        AggregatedCoreItemStatsDto dto = itemBuildCacheService.getOrLoad(
                 key,
                 () -> setChampionItemBuild(championId),
-                MATCH_TIMELINE_TTL
+                ITEM_BUILD_TTL
         );
 
         return dto;
