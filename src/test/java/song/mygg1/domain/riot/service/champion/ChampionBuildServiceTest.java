@@ -22,7 +22,7 @@ class ChampionBuildServiceTest {
 
     @Test
     void getChampionItemBuild() {
-        AggregatedCoreItemStatsDto championBuild = championBuildService.getChampionItemBuild(80);
+        AggregatedCoreItemStatsDto championBuild = championBuildService.getChampionItemBuild(235);
 
         List<CoreItemStatDto> firstCoreItemStats = championBuild.getFirstCoreItemStats();
         List<CoreItemStatDto> secondCoreItemStats = championBuild.getSecondCoreItemStats();

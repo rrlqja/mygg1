@@ -1,0 +1,54 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>Fragment</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}">
+    <script th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+</head>
+<body>
+
+<div th:fragment="itemBuild(itemList)" style="width: 280px; min-height: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid #e0e0e0; border-radius: 10px;">
+    <div style="width: 100%; min-height: 30px; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; font-size: 14px; font-weight: 600; border-bottom: 1px solid #e0e0e0; border-top-left-radius: 10px; border-top-right-radius: 10px; background-color: #e4e1de;">
+        <div style="width: 110px; height: 30px; display: flex; justify-content: center; align-items: center;">
+            <span>아이템</span>
+        </div>
+        <div style="width: 65px; height: 30px; display: flex; justify-content: center; align-items: center;">
+            <span>승률</span>
+        </div>
+        <div style="width: 65px; height: 30px; display: flex; justify-content: center; align-items: center;">
+            <span>픽률</span>
+        </div>
+        <div style="width: 40px; height: 30px; display: flex; justify-content: center; align-items: center;">
+            <span>표본</span>
+        </div>
+    </div>
+    <div style="width: 100%; min-height: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; border-radius: 10px;">
+        <div th:if="${itemList == null or #lists.isEmpty(itemList)}" style="width: 100%; min-height: 60px; display: flex; justify-content: center; align-items: center; color: #888;">
+            표시할 아이템이 없습니다.
+        </div>
+        <div th:each="item : ${itemList}" th:if="${itemList != null and not #lists.isEmpty(itemList)}" style="width: 100%; min-height: 60px; display: flex; flex-direction: row;">
+            <div style="width: 110px; height: 60px; display: flex; justify-content: center; align-items: center;">
+                <div style="width: 50px; height: 50px; display: flex; justify-content: center; align-items: center;">
+                    <img th:src="@{/image/item/{itemId}(itemId=${item.getItemId()})}" style="width: 100%; height: 100%; border-radius: 8px;" alt="아이템 이미지">
+                </div>
+            </div>
+            <div style="width: 65px; height: 60px; display: flex; justify-content: center; align-items: center;">
+                <span th:text="${item.getWinRate() + '%'}"></span>
+            </div>
+            <div style="width: 65px; height: 60px; display: flex; justify-content: center; align-items: center;">
+                <span th:text="${item.getPurchasePercentage() + '%'}"></span>
+            </div>
+            <div style="width: 40px; height: 60px; display: flex; justify-content: center; align-items: center;">
+                <span th:text="${item.getPurchaseCount()}"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
