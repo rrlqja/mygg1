@@ -5,7 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
-import song.mygg1.domain.riot.dto.champion.ChampionSkillTreeDto;
+import song.mygg1.domain.riot.dto.champion.ChampionLevelSkillStatsResponse;
+import song.mygg1.domain.riot.dto.champion.LevelSkillData;
 import song.mygg1.domain.riot.dto.match.championbuild.AggregatedCoreItemStatsDto;
 import song.mygg1.domain.riot.dto.match.championbuild.CoreItemStatDto;
 
@@ -35,8 +36,8 @@ class ChampionBuildServiceTest {
 
     @Test
     void getChampionSkillTree() {
-        ChampionSkillTreeDto championSkillTree = championBuildService.buildSkillTree(235);
+        ChampionLevelSkillStatsResponse res = championBuildService.buildSkillTree(80);
 
-        log.info("skillTree: {}", championSkillTree.getSkillTree());
+        log.info("skillTree: {}", res);
     }
 }

@@ -44,7 +44,8 @@ public interface MatchJpaRepository extends JpaRepository<Matches, Long> {
             " join m.info i " +
             " join i.participants p " +
             "where date(from_unixtime(i.gameCreation / 1000)) BETWEEN :startTime AND :endTime " +
-            "  and p.championId = :championId")
+            "  and p.championId = :championId " +
+            "order by i.gameCreation asc")
     List<MatchPlayerInfo> findMatchPlayerInfoByChampionAndPeriod(
             @Param("championId") Integer championId,
             @Param("startTime") Long startTime,

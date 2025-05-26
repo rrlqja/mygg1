@@ -23,7 +23,7 @@ class ItemPurchaseEventJpaRepositoryTest {
 
     @Test
     void getItemPurchaseEvent() {
-        List<ItemPurchaseEvent> itemPurchaseEventList = itemPurchaseEventRepository.findByMatchIdAndParticipantIdOrderByTimestampAsc("KR_7645712278", 2);
+        List<ItemPurchaseEvent> itemPurchaseEventList = itemPurchaseEventRepository.findByMatchIds(List.of("KR_7645712278"));
         log.info("itemPurchaseEventList: {}", itemPurchaseEventList.size());
     }
 

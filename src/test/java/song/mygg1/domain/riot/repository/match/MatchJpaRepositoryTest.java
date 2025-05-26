@@ -43,7 +43,7 @@ class MatchJpaRepositoryTest {
 
     @Test
     void getMatchPlayerInfo() {
-        LocalDate yesterday = LocalDate.now(kst).minusDays(1);
+        LocalDate yesterday = LocalDate.now(kst);
         LocalDate startDate = yesterday.minusDays(6);
 
         Instant startInstant = startDate
@@ -56,7 +56,10 @@ class MatchJpaRepositoryTest {
 
         long start = startInstant.toEpochMilli();
         long end = endInstant.toEpochMilli();
-        List<MatchPlayerInfo> infoList = matchRepository.findMatchPlayerInfoByChampionAndPeriod(236, start, end, PageRequest.of(0, 3000));
-        log.info("infoList: {}", infoList.size());
+        List<MatchPlayerInfo> infoList = matchRepository.findMatchPlayerInfoByChampionAndPeriod(43, start, end, PageRequest.of(0, 3000));
+
+        for (MatchPlayerInfo playerInfo : infoList) {
+            log.info("match.id: {}", playerInfo.getMatchId());
+        }
     }
 }

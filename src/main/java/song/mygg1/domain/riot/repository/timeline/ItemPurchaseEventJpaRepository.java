@@ -12,12 +12,8 @@ import java.util.List;
 public interface ItemPurchaseEventJpaRepository extends JpaRepository<ItemPurchaseEvent, Long> {
     @Query("select ipe " +
             " from ItemPurchaseEvent ipe " +
-            " join ipe.frame f " +
-            "where f.id.matchId = :matchId " +
-            "  and ipe.participantId = :participantIdInGame " +
+            " join fetch ipe.frame f " +
+            "where f.id.matchId in :matchIds " +
             "order by ipe.timestamp asc")
-    List<ItemPurchaseEvent> findByMatchIdAndParticipantIdOrderByTimestampAsc(
-            @Param("matchId") String matchId,
-            @Param("participantIdInGame") Integer participantIdInGame
-    );
+    List<ItemPurchaseEvent> findByMatchIds(@Param("matchIds") List<String> matchIds);
 }

@@ -149,7 +149,7 @@ public class LeagueService {
         );
     }
 
-    @Scheduled(cron="0 0 0 * * ?")
+//    @Scheduled(cron="0 0 0 * * ?") //스킬트리 개발 후 해제
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void refreshChallengerLeague() {
         String key = "league:challenger";
@@ -157,7 +157,7 @@ public class LeagueService {
         getChallengerLeague();
     }
 
-    @Scheduled(cron="0 0 0 * * ?")
+//    @Scheduled(cron="0 0 0 * * ?") //스킬트리 개발 후 해제
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void refreshGrandmasterLeague() {
         String key = "league:grandmaster";
