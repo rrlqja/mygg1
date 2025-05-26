@@ -2,6 +2,7 @@ package song.mygg1.domain.riot.service.champion;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +54,9 @@ public class ChampionBuildService {
     private static final ZoneId kst = ZoneId.of("Asia/Seoul");
     private static final Duration ITEM_BUILD_TTL = Duration.ofDays(7);
     private static final Duration SKILL_TREE_TTL = Duration.ofDays(7);
+    private static final int FIRST_CORE_LIMIT = 3;
+    private static final int SECOND_CORE_LIMIT = 3;
+    private static final int THIRD_CORE_LIMIT = 5;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ChampionSkillTreeDto getChampionSkillTree(Integer championId) {
@@ -67,7 +71,8 @@ public class ChampionBuildService {
         return buildSkillTree(championId);
     }
 
-    private ChampionSkillTreeDto buildSkillTree(Integer championId) {
+    @Transactional
+    public ChampionSkillTreeDto buildSkillTree(Integer championId) {
         LocalDate today = LocalDate.now(kst);
         ZonedDateTime endZonedDateTime = today.atStartOfDay(kst);
         Instant endInstant = endZonedDateTime.toInstant();
@@ -78,7 +83,7 @@ public class ChampionBuildService {
         Instant startInstant = startZonedDateTime.toInstant();
         long startTimestamp = startInstant.toEpochMilli();
 
-        List<MatchPlayerInfo> targetPlayers = matchRepository.findMatchPlayerInfoByChampionAndPeriod(championId, startTimestamp, endTimestamp);
+        List<MatchPlayerInfo> targetPlayers = matchRepository.findMatchPlayerInfoByChampionAndPeriod(championId, startTimestamp, endTimestamp, PageRequest.of(0, 1500));
 
         Map<Integer, SkillSlotCounter> aggregatedSkillCountsByLevel = new HashMap<>();
         for (int i = 1; i <= 18; i++) {
@@ -166,7 +171,7 @@ public class ChampionBuildService {
         return dto;
     }
 
-    private AggregatedCoreItemStatsDto setChampionItemBuild(Integer championId) {
+    public AggregatedCoreItemStatsDto setChampionItemBuild(Integer championId) {
         LocalDate today = LocalDate.now(kst);
         ZonedDateTime endZonedDateTime = today.atStartOfDay(kst);
         Instant endInstant = endZonedDateTime.toInstant();
@@ -182,7 +187,7 @@ public class ChampionBuildService {
                 .map(i -> Integer.valueOf(i.getId()))
                 .toList();
 
-        List<MatchPlayerInfo> infoList = matchRepository.findMatchPlayerInfoByChampionAndPeriod(championId, start, end);
+        List<MatchPlayerInfo> infoList = matchRepository.findMatchPlayerInfoByChampionAndPeriod(championId, start, end, PageRequest.of(0, 3000));
 
         Map<Integer, ItemStatCounter> firstCoreItemCounters = new HashMap<>();
         Map<Integer, ItemStatCounter> secondCoreItemCounters = new HashMap<>();
@@ -232,14 +237,14 @@ public class ChampionBuildService {
             }
         }
 
-        List<CoreItemStatDto> firstCoreResult = formatResults(firstCoreItemCounters, gamesWithFirstCore, coreItemList);
-        List<CoreItemStatDto> secondCoreResult = formatResults(secondCoreItemCounters, gamesWithSecondCore, coreItemList);
-        List<CoreItemStatDto> thirdCoreResult = formatResults(thirdCoreItemCounters, gamesWithThirdCore, coreItemList);
+        List<CoreItemStatDto> firstCoreResult = formatResults(firstCoreItemCounters, gamesWithFirstCore, coreItemList, FIRST_CORE_LIMIT);
+        List<CoreItemStatDto> secondCoreResult = formatResults(secondCoreItemCounters, gamesWithSecondCore, coreItemList, SECOND_CORE_LIMIT);
+        List<CoreItemStatDto> thirdCoreResult = formatResults(thirdCoreItemCounters, gamesWithThirdCore, coreItemList, THIRD_CORE_LIMIT);
 
         return new AggregatedCoreItemStatsDto(firstCoreResult, secondCoreResult, thirdCoreResult);
     }
 
-    private List<CoreItemStatDto> formatResults(Map<Integer, ItemStatCounter> counters, int totalGamesForSlot, List<Item> coreItemList) {
+    private List<CoreItemStatDto> formatResults(Map<Integer, ItemStatCounter> counters, int totalGamesForSlot, List<Item> coreItemList, Integer limit) {
         if (totalGamesForSlot == 0) {
             return Collections.emptyList();
         }
@@ -247,16 +252,23 @@ public class ChampionBuildService {
         Map<Integer, String> itemMap = coreItemList.stream()
                 .collect(Collectors.toMap(item -> Integer.valueOf(item.getId()), Item::getName, (name1, name2) -> name1));
 
-        return counters.entrySet().stream()
+        List<CoreItemStatDto> resultList = counters.entrySet().stream()
                 .map(entry -> {
                     int itemId = entry.getKey();
                     ItemStatCounter counter = entry.getValue();
                     String itemName = itemMap.getOrDefault(itemId, "아이템명 오류: " + itemId);
-                    double purchasePercentage = (double) counter.getPurchaseCount() / totalGamesForSlot * 100.0;
-                    double winRate = (counter.getPurchaseCount() > 0) ? (double) counter.getWinCount() / counter.getPurchaseCount() * 100.0 : 0.0;
+
+                    double purchasePercentage = Math.floor((double) counter.getPurchaseCount() / totalGamesForSlot * 100.0 * 100) / 100;
+                    double winRate = Math.floor(((counter.getPurchaseCount() > 0) ? (double) counter.getWinCount() / counter.getPurchaseCount() * 100.0 : 0.0) * 100) / 100;
                     return new CoreItemStatDto(itemId, itemName, purchasePercentage, winRate, counter.getPurchaseCount());
                 })
                 .sorted(Comparator.comparing(CoreItemStatDto::getPurchasePercentage).reversed())
                 .toList();
+
+        int actualLimit = Math.min(limit, resultList.size());
+        if (actualLimit > 0 || !resultList.isEmpty()) {
+            return resultList.subList(0, actualLimit);
+        }
+        return Collections.emptyList();
     }
 }

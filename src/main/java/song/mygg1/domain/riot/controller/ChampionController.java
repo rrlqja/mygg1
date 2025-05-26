@@ -36,7 +36,7 @@ public class ChampionController {
         model.addAttribute("leagueItemList", leagueItemService.getLeagueItemList(leagueService.getChallengerLeague()));
         model.addAttribute("recentSearch", recentSearchService.get(session.getId()));
 
-//        model.addAttribute("championItemBuild", championBuildService.getChampionItemBuild(championId.intValue()));
+        model.addAttribute("championItemBuild", championBuildService.getChampionItemBuild(championId.intValue()));
 
         return "riot/champion";
     }

@@ -48,6 +48,7 @@ public interface MatchJpaRepository extends JpaRepository<Matches, Long> {
     List<MatchPlayerInfo> findMatchPlayerInfoByChampionAndPeriod(
             @Param("championId") Integer championId,
             @Param("startTime") Long startTime,
-            @Param("endTime") Long endTime
+            @Param("endTime") Long endTime,
+            Pageable pageable
     );
 }

@@ -23,7 +23,7 @@ class ChampionBuildServiceTest {
 
     @Test
     void getChampionItemBuild() {
-        AggregatedCoreItemStatsDto championBuild = championBuildService.getChampionItemBuild(236);
+        AggregatedCoreItemStatsDto championBuild = championBuildService.setChampionItemBuild(235);
 
         List<CoreItemStatDto> firstCoreItemStats = championBuild.getFirstCoreItemStats();
         List<CoreItemStatDto> secondCoreItemStats = championBuild.getSecondCoreItemStats();
@@ -35,7 +35,7 @@ class ChampionBuildServiceTest {
 
     @Test
     void getChampionSkillTree() {
-        ChampionSkillTreeDto championSkillTree = championBuildService.getChampionSkillTree(235);
+        ChampionSkillTreeDto championSkillTree = championBuildService.buildSkillTree(235);
 
         log.info("skillTree: {}", championSkillTree.getSkillTree());
     }

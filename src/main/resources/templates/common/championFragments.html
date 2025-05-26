@@ -37,13 +37,13 @@
                     <img th:src="@{/image/item/{itemId}(itemId=${item.getItemId()})}" style="width: 100%; height: 100%; border-radius: 8px;" alt="아이템 이미지">
                 </div>
             </div>
-            <div style="width: 65px; height: 60px; display: flex; justify-content: center; align-items: center;">
+            <div style="width: 65px; height: 60px; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 <span th:text="${item.getWinRate() + '%'}"></span>
             </div>
-            <div style="width: 65px; height: 60px; display: flex; justify-content: center; align-items: center;">
+            <div style="width: 65px; height: 60px; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 <span th:text="${item.getPurchasePercentage() + '%'}"></span>
             </div>
-            <div style="width: 40px; height: 60px; display: flex; justify-content: center; align-items: center;">
+            <div style="width: 40px; height: 60px; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 <span th:text="${item.getPurchaseCount()}"></span>
             </div>
         </div>
