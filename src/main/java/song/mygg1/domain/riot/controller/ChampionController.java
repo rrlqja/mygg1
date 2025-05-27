@@ -29,7 +29,6 @@ public class ChampionController {
     public String getChampion(@PathVariable("championId") Long championId,
                               HttpSession session,
                               Model model) {
-
         model.addAttribute("championInfo", championService.getChampionInfo(championId));
         model.addAttribute("championMasteryRanking", championService.getChampionMasteryRanking(championId));
 
@@ -37,6 +36,7 @@ public class ChampionController {
         model.addAttribute("recentSearch", recentSearchService.get(session.getId()));
 
         model.addAttribute("championItemBuild", championBuildService.getChampionItemBuild(championId.intValue()));
+        model.addAttribute("championSkillTree", championBuildService.getChampionSkillTree(championId.intValue()));
 
         return "riot/champion";
     }

@@ -3,26 +3,26 @@ package song.mygg1.domain.riot.service.champion;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import song.mygg1.domain.redis.service.CacheService;
 import song.mygg1.domain.riot.dto.champion.ChampionLevelSkillStatsResponse;
-import song.mygg1.domain.riot.dto.champion.ChampionSkillTreeDto;
 import song.mygg1.domain.riot.dto.champion.LevelSkillData;
 import song.mygg1.domain.riot.dto.match.championbuild.AggregatedCoreItemStatsDto;
 import song.mygg1.domain.riot.dto.match.championbuild.CoreItemStatDto;
 import song.mygg1.domain.riot.dto.match.championbuild.ItemStatCounter;
 import song.mygg1.domain.riot.dto.match.championbuild.MatchPlayerInfo;
+import song.mygg1.domain.riot.entity.champion.Champion;
 import song.mygg1.domain.riot.entity.item.Item;
 import song.mygg1.domain.riot.entity.timeline.events.ItemPurchaseEvent;
 import song.mygg1.domain.riot.entity.timeline.events.SkillLevelUpEvent;
+import song.mygg1.domain.riot.repository.champion.ChampionJpaRepository;
 import song.mygg1.domain.riot.repository.item.ItemJpaRepository;
 import song.mygg1.domain.riot.repository.match.MatchJpaRepository;
 import song.mygg1.domain.riot.repository.timeline.ItemPurchaseEventJpaRepository;
-import song.mygg1.domain.riot.repository.timeline.LevelUpEventJpaRepository;
 import song.mygg1.domain.riot.repository.timeline.SkillLevelUpEventJpaRepository;
-import song.mygg1.domain.riot.repository.timeline.TimeLineJpaRepository;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -42,52 +42,60 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ChampionBuildService {
     private final CacheService<AggregatedCoreItemStatsDto> itemBuildCacheService;
-    private final CacheService<ChampionSkillTreeDto> skillTreeCacheService;
+    private final CacheService<ChampionLevelSkillStatsResponse> skillTreeCacheService;
     private final MatchJpaRepository matchRepository;
-    private final TimeLineJpaRepository timeLineRepository;
     private final ItemPurchaseEventJpaRepository itemPurchaseEventRepository;
     private final SkillLevelUpEventJpaRepository sKillLevelUpEventRepository;
-    private final LevelUpEventJpaRepository levelUpEventRepository;
-
+    private final ChampionJpaRepository championRepository;
     private final ItemJpaRepository itemRepository;
 
     private static final ZoneId kst = ZoneId.of("Asia/Seoul");
-    private static final Duration ITEM_BUILD_TTL = Duration.ofDays(7);
-    private static final Duration SKILL_TREE_TTL = Duration.ofDays(7);
+    private static final Duration ITEM_BUILD_TTL = Duration.ofDays(1);
+    private static final Duration SKILL_TREE_TTL = Duration.ofDays(1);
     private static final int FIRST_CORE_LIMIT = 3;
     private static final int SECOND_CORE_LIMIT = 3;
     private static final int THIRD_CORE_LIMIT = 5;
-    private static final int MAX_QWE_POINTS = 5;
-    private static final int MAX_R_POINTS = 3;
-    private static final int MAX_CHAMPION_LEVEL = 18;
 
-//    @Transactional(propagation = Propagation.REQUIRES_NEW)
-//    public ChampionSkillTreeDto getChampionSkillTree(Integer championId) {
-//        String key = "champion:build:skill:" + championId;
-//
-//        skillTreeCacheService.getOrLoad(
-//                key,
-//                () -> buildSkillTree(championId),
-//                SKILL_TREE_TTL
-//        );
-//
-//        return buildSkillTree(championId);
-//    }
+    @Scheduled(cron = "0 0 22 * * ?")
+    public void setChampionBuild() {
+        List<Champion> championList = championRepository.findAll();
 
-    @Transactional
-    public ChampionLevelSkillStatsResponse buildSkillTree(Integer championId) {
-        LocalDate today = LocalDate.now(kst);
-        ZonedDateTime endZonedDateTime = today.atStartOfDay(kst);
+        for (Champion champion : championList) {
+            log.info("set champion build champion {}:{}", champion.getId(), champion.getKey());
+
+            try {
+                getChampionSkillTree(champion.getKey().intValue());
+                getChampionItemBuild(champion.getKey().intValue());
+            } catch (Exception e) {
+                log.error("error champion build champion {}:{}", champion.getId(), champion.getKey(), e);
+            }
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public ChampionLevelSkillStatsResponse getChampionSkillTree(Integer championId) {
+        String key = "champion:build:skill:" + championId;
+
+        return skillTreeCacheService.getOrLoad(
+                key,
+                () -> setChampionSkillTree(championId),
+                SKILL_TREE_TTL
+        );
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public ChampionLevelSkillStatsResponse setChampionSkillTree(Integer championId) {
+        ZonedDateTime endZonedDateTime = ZonedDateTime.now(kst);
         Instant endInstant = endZonedDateTime.toInstant();
         long endTimestamp = endInstant.toEpochMilli();
 
-        LocalDate startDateValue = today.minusMonths(3).withDayOfMonth(1);
+        LocalDate startDateValue = LocalDate.now(kst).minusMonths(3).withDayOfMonth(1);
         ZonedDateTime startZonedDateTime = startDateValue.atStartOfDay(kst);
         Instant startInstant = startZonedDateTime.toInstant();
         long startTimestamp = startInstant.toEpochMilli();
 
-        List<MatchPlayerInfo> targetPlayers = matchRepository.findMatchPlayerInfoByChampionAndPeriod(championId, startTimestamp, endTimestamp, PageRequest.of(0, 1500));
-        log.info("Found {} matches to analyze.", targetPlayers.size());
+        List<MatchPlayerInfo> targetPlayers = matchRepository.findMatchPlayerInfoByChampionAndPeriod(championId, startTimestamp, endTimestamp, PageRequest.of(0, 800));
+//        log.info("Found {} matches", targetPlayers.size());
 
         Map<Integer, Map<Integer, Integer>> skillTreeFrequency = new HashMap<>();
         for (int level = 1; level <= 18; level++) {
@@ -99,12 +107,12 @@ public class ChampionBuildService {
         int analyzedMatchCount = 0;
 
         for (MatchPlayerInfo matchInfo : targetPlayers) {
-            log.info("Analyzing matchId: {}, participantId: {}", matchInfo.getMatchId(), matchInfo.getParticipantId());
+//            log.info("Analyzing matchId: {}, participantId: {}", matchInfo.getMatchId(), matchInfo.getParticipantId());
             List<SkillLevelUpEvent> skillEvents = sKillLevelUpEventRepository.findByMatchIdsInAndLevelUpType(
                     matchInfo.getMatchId(),
                     matchInfo.getParticipantId()
             );
-//            log.info("For matchId: {}, participantId: {}, found {} skill events.",
+//            log.info("matchId: {}, participantId: {}, found {} skill events.",
 //                    matchInfo.getMatchId(), matchInfo.getParticipantId(), skillEvents.size());
 
             if (!skillEvents.isEmpty()) {
@@ -119,14 +127,14 @@ public class ChampionBuildService {
 
                     skillTreeFrequency.get(currentSkillLevelOrder).merge(skillSlot, 1, Integer::sum);
                 }
-                log.debug("Skill sequence for matchId {}: {}", matchInfo.getMatchId(), analyzedMatchCount);
+                log.debug("Skill sequence matchId {}: {}", matchInfo.getMatchId(), analyzedMatchCount);
             } else {
-                log.debug("No SKILL_LEVEL_UP events found for matchId: {} and participantId: {}", matchInfo.getMatchId(), matchInfo.getParticipantId());
+                log.debug("No SKILL_LEVEL_UP events found matchId: {} participantId: {}", matchInfo.getMatchId(), matchInfo.getParticipantId());
             }
         }
 
-        if (skillTreeFrequency.isEmpty()) {
-            log.info("No skill sequences found after analyzing {} matches.", targetPlayers.size());
+        if (analyzedMatchCount == 0) {
+            log.info("No skill data found championId: {}", championId);
             return new ChampionLevelSkillStatsResponse(championId, Collections.emptyList(), 0);
         }
 
@@ -142,7 +150,7 @@ public class ChampionBuildService {
             if (totalPicksAtThisLevelOrder > 0) {
                 for (int slot = 1; slot <= 4; slot++) {
                     int count = countsAtThisLevelOrder.getOrDefault(slot, 0);
-                    percentages.put(skillSlotToString(slot), (double) count * 100.0 / totalPicksAtThisLevelOrder);
+                    percentages.put(skillSlotToString(slot), Math.floor((double) count * 100.0 / totalPicksAtThisLevelOrder * 100) / 100.0);
                     if (count > maxPicks) {
                         maxPicks = count;
                         mostPicked = skillSlotToString(slot);
@@ -151,7 +159,7 @@ public class ChampionBuildService {
                     }
                 }
             } else {
-                for (int slot = 1; slot <= 4; slot++) percentages.put(skillSlotToString(slot), 0.0);
+                for (int slot = 1; slot <= 4; slot++) percentages.put(skillSlotToString(slot), Math.floor(0.0 * 100) / 100.0);
             }
             resultLevelStats.add(new LevelSkillData(level, percentages, mostPicked, totalPicksAtThisLevelOrder));
         }
@@ -174,15 +182,14 @@ public class ChampionBuildService {
     public AggregatedCoreItemStatsDto getChampionItemBuild(Integer championId) {
         String key = "champion:build:item:" + championId;
 
-        AggregatedCoreItemStatsDto dto = itemBuildCacheService.getOrLoad(
+        return itemBuildCacheService.getOrLoad(
                 key,
                 () -> setChampionItemBuild(championId),
                 ITEM_BUILD_TTL
         );
-
-        return dto;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public AggregatedCoreItemStatsDto setChampionItemBuild(Integer championId) {
         LocalDate today = LocalDate.now(kst);
         ZonedDateTime endZonedDateTime = today.atStartOfDay(kst);
@@ -205,7 +212,7 @@ public class ChampionBuildService {
                         (name1, name2) -> name1
                 ));
 
-        List<MatchPlayerInfo> infoList = matchRepository.findMatchPlayerInfoByChampionAndPeriod(championId, start, end, PageRequest.of(0, 3000));
+        List<MatchPlayerInfo> infoList = matchRepository.findMatchPlayerInfoByChampionAndPeriod(championId, start, end, PageRequest.of(0, 1500));
         List<String> matchIds = infoList.stream().map(MatchPlayerInfo::getMatchId).distinct().toList();
         List<ItemPurchaseEvent> allPurchaseEvents = itemPurchaseEventRepository.findByMatchIds(matchIds);
 

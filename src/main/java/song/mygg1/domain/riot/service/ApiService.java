@@ -96,6 +96,13 @@ public class ApiService {
         );
     }
 
+    public Optional<byte[]> getChampionSpellIcon(String version, String championSpell) {
+        return fetchIcon(
+                GET_CHAMPION_SPELL.getPath(),
+                Map.of("version", version, "championSpell", championSpell)
+        );
+    }
+
     public Optional<byte[]> getItemIcon(String version, int itemId) {
         return fetchIcon(
                 GET_ITEM.getPath(),

@@ -56,7 +56,7 @@ class MatchJpaRepositoryTest {
 
         long start = startInstant.toEpochMilli();
         long end = endInstant.toEpochMilli();
-        List<MatchPlayerInfo> infoList = matchRepository.findMatchPlayerInfoByChampionAndPeriod(43, start, end, PageRequest.of(0, 3000));
+        List<MatchPlayerInfo> infoList = matchRepository.findMatchPlayerInfoByChampionAndPeriod(43, start, end, PageRequest.of(0, 1000));
 
         for (MatchPlayerInfo playerInfo : infoList) {
             log.info("match.id: {}", playerInfo.getMatchId());

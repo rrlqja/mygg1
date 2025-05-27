@@ -4,6 +4,7 @@ public enum RiotDataDragonEndpoint {
     GET_DATA_DRAGON_VERSION("/api/versions.json"),
     GET_PROFILE_ICON("/cdn/{version}/img/profileicon/{iconId}.png"),
     GET_CHAMPION("/cdn/{version}/img/champion/{championName}.png"),
+    GET_CHAMPION_SPELL("/cdn/{version}/img/spell/{championSpell}.png"),
     GET_CHAMPION_JSON("/cdn/{version}/data/ko_KR/champion.json"),
     GET_ITEM_JSON("/cdn/{version}/data/ko_KR/item.json"),
     GET_ITEM("/cdn/{version}/img/item/{itemId}.png"),

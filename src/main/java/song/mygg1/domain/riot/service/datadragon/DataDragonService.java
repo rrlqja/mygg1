@@ -50,6 +50,12 @@ public class DataDragonService {
         );
     }
 
+    public byte[] getChampionSpellIcon(String championSpell) {
+        return fetchOrPlaceholder(() ->
+                apiService.getChampionSpellIcon(version, championSpell)
+        );
+    }
+
     public byte[] getItemIcon(int itemId) {
         return fetchOrPlaceholder(() ->
                 apiService.getItemIcon(version, itemId));

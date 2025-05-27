@@ -71,4 +71,13 @@ public class ImageController {
                 .cacheControl(maxAge(30, DAYS).cachePublic())
                 .body(resource);
     }
+
+    @GetMapping(value = "/champion/spell/{championSpell}", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<UrlResource> getChampionSpell(@PathVariable("championSpell") String championSpell) throws IOException {
+        UrlResource resource = imageService.getChampionSpell(championSpell);
+
+        return ResponseEntity.ok()
+                .cacheControl(maxAge(30, DAYS).cachePublic())
+                .body(resource);
+    }
 }

@@ -50,5 +50,22 @@
     </div>
 </div>
 
+<tr th:fragment="skillLevelUpDetail(skillKey, skillLabel, championId, levelStats)">
+    <th scope="row">
+        <div class="skill-label-container">
+            <img th:src="@{/image/champion/spell/{spellName}(spellName=${championId + skillKey})}" th:alt="${skillLabel} + ' 스킬'">
+            <span class="skill-text" th:text="${skillLabel}">Q</span>
+        </div>
+    </th>
+    <td th:each="levelData, stat : ${levelStats}"
+        th:text="${#numbers.formatDecimal(levelData.skillPickPercentages.get(skillKey), 1, 1) + '%'}"
+        class="percentage-cell"
+        th:classappend="
+                (${stat.odd} ? 'col-odd ' : 'col-even ') +
+                (${levelData.skillPickPercentages.get(skillKey) != null and levelData.skillPickPercentages.get(skillKey) > 50.0} ? 'high-pick' : '')">
+        0.0%
+    </td>
+</tr>
+
 </body>
 </html>
