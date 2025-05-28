@@ -109,7 +109,7 @@ public class MatchService {
         apiService.getMatchTimeline(matchId);
     }
 
-//    @Scheduled(cron = "0 0 1 * * ?") //스킬트리 개발 후 해제
+    @Scheduled(cron = "0 0 1 * * ?")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void getChallengerLeagueMatches() {
         LeagueListDto challengerLeague = leagueService.getChallengerLeague();
