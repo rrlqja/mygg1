@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import song.mygg1.domain.redis.service.BaseCacheService;
 import song.mygg1.domain.redis.service.CacheService;
 import song.mygg1.domain.riot.dto.account.AccountDto;
+import song.mygg1.domain.riot.dto.champion.ChampionBanPickDto;
 import song.mygg1.domain.riot.dto.champion.ChampionDto;
 import song.mygg1.domain.riot.dto.champion.ChampionLevelSkillStatsResponse;
 import song.mygg1.domain.riot.dto.champion.ChampionMasteryDto;
@@ -62,6 +63,17 @@ public class CacheConfig {
     ) {
         JavaType type = mapper.getTypeFactory()
                 .constructType(ChampionLevelSkillStatsResponse.class);
+
+        return new BaseCacheService<>(redis, mapper, type);
+    }
+
+    @Bean
+    public CacheService<ChampionBanPickDto> championBanPickCacheService(
+            StringRedisTemplate redis,
+            ObjectMapper mapper
+    ) {
+        JavaType type = mapper.getTypeFactory()
+                .constructType(ChampionBanPickDto.class);
 
         return new BaseCacheService<>(redis, mapper, type);
     }

@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import song.mygg1.domain.riot.dto.match.InfoDto;
 import song.mygg1.domain.riot.dto.match.ParticipantDto;
-import song.mygg1.domain.riot.dto.match.TeamDto;
+import song.mygg1.domain.riot.dto.match.team.TeamDto;
 import song.mygg1.domain.riot.entity.match.Info;
 import song.mygg1.domain.riot.entity.match.Participant;
-import song.mygg1.domain.riot.entity.match.Team;
+import song.mygg1.domain.riot.entity.match.team.Team;
 
 import java.util.List;
 import java.util.stream.Collectors;

@@ -55,4 +55,21 @@ public interface ParticipantJpaRepository extends JpaRepository<Participant, Par
                                      @Param("prevStartDate") Long prevStartDate,
                                      @Param("prevEndDate") Long prevEndDate,
                                      Pageable pageable);
+
+    @Query("select count(distinct p.info.gameId)" +
+            " from Participant p " +
+            "where p.championId = :championId " +
+            "  and date(from_unixtime(p.info.gameCreation / 1000)) between :startDate and :endDate ")
+    Long countPickedChampionInGameCreation(@Param("championId") Integer championId,
+                                           @Param("startDate") Long startDate,
+                                           @Param("endDate") Long endDate);
+
+    @Query("select count(p.info.gameId) " +
+            " from Participant p " +
+            "where p.championId = :championId " +
+            "  and p.win = true " +
+            "  and date(from_unixtime(p.info.gameCreation / 1000)) between :startDate and :endDate ")
+    Long countWinChampionInGameCreation(@Param("championId") Integer championId,
+                                        @Param("startDate") Long startDate,
+                                        @Param("endDate") Long endDate);
 }

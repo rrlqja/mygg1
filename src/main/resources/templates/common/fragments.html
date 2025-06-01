@@ -29,6 +29,22 @@
     </div>
 </div>
 
+<div th:fragment="navbar">
+    <div style="width: 100%; height: 40px; background-color: #454a4b; display: flex; flex-direction: row; justify-content: center; align-items: center; margin-top: 6px;border-bottom: solid 1px rgba(0, 0, 0, 0.17); border-top: solid 1px rgba(0, 0, 0, 0.17);">
+        <div style="width: 960px; height: 100%; display: flex; flex-direction: row; justify-content: flex-start; align-items: center;">
+            <div th:onclick="|location.href='@{/}'|" class="nav-item" style="width: 80px; height: 100%; color: white; font-size: 14px; font-weight: 600; display: flex; flex-direction: row; justify-content: center; align-items: center; border-left: solid 1px rgba(0, 0, 0, 0.17); border-right: solid 1px rgba(0, 0, 0, 0.17); cursor: pointer;">
+                <span>홈</span>
+            </div>
+            <div th:onclick="|location.href='@{/champion/stats}'|" class="nav-item" style="width: 160px; height: 100%; color: white; font-size: 14px; font-weight: 600; display: flex; flex-direction: row; justify-content: center; align-items: center; border-left: solid 1px rgba(0, 0, 0, 0.17); border-right: solid 1px rgba(0, 0, 0, 0.17); cursor: pointer;">
+                <span>챔피언 분석</span>
+            </div>
+            <div class="nav-item" style="width: 160px; height: 100%; color: white; font-size: 14px; font-weight: 600; display: flex; flex-direction: row; justify-content: center; align-items: center; border-left: solid 1px rgba(0, 0, 0, 0.17); border-right: solid 1px rgba(0, 0, 0, 0.17); cursor: pointer;">
+                <span>소환사 랭킹</span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div th:fragment="leagueList(leagueItemList, title, subTitle)">
     <div th:onclick="|location.href='@{/leagueList}'|" style="width: 100%; height: 30px; font-size: 14px; font-weight: 400; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; border-bottom: 1px solid #e0e0e0; cursor: pointer;">
         <span th:text="${title}">league</span>

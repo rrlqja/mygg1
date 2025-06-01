@@ -8,11 +8,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import song.mygg1.domain.riot.dto.champion.ChampionBanPickDto;
 import song.mygg1.domain.riot.service.champion.ChampionBuildService;
 import song.mygg1.domain.riot.service.champion.ChampionService;
+import song.mygg1.domain.riot.service.champion.ChampionStatsService;
 import song.mygg1.domain.riot.service.league.LeagueItemService;
 import song.mygg1.domain.riot.service.league.LeagueService;
 import song.mygg1.domain.riot.service.recentsearch.RecentSearchService;
+
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -24,6 +28,19 @@ public class ChampionController {
     private final LeagueService leagueService;
     private final LeagueItemService leagueItemService;
     private final ChampionBuildService championBuildService;
+    private final ChampionStatsService championStatsService;
+
+    @GetMapping("/stats")
+    public String getStats(HttpSession session,
+                           Model model) {
+        model.addAttribute("leagueItemList", leagueItemService.getLeagueItemList(leagueService.getChallengerLeague()));
+        model.addAttribute("recentSearch", recentSearchService.get(session.getId()));
+
+        List<ChampionBanPickDto> championStats = championStatsService.getAllChampionStats();
+        model.addAttribute("championStats", championStats);
+
+        return "riot/championStats";
+    }
 
     @GetMapping("/{championId}")
     public String getChampion(@PathVariable("championId") Long championId,

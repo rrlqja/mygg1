@@ -64,7 +64,12 @@ public class ChampionBuildService {
             log.info("set champion build champion {}:{}", champion.getId(), champion.getKey());
 
             try {
+                String skillKey = "champion:build:item:" + champion.getKey().intValue();
+                skillTreeCacheService.evict(skillKey);
                 getChampionSkillTree(champion.getKey().intValue());
+
+                String buildKey = "champion:build:skill:" + champion.getKey().intValue();
+                itemBuildCacheService.evict(buildKey);
                 getChampionItemBuild(champion.getKey().intValue());
             } catch (Exception e) {
                 log.error("error champion build champion {}:{}", champion.getId(), champion.getKey(), e);

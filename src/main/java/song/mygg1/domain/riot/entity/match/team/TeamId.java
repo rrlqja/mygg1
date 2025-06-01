@@ -1,4 +1,4 @@
-package song.mygg1.domain.riot.entity.match;
+package song.mygg1.domain.riot.entity.match.team;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -15,5 +15,6 @@ import java.io.Serializable;
 public class TeamId implements Serializable {
     @Column(name = "info_id")
     private Long infoId;
+    @Column(name = "team_id")
     private Integer teamId;
 }
