@@ -42,7 +42,7 @@ public class ParticipantService {
     }
 
     private List<ChampionWinRatePerDateDto> getChampionWinRate(String championName) {
-        LocalDate yesterday = LocalDate.now(kst).minusDays(1);
+        LocalDate yesterday = LocalDate.now(kst).minusDays(2);
         LocalDate startDate = yesterday.minusDays(6);
 
         Instant startInstant = startDate
@@ -65,8 +65,8 @@ public class ParticipantService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<WinRateDto> getWinRateDaily() {
-        LocalDate yesterday      = LocalDate.now(kst).minusDays(1);
-        LocalDate dayBefore      = LocalDate.now(kst).minusDays(2);
+        LocalDate yesterday      = LocalDate.now(kst).minusDays(2);
+        LocalDate dayBefore      = LocalDate.now(kst).minusDays(3);
         String key = "winrate:daily:" + yesterday;
 
         return winRateCacheService.getOrLoad(
@@ -78,7 +78,7 @@ public class ParticipantService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<WinRateDto> getWinRateWeekly() {
-        LocalDate yesterday      = LocalDate.now(kst).minusDays(1);
+        LocalDate yesterday      = LocalDate.now(kst).minusDays(2);
         LocalDate thisWeekStart  = yesterday.minusDays(6);
         LocalDate prevWeekEnd    = thisWeekStart.minusDays(1);
         LocalDate prevWeekStart  = prevWeekEnd.minusDays(6);

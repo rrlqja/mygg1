@@ -99,7 +99,7 @@ public class ChampionStatsService {
         log.info("refresh all champion stats cache");
         List<Champion> championList = championRepository.findAll();
 
-        LocalDate yesterday = LocalDate.now(kst).minusDays(1);
+        LocalDate yesterday = LocalDate.now(kst).minusDays(2);
         LocalDate startDate = yesterday.minusDays(6);
         long startTimestamp = startDate.atStartOfDay(kst).toInstant().toEpochMilli();
         long endTimestamp = yesterday.atTime(LocalTime.MAX).atZone(kst).toInstant().toEpochMilli();
@@ -139,7 +139,7 @@ public class ChampionStatsService {
                     Champion champion = championRepository.findChampionByKey(championId)
                             .orElseThrow(() -> new ChampionNotFoundException("Champion not found with id: " + championId));
 
-                    LocalDate yesterday = LocalDate.now(kst).minusDays(1);
+                    LocalDate yesterday = LocalDate.now(kst).minusDays(2);
                     LocalDate startDate = yesterday.minusDays(6);
                     long startTimestamp = startDate.atStartOfDay(kst).toInstant().toEpochMilli();
                     long endTimestamp = yesterday.atTime(LocalTime.MAX).atZone(kst).toInstant().toEpochMilli();
