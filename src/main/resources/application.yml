@@ -61,3 +61,7 @@ api:
     asia-url: ENC(wKciqLaIhlON2SwIi4TncRf/yZm93SOZWzS2A8nvJljTwuSMQY4m2w==)
     kr-url: ENC(toSmzMYSpbpSX4CK9/edFjswqRkpHYt3U4X//oOFZNExmChzv8jHnA==)
     data-dragon: ENC(MEJjpmqr9KcuctvkmaoL07mhPHMmY8KDRS8QErEaU3hhOiW60+35osng51XrM187)
+
+google:
+  analytics:
+    tracking-id: ENC(B0j6LOZ445JQw7d2wJUe9ySHEQRx1uWz)
