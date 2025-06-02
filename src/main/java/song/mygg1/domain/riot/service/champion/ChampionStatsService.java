@@ -1,7 +1,10 @@
 package song.mygg1.domain.riot.service.champion;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,11 +33,20 @@ public class ChampionStatsService {
     private final BanJpaRepository banRepository;
     private final InfoJpaRepository infoRepository;
     private final ParticipantJpaRepository participantRepository;
+    private final Environment env;
 
     private static final ZoneId kst = ZoneId.of("Asia/Seoul");
 
     private static final Duration STATS_TTL = Duration.ofDays(1);
     private static final String CHAMPION_STATS_CACHE_KEY_PREFIX = "champion:build:stats:";
+
+    @Transactional
+    @PostConstruct
+    public void initDev() {
+        if (env.acceptsProfiles(Profiles.of("dev"))) {
+            refreshAllChampionStatsCache();
+        }
+    }
 
     @Transactional(readOnly = true)
     public List<ChampionBanPickDto> getAllChampionStats() {

@@ -1,7 +1,10 @@
 package song.mygg1.domain.riot.service.champion;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -48,6 +51,7 @@ public class ChampionBuildService {
     private final SkillLevelUpEventJpaRepository sKillLevelUpEventRepository;
     private final ChampionJpaRepository championRepository;
     private final ItemJpaRepository itemRepository;
+    private final Environment env;
 
     private static final ZoneId kst = ZoneId.of("Asia/Seoul");
     private static final Duration ITEM_BUILD_TTL = Duration.ofDays(1);
@@ -55,6 +59,13 @@ public class ChampionBuildService {
     private static final int FIRST_CORE_LIMIT = 3;
     private static final int SECOND_CORE_LIMIT = 3;
     private static final int THIRD_CORE_LIMIT = 5;
+
+    @PostConstruct
+    public void initDev() {
+        if (env.acceptsProfiles(Profiles.of("dev"))) {
+            setChampionBuild();
+        }
+    }
 
     @Scheduled(cron = "0 0 22 * * ?")
     public void setChampionBuild() {
