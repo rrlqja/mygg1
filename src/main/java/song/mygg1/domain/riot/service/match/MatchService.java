@@ -16,7 +16,7 @@ import song.mygg1.domain.riot.entity.match.Matches;
 import song.mygg1.domain.riot.mapper.match.MatchMapper;
 import song.mygg1.domain.riot.repository.match.MatchJpaRepository;
 import song.mygg1.domain.riot.service.ApiService;
-import song.mygg1.domain.riot.service.league.LeagueService;
+import song.mygg1.domain.riot.service.league.LeagueListService;
 import song.mygg1.domain.riot.service.timeline.TimeLineService;
 
 import java.time.Duration;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public class MatchService {
     private final CacheService<MatchDto> cacheService;
     private final MatchCacheLimiterService cacheLimiterService;
-    private final LeagueService leagueService;
+    private final LeagueListService leagueListService;
     private final TimeLineService timeLineService;
     private final MatchJpaRepository matchRepository;
     private final ApiService apiService;
@@ -104,15 +104,10 @@ public class MatchService {
                 .toList();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void getMatchTimeline(String matchId) {
-        apiService.getMatchTimeline(matchId);
-    }
-
     @Scheduled(cron = "0 0 1 * * ?")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void getChallengerLeagueMatches() {
-        LeagueListDto challengerLeague = leagueService.getChallengerLeague();
+        LeagueListDto challengerLeague = leagueListService.getChallengerLeagueList();
 
         challengerLeague.getEntries().stream()
                 .map(LeagueItemDto::getPuuid)

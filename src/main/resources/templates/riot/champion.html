@@ -108,7 +108,7 @@
 <div th:replace="common/fragments :: header"></div>
 <div th:replace="common/fragments :: navbar"></div>
 <div class="row justify-content-center align-items-start" style="width: 100%; min-height: 800px; padding-top: 10px; gap:10px;">
-    <div class="col-md-2" style="min-height: 100px; background-color: white; border-radius: 10px; border: solid 1px rgba(0, 0, 0, 0.17); padding-bottom: 4px;">
+    <div class="col-md-2" style="width: 340px; min-height: 100px; border-radius: 10px; background-color: white; border: solid 1px rgba(0, 0, 0, 0.17); padding-bottom: 4px;">
         <div th:replace="common/fragments :: leagueList(leagueItemList = ${leagueItemList}, title = '소환사 랭킹' , subTitle = '챌린저 리그')"></div>
     </div>
     <div class="col-md-4" style="width: 1000px; background-color: white; min-height: 800px; border-radius: 10px; border: solid 1px rgba(0, 0, 0, 0.17); display: flex; flex-direction: row; justify-content: center; align-items: center; padding-top: 12px; padding-bottom: 12px;">
@@ -222,7 +222,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-2" style="min-height: 100px; background-color: white; border-radius: 10px; border: solid 1px rgba(0, 0, 0, 0.17);">
+    <div class="col-md-2" style="width: 340px; min-height: 100px; border-radius: 10px; background-color: white; border: solid 1px rgba(0, 0, 0, 0.17);">
         <div th:replace="common/fragments :: recentSearch(recentSearchList = ${recentSearch})"></div>
     </div>
 </div>

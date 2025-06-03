@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import song.mygg1.domain.riot.dto.account.AccountDto;
@@ -13,10 +14,9 @@ import song.mygg1.domain.riot.dto.league.LeagueItemSummonerDto;
 import song.mygg1.domain.riot.dto.league.LeagueListDto;
 import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.dto.summoner.SummonerDto;
-import song.mygg1.domain.riot.entity.account.Account;
-import song.mygg1.domain.riot.entity.summoner.Summoner;
 import song.mygg1.domain.riot.service.account.AccountService;
 import song.mygg1.domain.riot.service.league.LeagueItemService;
+import song.mygg1.domain.riot.service.league.LeagueListService;
 import song.mygg1.domain.riot.service.league.LeagueService;
 import song.mygg1.domain.riot.service.match.MatchService;
 import song.mygg1.domain.riot.service.summoner.SummonerService;
@@ -50,22 +50,23 @@ public class InitConfig {
         private final AccountService accountService;
         private final SummonerService summonerService;
         private final LeagueService leagueService;
+        private final LeagueListService leagueListService;
         private final MatchService matchService;
 
-//        @Transactional
+        @Transactional
         public void init() {
             log.info("get league");
             List<LeagueListDto> leagues = new ArrayList<>();
-            LeagueListDto challenger = leagueService.getChallengerLeague();
-            LeagueListDto grandmaster = leagueService.getGrandmasterLeague();
-            LeagueListDto master = leagueService.getMasterLeague();
+            LeagueListDto challenger = leagueListService.refreshChallengerLeague();
+            LeagueListDto grandmaster = leagueListService.refreshGrandmasterLeague();
+            LeagueListDto master = leagueListService.refreshMasterLeague();
             leagues.add(challenger);
             leagues.add(grandmaster);
-//            leagues.add(master);
+            leagues.add(master);
 
             for (LeagueListDto league : leagues) {
                 log.info("[league: {}] get leagueItem", league.getTier());
-                List<LeagueItemSummonerDto> leagueItemList = leagueItemService.getLeagueItemList(league, 9999);
+                List<LeagueItemSummonerDto> leagueItemList = leagueItemService.getRankLeagueItemList(league.getLeagueId(), PageRequest.of(0, 20));
 
                 log.info("[league: {}] get account, summoner", league.getTier());
                 List<AccountDto> accountList = new ArrayList<>();
@@ -78,13 +79,13 @@ public class InitConfig {
                     summonerList.add(summonerService.getSummoner(dto.getPuuid()));
                 }
 
-//                log.info("[league: {}] get leagueEntry", league.getTier());
-//                List<Set<LeagueEntryDto>> leagueEntrySetList = new ArrayList<>();
-//                for (SummonerDto dto : summonerList) {
-//                    log.info("[league: {}] get leagueEntry by summonerDto [puuid: {}]", league.getTier(), dto.getPuuid());
-//                    leagueEntrySetList.add(leagueService.refreshLeague(dto.getPuuid()));
-//                    log.info("[league: {}] leagueEntrySet total: {} current: {}", league.getTier(), summonerList.size(), leagueEntrySetList.size());
-//                }
+                log.info("[league: {}] get leagueEntry", league.getTier());
+                List<Set<LeagueEntryDto>> leagueEntrySetList = new ArrayList<>();
+                for (SummonerDto dto : summonerList) {
+                    log.info("[league: {}] get leagueEntry by summonerDto [puuid: {}]", league.getTier(), dto.getPuuid());
+                    leagueEntrySetList.add(leagueService.refreshLeague(dto.getPuuid()));
+                    log.info("[league: {}] leagueEntrySet total: {} current: {}", league.getTier(), summonerList.size(), leagueEntrySetList.size());
+                }
 
                 log.info("[league: {}] get match", league.getTier());
                 List<List<MatchDto>> matchListList = new ArrayList<>();

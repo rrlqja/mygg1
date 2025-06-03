@@ -25,7 +25,7 @@ import song.mygg1.domain.riot.repository.champion.ChampionJpaRepository;
 import song.mygg1.domain.riot.repository.champion.ChampionMasterJpaRepository;
 import song.mygg1.domain.riot.service.ApiService;
 import song.mygg1.domain.riot.service.account.AccountService;
-import song.mygg1.domain.riot.service.league.LeagueService;
+import song.mygg1.domain.riot.service.league.LeagueListService;
 import song.mygg1.domain.riot.service.match.InfoService;
 import song.mygg1.domain.riot.service.match.ParticipantService;
 import song.mygg1.domain.riot.service.summoner.SummonerService;
@@ -50,7 +50,7 @@ public class ChampionService {
     private final DataDragonService dataDragonService;
     private final ParticipantService participantService;
     private final InfoService infoService;
-    private final LeagueService leagueService;
+    private final LeagueListService leagueListService;
     private final AccountService accountService;
     private final SummonerService summonerService;
     private final ApiService apiService;
@@ -134,7 +134,7 @@ public class ChampionService {
 
     @Transactional
     public List<ChampionMasteryRankingDto> getChampionMasteryRanking(Long championId) {
-        LeagueListDto challengerLeague = leagueService.getChallengerLeague();
+        LeagueListDto challengerLeague = leagueListService.getChallengerLeagueList();
 
         String key = "champion:key:" + championId;
         ChampionDto champion = getChampionDto(championId, key);

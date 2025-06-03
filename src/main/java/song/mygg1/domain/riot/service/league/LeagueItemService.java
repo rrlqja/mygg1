@@ -2,24 +2,24 @@ package song.mygg1.domain.riot.service.league;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import song.mygg1.domain.common.exception.riot.league.exceptions.LeagueItemNotFoundException;
 import song.mygg1.domain.redis.service.CacheService;
 import song.mygg1.domain.riot.dto.account.AccountDto;
 import song.mygg1.domain.riot.dto.champion.ChampionMasteryDto;
 import song.mygg1.domain.riot.dto.league.LeagueItemDto;
 import song.mygg1.domain.riot.dto.league.LeagueItemSummonerDto;
-import song.mygg1.domain.riot.dto.league.LeagueListDto;
 import song.mygg1.domain.riot.dto.summoner.SummonerDto;
 import song.mygg1.domain.riot.entity.league.LeagueItem;
+import song.mygg1.domain.riot.mapper.league.LeagueItemMapper;
 import song.mygg1.domain.riot.repository.league.LeagueItemJpaRepository;
 import song.mygg1.domain.riot.service.account.AccountService;
 import song.mygg1.domain.riot.service.champion.ChampionMasteryService;
 import song.mygg1.domain.riot.service.summoner.SummonerService;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -35,50 +35,69 @@ public class LeagueItemService {
     private final ChampionMasteryService championMasteryService;
 
     private static final Duration TTL = Duration.ofMinutes(30);
+    private final LeagueItemMapper leagueItemMapper;
 
     @Transactional
-    public List<LeagueItemSummonerDto> getLeagueItemList(LeagueListDto leagueDto) {
-        return getLeagueItemList(leagueDto, 10);
-    }
+    public List<LeagueItemSummonerDto> getRankLeagueItemList(String leagueId, Pageable pageable) {
+        if (leagueId == null || leagueId.isBlank()) {
+            log.warn("leagueId cannot be null or blank getTopRankedLeagueItems");
+            return Collections.emptyList();
+        }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public List<LeagueItemSummonerDto> getLeagueItemList(LeagueListDto leagueDto, int limit) {
-        List<String> ids = leagueDto.getEntries().stream()
-                .map(LeagueItemDto::getSummonerId)
-                .limit(limit)
-                .toList();
+        List<LeagueItem> topLeagueItemEntities = leagueItemRepository.findLeagueItemsByLeagueId(leagueId, pageable);
 
-        return ids.stream()
-                .map(this::safeGetDto)
+        if (topLeagueItemEntities.isEmpty()) {
+            log.info("No league items found in repository leagueId: {} with limit: {}", leagueId, pageable.getPageSize());
+            return Collections.emptyList();
+        }
+
+        List<LeagueItemSummonerDto> resultList = new java.util.ArrayList<>(topLeagueItemEntities.stream()
+                .map(this::buildDto)
                 .flatMap(Optional::stream)
-                .sorted(Comparator.comparingInt(LeagueItemSummonerDto::getLeaguePoints).reversed())
-                .limit(limit)
-                .toList();
+                .toList());
+
+        resultList.sort(Comparator.comparingInt(LeagueItemSummonerDto::getLeaguePoints).reversed());
+
+        return resultList;
     }
 
-    private Optional<LeagueItemSummonerDto> safeGetDto(String summonerId) {
+    private Optional<LeagueItemSummonerDto> buildDto(LeagueItem itemEntity) {
+        String puuid = itemEntity.getPuuid();
+        if (puuid == null) {
+            log.warn("PUUID is null in LeagueItem entity (summonerId: {})", itemEntity.getSummonerId());
+            return Optional.empty();
+        }
+
+        String cacheKey = "league:item:summoner:" + puuid;
+
         try {
             LeagueItemSummonerDto dto = cacheService.getOrLoad(
-                    "league:item:" + summonerId,
-                    () -> buildDto(summonerId),
+                    cacheKey,
+                    () -> buildResDto(itemEntity),
                     TTL
             );
             return Optional.of(dto);
         } catch (Exception ex) {
-            log.warn("Failed to build LeagueItemSummonerDto for summonerId={}, skipping. Error: {}",
-                    summonerId, ex.getMessage());
+            log.warn("Failed to build LeagueItemSummonerDto for puuid={}, summonerId={}, Error: {}",
+                    puuid, itemEntity.getSummonerId(), ex.getMessage(), ex);
             return Optional.empty();
         }
     }
 
-    private LeagueItemSummonerDto buildDto(String summonerId) {
-        LeagueItem item = leagueItemRepository.findLeagueItemBySummonerId(summonerId)
-                .orElseThrow(LeagueItemNotFoundException::new);
-        log.info("LeagueItem: {}", item);
-        SummonerDto summoner = summonerService.getSummoner(item.getPuuid());
-        AccountDto account = accountService.findAccountByPuuid(item.getPuuid());
-        List<ChampionMasteryDto> championMastery = championMasteryService.getChampionMastery(account.getPuuid(), 3);
+    private LeagueItemSummonerDto buildResDto(LeagueItem itemEntity) {
+        String puuid = itemEntity.getPuuid();
+        if (puuid == null) {
+            throw new IllegalArgumentException("PUUID cannot be null in LeagueItem entity (ID: " + itemEntity.getSummonerId());
+        }
 
-        return new LeagueItemSummonerDto(item, summoner, account, championMastery);
+        log.debug("Building DTO for puuid: {}, summonerId: {}", puuid, itemEntity.getSummonerId());
+
+        SummonerDto summoner = summonerService.getSummoner(puuid);
+        AccountDto account = accountService.findAccountByPuuid(puuid);
+        List<ChampionMasteryDto> championMastery = championMasteryService.getChampionMastery(puuid, 3);
+
+        LeagueItemDto itemDto = leagueItemMapper.toDto(itemEntity);
+
+        return new LeagueItemSummonerDto(itemDto, summoner, account, championMastery);
     }
 }

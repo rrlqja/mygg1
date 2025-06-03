@@ -46,7 +46,7 @@
             <div th:onclick="|location.href='@{/champion/stats}'|" class="nav-item" style="width: 160px; height: 100%; color: white; font-size: 14px; font-weight: 600; display: flex; flex-direction: row; justify-content: center; align-items: center; border-left: solid 1px rgba(0, 0, 0, 0.17); border-right: solid 1px rgba(0, 0, 0, 0.17); cursor: pointer;">
                 <span>챔피언 분석</span>
             </div>
-            <div class="nav-item" style="width: 160px; height: 100%; color: white; font-size: 14px; font-weight: 600; display: flex; flex-direction: row; justify-content: center; align-items: center; border-left: solid 1px rgba(0, 0, 0, 0.17); border-right: solid 1px rgba(0, 0, 0, 0.17); cursor: pointer;">
+            <div th:onclick="|location.href='@{/leagueList/kr}'|" class="nav-item" style="width: 160px; height: 100%; color: white; font-size: 14px; font-weight: 600; display: flex; flex-direction: row; justify-content: center; align-items: center; border-left: solid 1px rgba(0, 0, 0, 0.17); border-right: solid 1px rgba(0, 0, 0, 0.17); cursor: pointer;">
                 <span>소환사 랭킹</span>
             </div>
         </div>
@@ -54,11 +54,11 @@
 </div>
 
 <div th:fragment="leagueList(leagueItemList, title, subTitle)">
-    <div th:onclick="|location.href='@{/leagueList}'|" style="width: 100%; height: 30px; font-size: 14px; font-weight: 400; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; border-bottom: 1px solid #e0e0e0; cursor: pointer;">
+    <div th:onclick="|location.href='@{/leagueList/kr}'|" style="width: 100%; height: 30px; font-size: 14px; font-weight: 400; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; border-bottom: 1px solid #e0e0e0; cursor: pointer;">
         <span th:text="${title}">league</span>
         <span th:text="${'&nbsp;- ' + subTitle}" style="font-size: 12px; font-weight: 500;">subTitle</span>
     </div>
-    <div class="entry-item" th:each="entry : ${leagueItemList}" th:onclick="|location.href='@{/kr/search(query=${entry.gameName + '#' + entry.tagLine})}'|" style="width: 100%; height: 45px; font-size: 14px; font-weight: 400; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; cursor: pointer;">
+    <div class="entry-item" th:each="entry : ${leagueItemList}" th:onclick="|location.href='@{/kr/search(query=${entry.gameName + '#' + entry.tagLine})}'|" style="width: 100%; height: 45px; font-size: 14px; font-weight: 400; display: flex; flex-direction: row; justify-content: space-around; align-items: center; cursor: pointer;">
         <div style="width: 35px; height: 35px;">
             <img th:src="@{/image/profile/{iconId}(iconId=${entry.profileIconId})}" style="width: 100%; height: 100%; border-radius: 8px;">
         </div>

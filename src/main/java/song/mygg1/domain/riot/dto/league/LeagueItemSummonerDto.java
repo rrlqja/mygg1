@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 import song.mygg1.domain.riot.dto.account.AccountDto;
 import song.mygg1.domain.riot.dto.champion.ChampionMasteryDto;
 import song.mygg1.domain.riot.dto.summoner.SummonerDto;
-import song.mygg1.domain.riot.entity.league.LeagueItem;
-import song.mygg1.domain.riot.entity.champion.ChampionMastery;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +30,7 @@ public class LeagueItemSummonerDto {
 
     private List<ChampionMasteryDto> championMasteryList = new ArrayList<>();
 
-    public LeagueItemSummonerDto(LeagueItem leagueItem, SummonerDto summoner, AccountDto account, List<ChampionMasteryDto> championMasteryList) {
+    public LeagueItemSummonerDto(LeagueItemDto leagueItem, SummonerDto summoner, AccountDto account, List<ChampionMasteryDto> championMasteryList) {
         this.summonerId = leagueItem.getSummonerId();
         this.puuid = leagueItem.getPuuid();
         this.leaguePoints = leagueItem.getLeaguePoints();

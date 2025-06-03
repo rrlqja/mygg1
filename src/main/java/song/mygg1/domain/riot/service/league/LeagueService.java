@@ -2,31 +2,23 @@ package song.mygg1.domain.riot.service.league;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import song.mygg1.domain.common.exception.riot.league.exceptions.LeagueListNotFoundException;
 import song.mygg1.domain.redis.service.CacheService;
 import song.mygg1.domain.riot.dto.league.LeagueEntryDto;
-import song.mygg1.domain.riot.dto.league.LeagueListDto;
 import song.mygg1.domain.riot.entity.league.LeagueEntry;
-import song.mygg1.domain.riot.entity.league.LeagueList;
-import song.mygg1.domain.riot.entity.league.LeagueQueue;
 import song.mygg1.domain.riot.mapper.league.LeagueEntryMapper;
-import song.mygg1.domain.riot.mapper.league.LeagueListMapper;
 import song.mygg1.domain.riot.repository.league.LeagueEntryJpaRepository;
-import song.mygg1.domain.riot.repository.league.LeagueListJpaRepository;
 import song.mygg1.domain.riot.service.ApiService;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -34,15 +26,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LeagueService {
     private final CacheService<Set<LeagueEntryDto>> leagueEntryCacheService;
-    private final CacheService<LeagueListDto> leagueListCacheService;
     private final LeagueEntryJpaRepository leagueEntryRepository;
-    private final LeagueListJpaRepository leagueListRepository;
     private final ApiService apiService;
     private final LeagueEntryMapper leagueEntryMapper;
-    private final LeagueListMapper leagueListMapper;
 
     private static final Duration LEAGUE_ENTRY_TTL = Duration.ofHours(1);
-    private static final Duration LEAGUE_LIST_TTL = Duration.ofHours(24);
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Set<LeagueEntryDto> getLeague(String puuid) {
@@ -55,15 +43,22 @@ public class LeagueService {
                             .map(leagueEntryMapper::toDto).collect(Collectors.toSet());
 
                     if (leagueEntrySet.isEmpty()) {
+                        log.info("League entries not found in DB puuid: {}", puuid);
                         Set<LeagueEntryDto> apiLeagueEntryDtoSet = apiService.getLeagueEntry(puuid);
 
-                        List<LeagueEntry> apiLeagueEntrySet = apiLeagueEntryDtoSet.stream()
+                        if (apiLeagueEntryDtoSet.isEmpty()) {
+                            log.info("No league entries found from API puuid: {}.", puuid);
+                            return Collections.emptySet();
+                        }
+
+                        List<LeagueEntry> apiLeagueEntryEntities = apiLeagueEntryDtoSet.stream()
                                 .map(leagueEntryMapper::toEntity).toList();
 
-                        List<LeagueEntry> saved = leagueEntryRepository.saveAll(apiLeagueEntrySet);
+                        List<LeagueEntry> saved = leagueEntryRepository.saveAll(apiLeagueEntryEntities);
+                        log.info("Save {} league entries from API for puuid: {}", saved.size(), puuid);
                         return new HashSet<>(saved.stream().map(leagueEntryMapper::toDto).toList());
                     }
-
+                    log.debug("Found {} league entries in DB for puuid: {}", leagueEntrySet.size(), puuid);
                     return leagueEntrySet;
                 },
                 LEAGUE_ENTRY_TTL
@@ -72,20 +67,23 @@ public class LeagueService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Set<LeagueEntryDto> refreshLeague(String puuid) {
+        log.info("Refreshing league entries puuid: {}", puuid);
         Set<LeagueEntry> puuidLeagueSet = leagueEntryRepository.findLeagueEntriesById_Puuid(puuid);
         Map<String, LeagueEntry> existingByQueue = puuidLeagueSet.stream()
                 .collect(Collectors.toMap(e -> e.getId().getQueueType(), e -> e));
 
-        Set<LeagueEntryDto> dtoSet = apiService.getLeagueEntry(puuid);
+        Set<LeagueEntryDto> dtoSetFromApi = apiService.getLeagueEntry(puuid);
 
         List<LeagueEntry> toSave = new ArrayList<>();
 
-        for (LeagueEntryDto dto : dtoSet) {
+        for (LeagueEntryDto dto : dtoSetFromApi) {
             String queue = dto.getQueueType();
             LeagueEntry entry = existingByQueue.remove(queue);
             if (entry != null) {
+                log.debug("Updating existing league entry puuid: {}, queue: {}", puuid, queue);
                 entry.update(dto.getLeagueId(), dto.getTier(), dto.getRank(), dto.getSummonerId(), dto.getLeaguePoints(), dto.getWins(), dto.getLosses(), dto.isHotStreak(), dto.isVeteran(), dto.isFreshBlood(), dto.isInactive());
             } else {
+                log.debug("Creating new league entry puuid: {}, queue: {}", puuid, queue);
                 entry = LeagueEntry.create(dto.getQueueType(), dto.getPuuid(), dto.getLeagueId(), dto.getTier(), dto.getRank(), dto.getSummonerId(), dto.getLeaguePoints(),
                         dto.getWins(), dto.getLosses(), dto.isHotStreak(), dto.isVeteran(), dto.isFreshBlood(), dto.isInactive());
             }
@@ -94,74 +92,22 @@ public class LeagueService {
 
         List<LeagueEntry> toDelete = new ArrayList<>(existingByQueue.values());
 
-        List<LeagueEntry> deleted = toDelete.stream().map(le -> {
-            le.delete();
-            return le;
-        }).toList();
-        List<LeagueEntry> updateLeagueEntrySet = leagueEntryRepository.saveAll(toSave);
-        leagueEntryRepository.saveAll(deleted);
-
-        HashSet<LeagueEntry> updated = new HashSet<>(updateLeagueEntrySet);
-
-        String key = "league:entry:puuid:" + puuid;
-        Set<LeagueEntryDto> updateSet = new HashSet<>();
-        for (LeagueEntry leagueEntry : updated) {
-            updateSet.add(leagueEntryMapper.toDto(leagueEntry));
+        if (!toDelete.isEmpty()) {
+            log.info("Deleting {} league entries puuid: {}", toDelete.size(), puuid);
+            leagueEntryRepository.deleteAll(toDelete);
         }
-        leagueEntryCacheService.put(key, updateSet, LEAGUE_ENTRY_TTL);
 
-        return updateSet;
-    }
+        List<LeagueEntry> savedOrUpdatedEntries = leagueEntryRepository.saveAll(toSave);
+        log.info("Saved/Updated {} league entries puuid: {}", savedOrUpdatedEntries.size(), puuid);
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public LeagueListDto getChallengerLeague() {
-        return getLeague("league:challenger", () ->
-                apiService.getChallengerLeagueList(LeagueQueue.RANKED_SOLO_5x5.getQueue())
-        );
-    }
+        Set<LeagueEntryDto> resultSet = savedOrUpdatedEntries.stream()
+                .map(leagueEntryMapper::toDto)
+                .collect(Collectors.toSet());
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public LeagueListDto getGrandmasterLeague() {
-        return getLeague("league:grandmaster", () ->
-                apiService.getGrandmasterLeagueList(LeagueQueue.RANKED_SOLO_5x5.getQueue())
-        );
-    }
+        String cacheKey = "league:entry:puuid:" + puuid;
+        leagueEntryCacheService.put(cacheKey, resultSet, LEAGUE_ENTRY_TTL);
+        log.info("League entry cache updated key: {}", cacheKey);
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public LeagueListDto getMasterLeague() {
-        return getLeague("league:master", () ->
-                apiService.getMasterLeagueList(LeagueQueue.RANKED_SOLO_5x5.getQueue())
-        );
-    }
-
-    private LeagueListDto getLeague(String cacheKey,
-                                    Supplier<Optional<LeagueListDto>> apiCall) {
-        return leagueListCacheService.getOrLoad(
-                cacheKey,
-                () -> {
-                    LeagueListDto dto = apiCall.get()
-                            .orElseThrow(LeagueListNotFoundException::new);
-                    LeagueList entity = leagueListMapper.toEntity(dto);
-                    LeagueList saved = leagueListRepository.save(entity);
-                    return leagueListMapper.toDto(saved);
-                },
-                LEAGUE_LIST_TTL
-        );
-    }
-
-    @Scheduled(cron="0 0 0 * * ?")
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void refreshChallengerLeague() {
-        String key = "league:challenger";
-        leagueListCacheService.evict(key);
-        getChallengerLeague();
-    }
-
-    @Scheduled(cron="0 0 0 * * ?")
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void refreshGrandmasterLeague() {
-        String key = "league:grandmaster";
-        leagueListCacheService.evict(key);
-        getGrandmasterLeague();
+        return resultSet;
     }
 }

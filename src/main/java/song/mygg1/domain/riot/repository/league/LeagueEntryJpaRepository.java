@@ -1,5 +1,7 @@
 package song.mygg1.domain.riot.repository.league;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,4 +18,10 @@ public interface LeagueEntryJpaRepository extends JpaRepository<LeagueEntry, Lea
             "where le.id.puuid = :puuid " +
             "  and le.deleteFlag = false")
     Set<LeagueEntry> findLeagueEntriesById_Puuid(@Param("puuid") String puuid);
+
+    @Query("select le " +
+            " from LeagueEntry le " +
+            "where le.tier in ('CHALLENGER', 'GRANDMASTER')" +
+            "order by le.leaguePoints desc")
+    Page<LeagueEntry> findLeagueEntriesInRanker(Pageable pageable);
 }

@@ -9,11 +9,13 @@ import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
+import song.mygg1.domain.riot.dto.league.LeagueItemDto;
 
 @ToString(exclude = {"leagueList"})
 @Entity
-@Getter
+@Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LeagueItem {
     @Id
@@ -57,5 +59,17 @@ public class LeagueItem {
     private void setLeagueList(LeagueList leagueList) {
         this.leagueList = leagueList;
         leagueList.addEntry(this);
+    }
+
+    public void update(LeagueItemDto itemDto) {
+        this.summonerId = itemDto.getSummonerId();
+        this.leaguePoints = itemDto.getLeaguePoints();
+        this.rank = itemDto.getRank();
+        this.wins = itemDto.getWins();
+        this.losses = itemDto.getLosses();
+        this.veteran = itemDto.isVeteran();
+        this.inactive = itemDto.isInactive();
+        this.freshBlood = itemDto.isFreshBlood();
+        this.hotStreak = itemDto.isHotStreak();
     }
 }
