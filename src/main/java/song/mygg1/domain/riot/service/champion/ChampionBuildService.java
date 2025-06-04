@@ -61,12 +61,14 @@ public class ChampionBuildService {
     private static final int THIRD_CORE_LIMIT = 5;
 
     @PostConstruct
+    @Transactional
     public void initDev() {
-        if (env.acceptsProfiles(Profiles.of("dev"))) {
+        if (!env.acceptsProfiles(Profiles.of("dev"))) {
             setChampionBuild();
         }
     }
 
+    @Transactional
     @Scheduled(cron = "0 0 22 * * ?")
     public void setChampionBuild() {
         List<Champion> championList = championRepository.findAll();
@@ -75,13 +77,13 @@ public class ChampionBuildService {
             log.info("set champion build champion {}:{}", champion.getId(), champion.getKey());
 
             try {
-                String skillKey = "champion:build:item:" + champion.getKey().intValue();
-                skillTreeCacheService.evict(skillKey);
-                getChampionSkillTree(champion.getKey().intValue());
+                String skillTreeKey = "champion:build:skill:" + champion.getKey().intValue();
+                ChampionLevelSkillStatsResponse skillTree = getChampionSkillTree(champion.getKey().intValue());
+                skillTreeCacheService.put(skillTreeKey, skillTree, SKILL_TREE_TTL);
 
-                String buildKey = "champion:build:skill:" + champion.getKey().intValue();
-                itemBuildCacheService.evict(buildKey);
-                getChampionItemBuild(champion.getKey().intValue());
+                String itemBuildKey = "champion:build:item:" + champion.getKey().intValue();
+                AggregatedCoreItemStatsDto itemBuild = getChampionItemBuild(champion.getKey().intValue());
+                itemBuildCacheService.put(itemBuildKey, itemBuild, ITEM_BUILD_TTL);
             } catch (Exception e) {
                 log.error("error champion build champion {}:{}", champion.getId(), champion.getKey(), e);
             }
