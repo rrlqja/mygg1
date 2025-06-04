@@ -63,7 +63,7 @@ public class ChampionBuildService {
     @PostConstruct
     @Transactional
     public void initDev() {
-        if (!env.acceptsProfiles(Profiles.of("dev"))) {
+        if (env.acceptsProfiles(Profiles.of("dev"))) {
             setChampionBuild();
         }
     }
