@@ -34,7 +34,7 @@ public class LeagueItemService {
     private final AccountService accountService;
     private final ChampionMasteryService championMasteryService;
 
-    private static final Duration TTL = Duration.ofMinutes(30);
+    private static final Duration TTL = Duration.ofHours(12);
     private final LeagueItemMapper leagueItemMapper;
 
     @Transactional(readOnly = true)

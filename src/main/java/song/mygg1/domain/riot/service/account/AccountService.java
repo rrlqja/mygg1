@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import song.mygg1.domain.common.exception.riot.account.exceptions.AccountNotFoundException;
-import song.mygg1.domain.common.exception.riot.account.exceptions.CannotRefreshAccountException;
 import song.mygg1.domain.redis.service.CacheService;
 import song.mygg1.domain.riot.dto.account.AccountDto;
 import song.mygg1.domain.riot.mapper.account.AccountMapper;
@@ -16,10 +15,8 @@ import song.mygg1.domain.riot.service.ApiService;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.time.ZoneId;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,92 +28,113 @@ public class AccountService {
     private final AccountMapper accountMapper;
 
     private static final Duration ACCOUNT_TTL = Duration.ofHours(6);
+    private static final String ACCOUNT_CACHE_KEY_PREFIX_PUUID = "account:puuid:";
+    private static final String ACCOUNT_CACHE_KEY_PREFIX_GAMENAME = "account:gameName:";
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public AccountDto findAccountByGameNameAndTagLine(String gameName, String tagLine) {
-        String key = "account:gameName:" + gameName + "#" + tagLine;
+        String gameNameCacheKey = ACCOUNT_CACHE_KEY_PREFIX_GAMENAME + gameName + "#" + tagLine;
 
-        return cacheService.getOrLoad(
-                key,
-                () -> accountMapper.toDto(getOrFetchAccount(gameName, tagLine)),
-                ACCOUNT_TTL
-        );
-    }
+        Optional<AccountDto> cachedDto = cacheService.get(gameNameCacheKey);
+        if (cachedDto.isPresent()) {
+            AccountDto dto = cachedDto.get();
+            log.debug("Cache hit for Account DTO by gameName: {}", gameNameCacheKey);
 
-    private Account getOrFetchAccount(String gameName, String tagLine) {
-        return accountRepository.findAccountByGameNameAndTagLine(gameName, tagLine)
-                .orElseGet(() -> {
-                    AccountDto accountDto = apiService.getAccount(gameName, tagLine)
-                            .orElseThrow(() -> {
-                                log.warn("Riot Api: {}#{} 유저를 찾을 수 없습니다.", gameName, tagLine);
-                                return new AccountNotFoundException("사용자를 찾을 수 없습니다.");
-                            });
-                    Account entity = accountMapper.toEntity(accountDto);
+            Duration CACHE_VALIDATION_INTERVAL = Duration.ofHours(1);
+            LocalDateTime lastRefreshTime = dto.getLastRefreshDateTimeRaw();
 
-                    return accountRepository.save(entity);
-                });
-    }
+            if (lastRefreshTime == null ||
+                    Duration.between(lastRefreshTime, LocalDateTime.now(ZoneId.systemDefault())).compareTo(CACHE_VALIDATION_INTERVAL) > 0) {
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public AccountDto refreshAccount(String puuid) {
-        AccountDto puuidAccount = apiService.getAccount(puuid)
-                .orElseThrow(AccountNotFoundException::new);
+                log.info("Cached Account DTO for {} is due for validation. Checking API for puuid: {}", gameNameCacheKey, dto.getPuuid());
+                try {
+                    AccountDto updatedDto = findAccountByPuuidAndUpdate(dto.getPuuid());
 
-        Account account = accountRepository.findAccountByPuuid(puuid)
-                .orElseThrow();
+                    if (!gameNameCacheKey.equals(ACCOUNT_CACHE_KEY_PREFIX_GAMENAME + updatedDto.getGameName() + "#" + updatedDto.getTagLine())) {
+                        log.info("GameName/TagLine changed for puuid: {}. Evicting old cache key: {}", updatedDto.getPuuid(), gameNameCacheKey);
+                        cacheService.evict(gameNameCacheKey);
+                    }
 
-        if (account.getLastRefreshDateTime() != null && Duration.between(account.getLastRefreshDateTime(), LocalDateTime.now()).toMinutes() < 5) {
-            throw new CannotRefreshAccountException("전적 갱신을 할 수 없습니다.");
+                    return updatedDto;
+                } catch (AccountNotFoundException e) {
+                    log.warn("Failed to validate/update cached account for puuid: {}. Evicting cache and re-throwing.", dto.getPuuid(), e);
+                    cacheService.evict(gameNameCacheKey);
+                    cacheService.evict(ACCOUNT_CACHE_KEY_PREFIX_PUUID + dto.getPuuid());
+                    throw e;
+                } catch (Exception e) {
+                    log.error("Error during cache validation for puuid: {}. Returning stale cache for now.", dto.getPuuid(), e);
+                    return dto;
+                }
+            }
+            return dto;
         }
+        log.debug("Cache miss for Account DTO by gameName: {}. Attempting to find or fetch.", gameNameCacheKey);
 
-        account.update(puuidAccount.getGameName(), puuidAccount.getTagLine());
-        Account updated = accountRepository.save(account);
+        Optional<Account> accountOptionalByGameName = accountRepository.findAccountByGameNameAndTagLine(gameName, tagLine);
 
-        String key = "account:gameName:" + updated.getGameName() + "#" + updated.getTagLine();
-        AccountDto dto = accountMapper.toDto(updated);
-        cacheService.put(key, dto, ACCOUNT_TTL);
+        if (accountOptionalByGameName.isPresent()) {
+            Account accountFromDbByGameName = accountOptionalByGameName.get();
+            String puuidFromDb = accountFromDbByGameName.getPuuid();
+            log.info("Found account in DB by gameName#tagLine: {}#{} (puuid: {}). Verifying with API.", gameName, tagLine, puuidFromDb);
 
-        return dto;
+            return findAccountByPuuidAndUpdate(puuidFromDb);
+        } else {
+            log.info("Account not found in DB by gameName#tagLine: {}#{}. Fetching from API by gameName.", gameName, tagLine);
+            AccountDto accountDtoFromApiByGameName = apiService.getAccount(gameName, tagLine)
+                    .orElseThrow(() -> new AccountNotFoundException("사용자를 찾을 수 없습니다. (API 조회 실패): " + gameName + "#" + tagLine));
+
+            String puuidFromApi = accountDtoFromApiByGameName.getPuuid();
+            log.info("Fetched account from API by gameName: {}#{} (puuid: {}). Ensuring DB and cache are up-to-date.",
+                    accountDtoFromApiByGameName.getGameName(), accountDtoFromApiByGameName.getTagLine(), puuidFromApi);
+
+            return findAccountByPuuidAndUpdate(puuidFromApi);
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public List<Account> findAccountList(List<String> puuidlist) {
-        List<Account> existingAccountList = accountRepository.findAccountsByPuuidIn(puuidlist);
+    public AccountDto findAccountByPuuidAndUpdate(String puuid) {
+        String puuidCacheKey = ACCOUNT_CACHE_KEY_PREFIX_PUUID + puuid;
 
-        Set<String> found = existingAccountList.stream()
-                .map(Account::getPuuid)
-                .collect(Collectors.toSet());
-        List<String> missingAccountList = puuidlist.stream()
-                .filter(p -> !found.contains(p))
-                .toList();
+        AccountDto accountDtoFromApi = apiService.getAccount(puuid)
+                .orElseThrow(() -> new AccountNotFoundException("PUUID로 사용자를 찾을 수 없습니다. (API 조회 실패): " + puuid));
 
-        List<AccountDto> fetchDtoList = missingAccountList.stream()
-                .map(apiService::getAccount)
-                .flatMap(Optional::stream)
-                .toList();
+        Account accountEntity = accountRepository.findById(puuid)
+                .map(existingAccount -> {
+                    log.info("Updating existing account for puuid: {} with API data ({}#{} -> {}#{}).",
+                            puuid, existingAccount.getGameName(), existingAccount.getTagLine(),
+                            accountDtoFromApi.getGameName(), accountDtoFromApi.getTagLine());
+                    existingAccount.update(accountDtoFromApi.getGameName(), accountDtoFromApi.getTagLine());
+                    return existingAccount;
+                })
+                .orElseGet(() -> {
+                    log.info("No existing account for puuid: {}. Creating new account with API data ({}#{}).",
+                            puuid, accountDtoFromApi.getGameName(), accountDtoFromApi.getTagLine());
+                    return accountMapper.toEntity(accountDtoFromApi);
+                });
 
-        List<Account> fetchedEntities = fetchDtoList.stream()
-                .map(accountMapper::toEntity)
-                .toList();
+        Account savedAccount = accountRepository.save(accountEntity);
+        AccountDto resultDto = accountMapper.toDto(savedAccount);
 
-        List<Account> saved = accountRepository.saveAll(fetchedEntities);
+        cacheService.put(puuidCacheKey, resultDto, ACCOUNT_TTL);
+        String gameNameCacheKey = ACCOUNT_CACHE_KEY_PREFIX_GAMENAME + resultDto.getGameName() + "#" + resultDto.getTagLine();
+        cacheService.put(gameNameCacheKey, resultDto, ACCOUNT_TTL);
 
-        existingAccountList.addAll(saved);
-        return existingAccountList;
+        log.debug("Account updated and cached for puuid: {}, gameName: {}#{}", puuid, resultDto.getGameName(), resultDto.getTagLine());
+        return resultDto;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = true)
     public AccountDto findAccountByPuuid(String puuid) {
-        String key = "account:puuid:" + puuid;
-
+        String puuidCacheKey = ACCOUNT_CACHE_KEY_PREFIX_PUUID + puuid;
         return cacheService.getOrLoad(
-                key,
+                puuidCacheKey,
                 () -> {
-                    Account entity = accountRepository.findAccountByPuuid(puuid)
+                    Account entity = accountRepository.findById(puuid)
                             .orElseGet(() -> {
-                                AccountDto dto = apiService.getAccount(puuid)
-                                        .orElseThrow(AccountNotFoundException::new);
-                                return accountRepository.save(accountMapper.toEntity(dto));
+                                log.warn("Account not in DB for puuid: {}. Fetching from API.", puuid);
+                                AccountDto dtoFromApi = apiService.getAccount(puuid)
+                                        .orElseThrow(() -> new AccountNotFoundException("PUUID로 사용자를 찾을 수 없습니다. (API 조회 실패): " + puuid));
+                                return accountRepository.save(accountMapper.toEntity(dtoFromApi));
                             });
                     return accountMapper.toDto(entity);
                 },

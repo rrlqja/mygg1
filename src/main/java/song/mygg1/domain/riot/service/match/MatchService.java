@@ -17,7 +17,6 @@ import song.mygg1.domain.riot.mapper.match.MatchMapper;
 import song.mygg1.domain.riot.repository.match.MatchJpaRepository;
 import song.mygg1.domain.riot.service.ApiService;
 import song.mygg1.domain.riot.service.league.LeagueListService;
-import song.mygg1.domain.riot.service.timeline.TimeLineService;
 
 import java.time.Duration;
 import java.util.List;
@@ -31,7 +30,6 @@ public class MatchService {
     private final CacheService<MatchDto> cacheService;
     private final MatchCacheLimiterService cacheLimiterService;
     private final LeagueListService leagueListService;
-    private final TimeLineService timeLineService;
     private final MatchJpaRepository matchRepository;
     private final ApiService apiService;
     private final MatchMapper matchMapper;
@@ -47,8 +45,6 @@ public class MatchService {
                 () -> matchMapper.toDto(getOrFetchMatch(matchId), puuid),
                 MATCH_DETAIL_TTL
         );
-
-        timeLineService.saveMatchTimeline(matchId);
 
 //        cacheLimiterService.trackAndTrim(key);
 

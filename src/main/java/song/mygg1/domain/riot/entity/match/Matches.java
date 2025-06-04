@@ -27,6 +27,8 @@ public class Matches {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE, orphanRemoval = true)
     private Info info;
 
+    private boolean timelineFetched = false;
+
     public static Matches create(Metadata metadata, Info info) {
         return new Matches(metadata, info);
     }
@@ -35,5 +37,13 @@ public class Matches {
         this.matchId = metadata.getMatchId();
         this.metadata = metadata;
         this.info = info;
+    }
+
+    public boolean isTimelineFetched() {
+        return timelineFetched;
+    }
+
+    public void setTimelineFetched(boolean timelineFetched) {
+        this.timelineFetched = timelineFetched;
     }
 }

@@ -65,6 +65,10 @@
         .match-participant:hover {
             background-color: #eec3fd;
         }
+
+        #refresh-button .spinner-border {
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
@@ -90,7 +94,10 @@
                             <form id="refresh-form" th:action="@{/kr/search/refresh}" method="get" th:attr="data-last-refresh=${search.account.lastRefreshDateTimeRaw}" style="display:inline;">
                                 <input type="hidden" name="query" th:value="${search.account.gameName + '#' + search.account.tagLine}" />
                                 <input type="hidden" name="puuid" th:value="${search.account.puuid}" />
-                                <button type="submit" class="btn btn-outline-secondary">전적갱신</button>
+                                <button type="submit" id="refresh-button" class="btn btn-outline-secondary">
+                                    <span class="button-text">전적갱신</span>
+                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                </button>
                             </form>
                             <span th:text="${'마지막 갱신일: ' + search.account.lastRefreshDateTime}" style="font-size: 12px; font-weight: 400; padding-left: 12px;"></span>
                         </div>
@@ -187,20 +194,58 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-        const form = document.getElementById('refresh-form');
-        form.addEventListener('submit', e => {
-            const lastRefresh = form.dataset.lastRefresh;
-            if (!lastRefresh) return;
+        const refreshForm = document.getElementById('refresh-form');
+        if (!refreshForm) return;
 
-            const lastDate = new Date(lastRefresh);
-            const now      = new Date();
-            const diffMin  = (now - lastDate) / 1000 / 60;
-            if (diffMin < 5) {
+        const refreshButton = document.getElementById('refresh-button');
+        const buttonText = refreshButton.querySelector('.button-text');
+        const spinner = refreshButton.querySelector('.spinner-border');
+
+        refreshForm.addEventListener('submit', e => {
+            const lastRefreshRaw = refreshForm.dataset.lastRefresh;
+            if (!lastRefreshRaw || lastRefreshRaw === "null") {
+                if (buttonText) buttonText.textContent = '갱신 중...';
+                if (spinner) spinner.classList.remove('d-none');
+                refreshButton.disabled = true;
+                return;
+            }
+
+            let lastRefreshDate;
+            try {
+                lastRefreshDate = new Date(lastRefreshRaw);
+                if (isNaN(lastRefreshDate.getTime())) {
+                    console.warn('Invalid last refresh date format:', lastRefreshRaw);
+                    if (buttonText) buttonText.textContent = '갱신 중...';
+                    if (spinner) spinner.classList.remove('d-none');
+                    refreshButton.disabled = true;
+                    return;
+                }
+            } catch (error) {
+                console.error('Error parsing last refresh date:', error);
+                if (buttonText) buttonText.textContent = '갱신 중...';
+                if (spinner) spinner.classList.remove('d-none');
+                refreshButton.disabled = true;
+                return;
+            }
+
+            const now = new Date();
+            const diffMilliseconds = now.getTime() - lastRefreshDate.getTime();
+            const diffMinutes = diffMilliseconds / (1000 * 60);
+            const REFRESH_COOLDOWN_MINUTES = 5;
+
+            if (diffMinutes < REFRESH_COOLDOWN_MINUTES) {
                 e.preventDefault();
+                const remainingMinutes = Math.ceil(REFRESH_COOLDOWN_MINUTES - diffMinutes);
                 alert(
-                    '전적은 5분에 한 번만 갱신할 수 있습니다.\n' +
-                    '마지막 갱신: ' + lastDate.toLocaleString()
+                    `전적은 ${REFRESH_COOLDOWN_MINUTES}분에 한 번만 갱신할 수 있습니다.\n` +
+                    `약 ${remainingMinutes}분 후에 다시 시도해주세요.\n` +
+                    `(마지막 갱신: ${lastRefreshDate.toLocaleString()})`
                 );
+            } else {
+                if (buttonText) buttonText.textContent = '갱신 중...';
+                if (spinner) spinner.classList.remove('d-none');
+                refreshButton.disabled = true;
+                console.log('Refresh allowed. Submitting form with loading state.');
             }
         });
     });

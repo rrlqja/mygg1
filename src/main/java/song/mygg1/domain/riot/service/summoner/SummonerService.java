@@ -14,10 +14,6 @@ import song.mygg1.domain.riot.repository.summoner.SummonerJpaRepository;
 import song.mygg1.domain.riot.service.ApiService;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -53,32 +49,6 @@ public class SummonerService {
 
                     return summonerRepository.save(entity);
                 });
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public List<Summoner> getSummonerList(List<String> summonerIdList) {
-        List<Summoner> existingSummoerList = summonerRepository.findSummonersByIdIn(summonerIdList);
-
-        Set<String> found = existingSummoerList.stream()
-                .map(Summoner::getId)
-                .collect(Collectors.toSet());
-        List<String> missingSummonerList = summonerIdList.stream()
-                .filter(p -> !found.contains(p))
-                .toList();
-
-        List<SummonerDto> fetchDtoList = missingSummonerList.stream()
-                .map(apiService::getSummonerBySummonerId)
-                .flatMap(Optional::stream)
-                .toList();
-
-        List<Summoner> fetchedEntities = fetchDtoList.stream()
-                .map(SummonerDto::toEntity)
-                .toList();
-
-        List<Summoner> saved = summonerRepository.saveAll(fetchedEntities);
-
-        existingSummoerList.addAll(saved);
-        return existingSummoerList;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
