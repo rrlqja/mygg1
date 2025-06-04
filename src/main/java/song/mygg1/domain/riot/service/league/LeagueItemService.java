@@ -2,6 +2,8 @@ package song.mygg1.domain.riot.service.league;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,8 +21,6 @@ import song.mygg1.domain.riot.service.champion.ChampionMasteryService;
 import song.mygg1.domain.riot.service.summoner.SummonerService;
 
 import java.time.Duration;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,28 +37,28 @@ public class LeagueItemService {
     private static final Duration TTL = Duration.ofMinutes(30);
     private final LeagueItemMapper leagueItemMapper;
 
-    @Transactional
-    public List<LeagueItemSummonerDto> getRankLeagueItemList(String leagueId, Pageable pageable) {
+    @Transactional(readOnly = true)
+    public Page<LeagueItemSummonerDto> getRankLeagueItemList(String leagueId, Pageable pageable) {
         if (leagueId == null || leagueId.isBlank()) {
             log.warn("leagueId cannot be null or blank getTopRankedLeagueItems");
-            return Collections.emptyList();
+            return Page.empty(pageable);
         }
 
-        List<LeagueItem> topLeagueItemEntities = leagueItemRepository.findLeagueItemsByLeagueId(leagueId, pageable);
+        Page<LeagueItem> topLeagueItemEntities = leagueItemRepository.findLeagueItemsByLeagueId(leagueId, pageable);
 
         if (topLeagueItemEntities.isEmpty()) {
             log.info("No league items found in repository leagueId: {} with limit: {}", leagueId, pageable.getPageSize());
-            return Collections.emptyList();
+            return Page.empty(pageable);
         }
 
-        List<LeagueItemSummonerDto> resultList = new java.util.ArrayList<>(topLeagueItemEntities.stream()
+        List<LeagueItemSummonerDto> resultList = topLeagueItemEntities.getContent().stream()
                 .map(this::buildDto)
                 .flatMap(Optional::stream)
-                .toList());
+                .toList();
 
-        resultList.sort(Comparator.comparingInt(LeagueItemSummonerDto::getLeaguePoints).reversed());
+//        resultList.sort(Comparator.comparingInt(LeagueItemSummonerDto::getLeaguePoints).reversed());
 
-        return resultList;
+        return new PageImpl<>(resultList, topLeagueItemEntities.getPageable(), topLeagueItemEntities.getTotalElements());
     }
 
     private Optional<LeagueItemSummonerDto> buildDto(LeagueItem itemEntity) {

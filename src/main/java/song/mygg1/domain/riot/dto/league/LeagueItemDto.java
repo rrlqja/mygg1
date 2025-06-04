@@ -20,4 +20,6 @@ public class LeagueItemDto {
     private boolean inactive;
     private boolean freshBlood;
     private boolean hotStreak;
+
+    private String tier;
 }

@@ -27,22 +27,257 @@
         .entry-item:hover {
             background-color: #f0f0f0;
         }
+
+        .summoner-ranking-table {  }
+        .summoner-item-row:hover { background-color: #f5f5f5; }
+
+        /* 티어 텍스트 색상 예시 */
+        .tier-text-challenger { color: #E6B800; }
+        .tier-text-grandmaster { color: #D42AFF; }
+        .tier-text-master { color: #B632F0; }
+        .tier-text-diamond { color: #57A8D8; }
+        .tier-text-emerald { color: #2ECC71; }
+        .tier-text-platinum { color: #4E9996; }
+        .tier-text-gold { color: #E5B559; }
+        .tier-text-silver { color: #A0A8AA; }
+        .tier-text-bronze { color: #B07454; }
+        .tier-text-iron { color: #504f4f; }
+
+        .win-loss-visualization {
+            position: relative;
+            width: 100%;
+        }
+
+        .win-rate-percentage-text-top {
+            position: absolute;
+            top: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #333;
+            font-weight: 500;
+            z-index: 3;
+            white-space: nowrap;
+        }
+
+        .win-loss-bar-container {
+            width: 100%;
+            height: 22px;
+            background-color: #e74c3c;
+            border-radius: 4px;
+            display: flex;
+            position: relative;
+            font-size: 12px;
+            color: white;
+            overflow: hidden;
+            margin-top: 2px;
+        }
+
+        .win-bar {
+            height: 100%;
+            background-color: #3498db;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 5px;
+            position: relative;
+            z-index: 1;
+            white-space: nowrap;
+            color: white;
+        }
+
+        .win-bar span {
+            min-width: 25px;
+            text-align: left;
+        }
+
+        .loss-text-overlay {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+            white-space: nowrap;
+            color: white;
+        }
+
+        .pagination-container a.page-link-number {
+            margin: 0 3px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            text-decoration: none;
+            color: #337ab7;
+            border-radius: 4px;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .pagination-container a.page-link-number:hover,
+        .pagination-container a.page-link-arrow:hover {
+            background-color: #f0f0f0;
+            border-color: #bbb;
+        }
+
+        .pagination-container a.page-link-number.active {
+            background-color: #337ab7;
+            color: white !important;
+            border-color: #2e6da4;
+            font-weight: bold;
+        }
+
+        .pagination-container a.page-link-arrow {
+            margin: 0 5px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            text-decoration: none;
+            color: #337ab7;
+            border-radius: 4px;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .pagination-container .page-link-arrow.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+            color: #ccc;
+            border-color: #ddd;
+        }
     </style>
 </head>
 <body>
 <div th:replace="common/fragments :: header"></div>
 <div th:replace="common/fragments :: navbar"></div>
 <div class="row justify-content-center align-items-start" style="width: 100%; min-height: 800px; padding-top: 10px; gap:10px;">
-    <div class="col-md-2" style="width: 340px; min-height: 100px; border-radius: 10px; background-color: white; border: solid 1px rgba(0, 0, 0, 0.17); padding-bottom: 4px;">
+    <div class="col-md-2" style="width: 340px; min-height: 100px; border-radius: 10px; padding-bottom: 4px;">
     </div>
     <div class="col-md-4" style="width: 1000px; min-height: 800px; border-radius: 10px; background-color: white; border: solid 1px rgba(0, 0, 0, 0.17); display: flex; flex-direction: column; justify-content: center; align-items: center; padding-top: 12px; padding-bottom: 12px; gap: 10px;">
-        <div style="width: 100%; min-height: 30px; font-size: 14px; font-weight: 400; display: flex; flex-direction: column; justify-content: center; align-items: center; margin-bottom: 4px;">
-            <div style="width: 100%; height: 40px; display: flex; justify-content: center; align-items: center;">
-                <span th:text="'리그 랭킹'" style="font-size: 22px; font-weight: 600;">league</span>
-                <span th:text="'(공사중)'" style="font-size: 14px;"></span>
+        <div style="width: 100%; min-height: 100%; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; border: solid 1px rgba(0, 0, 0, 0.17); border-radius: 10px;">
+            <div style="width: 100%; height: 40px; font-size: 16px; font-weight: 500; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; border-bottom: 1px solid #e0e0e0; cursor: default; padding: 0 12px; box-sizing: border-box;">
+                <span th:text="'소환사 랭킹'"></span>
+                <span th:text="'&nbsp;- 챌린저'" style="font-size: 14px;"></span>
+                <!-- <input type="text" id="summonerSearchInput" placeholder="소환사 이름" style="..."> -->
             </div>
-            <div style="width: 125px; height: 125px;">
-                <img th:src="@{/imgs/teemo_b.png}" style="width: 100%; height: 100%; border-radius: 10px;">
+
+            <table class="summoner-ranking-table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                <tr style="border-bottom: 1px solid #e0e0e0; background-color: #f8f9fa; height: 40px;">
+                    <th style="text-align: center; padding: 8px; width: 70px;">#</th>
+                    <th style="text-align: left; padding: 8px; width: 280px;">소환사</th>
+                    <th style="text-align: center; padding: 8px; width: 150px;">티어</th>
+                    <th style="text-align: center; padding: 8px; width: 80px;">LP</th>
+                    <th style="text-align: center; padding: 8px; width: 180px;">모스트 챔피언</th>
+                    <th style="text-align: center; padding: 8px; width: 80px;">레벨</th>
+                    <th style="text-align: center; padding: 8px; width: 100px;">승률</th>
+                </tr>
+                </thead>
+                <tbody id="summonerRankingTableBody">
+                <tr th:each="summoner, iterStat : ${leagueList}" class="summoner-item-row" style="border-bottom: 1px solid #f0f0f0; height: 70px; cursor: pointer;" th:onclick="|location.href='@{/kr/search(query=${summoner.gameName + '#' + summoner.tagLine})}'|">
+                    <td style="text-align: center; padding: 8px; font-weight: 500;">
+                        <span th:text="${(leagueList.number * leagueList.size) + iterStat.count}"></span>
+                    </td>
+
+                    <td style="padding: 8px; display: flex; align-items: center;">
+                        <div style="width: 48px; height: 48px; margin-right: 10px; border-radius: 50%; overflow: hidden;">
+                            <img th:src="@{/image/profile/{iconId}(iconId=${summoner.getProfileIconId()})}"
+                                 alt="프로필 아이콘"
+                                 style="width: 100%; height: 100%;"/>
+                        </div>
+                        <div>
+                            <span th:text="${summoner.getGameName()}" style="font-size: 15px; font-weight: 550; display: block;"></span>
+                            <span th:if="${summoner.getTagLine() != null && !summoner.getTagLine().isEmpty()}"
+                                  th:text="'#' + ${summoner.getTagLine()}"
+                                  style="font-size: 12px; color: #777;"></span>
+                        </div>
+                    </td>
+
+                    <td style="text-align: center; padding: 8px;">
+                        <img th:src="@{/image/tier/{tierName}(tierName=${summoner.getTier().split(' ')[0].toLowerCase()})}" alt="티어" style="height: 24px; margin-right: 5px; vertical-align: middle;"/>
+                        <span th:text="${summoner.getTier()}" style="font-weight: 500; font-size: 14px;" th:classappend="|tier-text-${summoner.getTier()?.split(' ')[0].toLowerCase()}|"></span>
+                    </td>
+
+                    <td style="text-align: center; padding: 8px; font-weight: 500;" th:text="${summoner.getLeaguePoints()} + ' LP'"></td>
+
+                    <td style="text-align: center; padding: 8px; display: flex; justify-content: center; align-items: center; gap: 4px;">
+                        <th:block th:each="mastery, masteryStat : ${summoner.getChampionMasteryList()}" th:if="${masteryStat.count <= 3}">
+                            <div style="width: 32px; height: 32px; border-radius: 5px; overflow: hidden;">
+                                <img th:src="@{/image/champion/{championId}(championId=${mastery.getChampionId()})}"
+                                     alt="모스트 챔피언"
+                                     style="width: 100%; height: 100%;"/>
+                            </div>
+                        </th:block>
+                        <th:block th:if="${#lists.isEmpty(summoner.getChampionMasteryList())}">
+                            <span>-</span>
+                        </th:block>
+                    </td>
+
+                    <td style="text-align: center; padding: 8px;" th:text="${summoner.getSummonerLevel()}"></td>
+
+                    <td style="text-align: center; padding: 8px;">
+                        <div th:with="totalGames=${summoner.getWins() + summoner.getLosses()}, winRatePercent=${totalGames > 0 ? (summoner.getWins() * 100.0 / totalGames) : 0}">
+
+                            <div class="win-loss-visualization" style="position: relative; width: 100%;">
+                                <div class="win-rate-percentage-text-top"
+                                     th:if="${totalGames > 0}"
+                                     style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 12px; color: #333; font-weight: 500; z-index: 3; white-space: nowrap;">
+                                    <span th:text="${#numbers.formatDecimal(winRatePercent, 1, 0) + '% '}"></span>
+                                </div>
+
+                                <div class="win-loss-bar-container"
+                                     th:if="${totalGames > 0}"
+                                     style="width: 100%; height: 22px; background-color: #e74c3c; border-radius: 4px; display: flex; position: relative; font-size: 12px; color: white; overflow: hidden; margin-top: 2px;">
+
+                                    <div class="win-bar"
+                                         th:styleappend="'width: ' + ${#numbers.formatDecimal(winRatePercent, 1, 1)} + '%; background-color: #3498db; display: flex; align-items: center; justify-content: flex-start; padding-left: 5px; position: relative; z-index: 1;'"
+                                         th:attr="data-wins=${summoner.getWins()}">
+                                        <span th:text="${summoner.getWins() + 'W'}" style="min-width: 25px; text-align: left;"></span>
+                                    </div>
+
+                                    <div class="loss-text-overlay"
+                                         style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); z-index: 2;"
+                                         th:attr="data-losses=${summoner.getLosses()}">
+                                        <span th:text="${summoner.getLosses() + 'L'}"></span>
+                                    </div>
+                                </div>
+
+                                <span th:if="${totalGames == 0}" th:text="'-'">-</span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(leagueList.getContent())}">
+                    <td colspan="7" style="text-align: center; padding: 20px; color: #777;">소환사 랭킹 정보가 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div th:if="${leagueList != null && leagueList.totalPages > 1}" class="pagination-container" style="display: flex; justify-content: center; align-items: center; margin-top: 20px; padding-bottom: 20px;">
+                <a th:if="${startPage > 0}"
+                   th:href="@{/leagueList/kr(page=${startPage - pageGroupSize}, size=${leagueList.size})}"
+                   class="page-link-arrow"
+                   style="margin: 0 5px; padding: 8px 12px; border: 1px solid #ddd; text-decoration: none; color: #337ab7; border-radius: 4px;">
+                    <
+                </a>
+                <span th:unless="${startPage > 0}" class="page-link-arrow disabled" style="margin: 0 5px; padding: 8px 12px; border: 1px solid #ddd; color: #ccc; border-radius: 4px;">
+                    <
+                </span>
+
+                <th:block th:each="pageNum : ${#numbers.sequence(startPage, endPage)}">
+                    <a th:href="@{/leagueList/kr(page=${pageNum}, size=${leagueList.size})}"
+                       th:text="${pageNum + 1}"
+                       th:classappend="${pageNum == leagueList.number ? 'active' : ''}"
+                       class="page-link-number"
+                       style="margin: 0 3px; padding: 8px 12px; border: 1px solid #ddd; text-decoration: none; color: #337ab7; border-radius: 4px;">
+                    </a>
+                </th:block>
+
+                <a th:if="${endPage < leagueList.totalPages - 1}"
+                   th:href="@{/leagueList/kr(page=${startPage + pageGroupSize}, size=${leagueList.size})}"
+                   class="page-link-arrow"
+                   style="margin: 0 5px; padding: 8px 12px; border: 1px solid #ddd; text-decoration: none; color: #337ab7; border-radius: 4px;">
+                    >
+                </a>
+                <span th:unless="${endPage < leagueList.totalPages - 1}" class="page-link-arrow disabled" style="margin: 0 5px; padding: 8px 12px; border: 1px solid #ddd; color: #ccc; border-radius: 4px;">
+                    >
+                </span>
+
             </div>
         </div>
     </div>

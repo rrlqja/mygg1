@@ -21,6 +21,8 @@ public class LeagueItemMapper {
         dto.setFreshBlood(item.isFreshBlood());
         dto.setHotStreak(item.isHotStreak());
 
+        dto.setTier(item.getLeagueList().getTier());
+
         return dto;
     }
 

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,13 +67,13 @@ public class InitConfig {
 
             for (LeagueListDto league : leagues) {
                 log.info("[league: {}] get leagueItem", league.getTier());
-                List<LeagueItemSummonerDto> leagueItemList = leagueItemService.getRankLeagueItemList(league.getLeagueId(), PageRequest.of(0, 20));
+                Page<LeagueItemSummonerDto> leagueItemList = leagueItemService.getRankLeagueItemList(league.getLeagueId(), PageRequest.of(0, 20));
 
                 log.info("[league: {}] get account, summoner", league.getTier());
                 List<AccountDto> accountList = new ArrayList<>();
                 List<SummonerDto> summonerList = new ArrayList<>();
-                for (LeagueItemSummonerDto dto : leagueItemList) {
-                    log.info("[league: {}] get account by leagueItemSummonerDto [gameName: {}#{}, total: {}, current: {}]", league.getTier(), dto.getGameName(), dto.getTagLine(), leagueItemList.size(), accountList.size());
+                for (LeagueItemSummonerDto dto : leagueItemList.getContent()) {
+                    log.info("[league: {}] get account by leagueItemSummonerDto [gameName: {}#{}, total: {}, current: {}]", league.getTier(), dto.getGameName(), dto.getTagLine(), leagueItemList.getSize(), accountList.size());
                     accountList.add(accountService.findAccountByGameNameAndTagLine(dto.getGameName(), dto.getTagLine()));
 
                     log.info("[league: {}] get summoner by leagueItemSummonerDto [puuid: {}]", league.getTier(), dto.getPuuid());

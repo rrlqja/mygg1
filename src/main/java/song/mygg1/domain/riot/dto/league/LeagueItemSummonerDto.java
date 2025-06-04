@@ -21,6 +21,8 @@ public class LeagueItemSummonerDto {
     private Integer wins;
     private Integer losses;
 
+    private String tier;
+
     private String accountId;
     private Integer profileIconId;
     private Long summonerLevel;
@@ -37,6 +39,8 @@ public class LeagueItemSummonerDto {
         this.rank = leagueItem.getRank();
         this.wins = leagueItem.getWins();
         this.losses = leagueItem.getLosses();
+
+        this.tier = leagueItem.getTier();
 
         this.accountId = summoner.getAccountId();
         this.profileIconId = summoner.getProfileIconId();

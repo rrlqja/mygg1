@@ -1,5 +1,6 @@
 package song.mygg1.domain.riot.repository.league;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,6 +29,6 @@ public interface LeagueItemJpaRepository extends JpaRepository<LeagueItem, Strin
             " join fetch li.leagueList " +
             "where li.leagueList.leagueId = :leagueId " +
             "order by li.leaguePoints desc")
-    List<LeagueItem> findLeagueItemsByLeagueId(@Param("leagueId") String leagueId,
+    Page<LeagueItem> findLeagueItemsByLeagueId(@Param("leagueId") String leagueId,
                                                Pageable pageable);
 }
