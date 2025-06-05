@@ -57,5 +57,7 @@ public interface MatchJpaRepository extends JpaRepository<Matches, Long> {
             " from Matches m " +
             "where date(from_unixtime(m.info.gameCreation / 1000)) BETWEEN :startTime AND :endTime " +
             "order by m.info.gameCreation asc")
-    Page<Matches> findMatchesByGameCreation(Long startTimestamp, Long endTimestamp, Pageable pageable);
+    Page<Matches> findMatchesByGameCreation(@Param("startTime") Long startTime,
+                                            @Param("endTime") Long endTime,
+                                            Pageable pageable);
 }

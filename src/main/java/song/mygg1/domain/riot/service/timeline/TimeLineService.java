@@ -49,7 +49,7 @@ public class TimeLineService {
         long startTimestamp = startOfDay.atZone(ZoneId.of("Asia/Seoul")).toInstant().toEpochMilli();
         long endTimestamp = endOfDay.atZone(ZoneId.of("Asia/Seoul")).toInstant().toEpochMilli();
 
-        Pageable pageable = PageRequest.of(0, 50);
+        Pageable pageable = PageRequest.of(0, 500);
         Page<Matches> matchesInPeriodPage;
         int processedCount = 0;
         int savedCount = 0;
