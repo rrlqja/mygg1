@@ -28,7 +28,7 @@ import java.util.Set;
 
 @Slf4j
 @Component
-@Profile("!dev")
+@Profile("dev")
 @RequiredArgsConstructor
 public class InitConfig {
     private final InitService initService;
@@ -36,12 +36,12 @@ public class InitConfig {
 
     @PostConstruct
     public void setInit() {
-//        if (args.containsOption("init")) {
+        if (args.containsOption("init")) {
             log.info("initial data load");
             initService.init();
-//        } else {
+        } else {
             log.info("initial data not load");
-//        }
+        }
     }
 
     @Component
