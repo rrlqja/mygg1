@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +57,7 @@ public class ChampionService {
     private final AccountService accountService;
     private final SummonerService summonerService;
     private final ApiService apiService;
+    private final Environment env;
 
     private static final ZoneId kst = ZoneId.of("Asia/Seoul");
     private static final Duration CHAMPION_TTL = Duration.ofDays(1);
@@ -130,6 +134,94 @@ public class ChampionService {
                         .map(ChampionDto::new)
                         .orElseThrow(ChampionNotFoundException::new),
                 CHAMPION_TTL);
+    }
+
+    @PostConstruct
+    @Transactional
+    public void initDev() {
+        if (env.acceptsProfiles(Profiles.of("dev"))) {
+            setChampionMasteryRanking();
+        }
+    }
+
+    @Transactional
+    @Scheduled(cron = "0 0 22 * * ?")
+    public void setChampionMasteryRanking() {
+        List<Champion> championList = championRepository.findAll();
+
+        LocalDate firstDayOfYear = LocalDate.now(ZoneId.of("Asia/Seoul")).withDayOfYear(1);
+        LocalDate lastDayPrev  = firstDayOfYear.withDayOfMonth(firstDayOfYear.lengthOfMonth());
+
+        Long startDate = firstDayOfYear
+                .atStartOfDay(kst)
+                .toInstant()
+                .toEpochMilli();
+
+        Long endDate = lastDayPrev
+                .atTime(LocalTime.MAX)
+                .atZone(kst)
+                .toInstant()
+                .toEpochMilli();
+
+        LeagueListDto challengerLeague = leagueListService.getChallengerLeagueList();
+        if (challengerLeague == null || challengerLeague.getEntries() == null || challengerLeague.getEntries().isEmpty()) {
+            log.warn("Challenger league list is empty. Skipping champion mastery ranking update.");
+            return;
+        }
+        List<String> challengerPuuids = challengerLeague.getEntries().stream()
+                .map(LeagueItemDto::getPuuid)
+                .toList();
+
+        for (Champion champion : championList) {
+            Long championKey = champion.getKey();
+            log.info("Setting champion mastery ranking for champion key: {}", championKey);
+
+            try {
+                String masteryCacheKey = String.format(
+                        "champion:mastery:ranking:%d:%d_%d",
+                        championKey, startDate, endDate
+                );
+
+                List<ChampionMasteryRankingDto> rankingData =
+                        calculateChampionMasteryRankingInternal(championKey, challengerPuuids, startDate, endDate);
+
+                if (rankingData != null && !rankingData.isEmpty()) {
+                    championMasteryRankingCacheService.put(masteryCacheKey, rankingData, CHAMPION_MASTERY_TTL);
+//                    log.info("Successfully calculated and cached mastery ranking for champion key: {}. Entries: {}", championKey, rankingData.size());
+                } else {
+//                    log.warn("No mastery ranking data found or calculated for champion key: {}. Cache not updated.", championKey);
+                    championMasteryRankingCacheService.evict(masteryCacheKey);
+                }
+            } catch (Exception e) {
+                log.error("Error setting champion mastery ranking for champion key: {}. Error: {}", championKey, e.getMessage(), e);
+            }
+        }
+        log.info("Finished scheduled job for setting all champion mastery rankings.");
+    }
+
+    private List<ChampionMasteryRankingDto> calculateChampionMasteryRankingInternal(Long championKey,
+                                                                                    List<String> puuidList,
+                                                                                    Long startDate,
+                                                                                    Long endDate) {
+        List<ChampionMasteryRankingDto> rankingWithoutAccountInfo =
+                championMasterRepository.getChampionMasteryRanking(championKey, puuidList, startDate, endDate);
+
+        return rankingWithoutAccountInfo.stream()
+                .map(dto -> {
+                    try {
+                        AccountDto account = accountService.findAccountByPuuidAndUpdate(dto.getPuuid());
+                        dto.setAccount(account);
+
+                        SummonerDto summoner = summonerService.getSummoner(dto.getPuuid());
+                        dto.setSummoner(summoner);
+                    } catch (Exception e) {
+                        log.warn("Failed to fetch account/summoner info for puuid {} in mastery ranking for championKey {}: {}",
+                                dto.getPuuid(), championKey, e.getMessage());
+                    }
+                    return dto;
+                })
+                .filter(dto -> dto.getAccount() != null && dto.getSummoner() != null)
+                .toList();
     }
 
     @Transactional
