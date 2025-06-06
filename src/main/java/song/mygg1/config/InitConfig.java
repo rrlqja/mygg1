@@ -60,10 +60,10 @@ public class InitConfig {
             List<LeagueListDto> leagues = new ArrayList<>();
             LeagueListDto challenger = leagueListService.refreshChallengerLeague();
             LeagueListDto grandmaster = leagueListService.refreshGrandmasterLeague();
-            LeagueListDto master = leagueListService.refreshMasterLeague();
+//            LeagueListDto master = leagueListService.refreshMasterLeague();
             leagues.add(challenger);
             leagues.add(grandmaster);
-            leagues.add(master);
+//            leagues.add(master);
 
             for (LeagueListDto league : leagues) {
                 log.info("[league: {}] get leagueItem", league.getTier());
