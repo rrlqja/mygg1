@@ -1,12 +1,19 @@
 package song.mygg1.domain.riot.mapper.match;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import song.mygg1.domain.riot.dto.match.ParticipantDto;
+import song.mygg1.domain.riot.dto.match.participant.PerksDto;
 import song.mygg1.domain.riot.entity.match.Info;
 import song.mygg1.domain.riot.entity.match.Participant;
+import song.mygg1.domain.riot.entity.match.participant.Perks;
+import song.mygg1.domain.riot.mapper.match.participant.PerksMapper;
 
 @Component
+@RequiredArgsConstructor
 public class ParticipantMapper {
+    private final PerksMapper perksMapper;
+
     public ParticipantDto toDto(Participant participant) {
         ParticipantDto dto = new ParticipantDto();
 
@@ -47,11 +54,16 @@ public class ParticipantMapper {
         dto.setKda(kda);
         dto.setKdaAvg(String.format("%.2f", (participant.getKills() + participant.getAssists()) / (double) Math.max(1, participant.getDeaths())));
 
+        if (participant.getPerks() != null) {
+            PerksDto perksDto = perksMapper.toDto(participant.getPerks());
+            dto.setPerks(perksDto);
+        }
+
         return dto;
     }
 
     public Participant toEntity(ParticipantDto dto, Info info) {
-        return Participant.create(
+        Participant entity = Participant.create(
                 dto.getParticipantId(), dto.getAssists(), dto.getDeaths(), dto.getKills(), dto.getChampLevel(),
                 dto.getChampionId(), dto.getChampionName(), dto.getSummonerName(), dto.getWin(), dto.getTeamId(),
                 dto.getTotalDamageDealt(), dto.getTotalDamageDealtToChampions(), dto.getTotalDamageTaken(),
@@ -61,5 +73,12 @@ public class ParticipantMapper {
                 info, dto.getGoldEarned(), dto.getGoldSpent(), dto.getVisionScore(), dto.getVisionWardsBoughtInGame(),
                 dto.getWardsKilled(), dto.getWardsPlaced(), dto.getSummoner1Id(), dto.getSummoner2Id()
         );
+
+        if (dto.getPerks() != null) {
+            Perks perks = perksMapper.toEntity(dto.getPerks());
+            entity.setPerks(perks);
+        }
+
+        return entity;
     }
 }

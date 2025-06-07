@@ -3,6 +3,7 @@ package song.mygg1.domain.riot.dto.match;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import song.mygg1.domain.riot.dto.match.participant.PerksDto;
 
 import java.util.Arrays;
 import java.util.List;
@@ -58,6 +59,8 @@ public class ParticipantDto {
 
     private double dealtPercent;
     private double takenPercent;
+
+    private PerksDto perks;
 
     public List<Integer> getItemList() {
         return Arrays.asList(item0, item1, item2, item3, item4, item5);

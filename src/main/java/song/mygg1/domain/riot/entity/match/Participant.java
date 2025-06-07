@@ -1,24 +1,32 @@
 package song.mygg1.domain.riot.entity.match;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
+import song.mygg1.domain.riot.entity.match.participant.Perks;
 
 @ToString(exclude = {"info"})
 @Entity
-@Getter
+@Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Participant {
     @EmbeddedId
     private ParticipantId id;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "perks_id")
+    private Perks perks;
 
     @JsonIgnore
     @MapsId("infoId")
@@ -65,6 +73,13 @@ public class Participant {
 
     private Integer summoner1Id;
     private Integer summoner2Id;
+
+    public void setPerks(Perks perks) {
+        this.perks = perks;
+        if (perks != null) {
+            perks.setParticipant(this);
+        }
+    }
 
     public static Participant create(Integer participantId, Integer assists, Integer deaths, Integer kills, Integer championLevel, Integer championId, String championName,
                                      String summonerName, Boolean win, Integer teamId, Integer totalDamageDealt, Integer totalDamageDealtToChampions,

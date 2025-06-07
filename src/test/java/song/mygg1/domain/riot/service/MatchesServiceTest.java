@@ -3,6 +3,7 @@ package song.mygg1.domain.riot.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.TestPropertySource;
 import song.mygg1.domain.riot.dto.match.MatchDto;
+import song.mygg1.domain.riot.dto.match.ParticipantDto;
 import song.mygg1.domain.riot.service.match.MatchService;
 
 import java.util.List;
@@ -39,6 +41,21 @@ class MatchesServiceTest {
 //        List<ChampionMatchDto> matchList = matchService.getChampionMatchList(110L, PageRequest.of(0, 10));
 //        String res = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(matchList);
 //        log.info(res);
+    }
+
+    @Test
+    void getMatch() {
+//        Assertions.assertThatThrownBy(()-> matchService.getMatchDetail("KR_7645712278", "RcyPGGrO09p4HXbXvOD8kG41bjIAfkLvlHQVy3XzFHk7avTsxtsmYqGnng40x3yQ-ph4Zb3qOax8CA"))
+//                .isInstanceOf(NullPointerException.class);
+
+        Assertions.assertDoesNotThrow(()-> matchService.getMatchDetail("KR_7645712278", "RcyPGGrO09p4HXbXvOD8kG41bjIAfkLvlHQVy3XzFHk7avTsxtsmYqGnng40x3yQ-ph4Zb3qOax8CA"));
+
+        MatchDto matchDto = matchService.getMatchDetail("KR_7671246704", "RcyPGGrO09p4HXbXvOD8kG41bjIAfkLvlHQVy3XzFHk7avTsxtsmYqGnng40x3yQ-ph4Zb3qOax8CA");
+
+        List<ParticipantDto> participants = matchDto.getInfo().getParticipants();
+        for (ParticipantDto participant : participants) {
+            log.info("[participant: {}] perks: {}", participant.getParticipantId(), participant.getPerks());
+        }
     }
 
 }
