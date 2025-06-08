@@ -8,6 +8,7 @@ public enum RiotDataDragonEndpoint {
     GET_CHAMPION_JSON("/cdn/{version}/data/ko_KR/champion.json"),
     GET_ITEM_JSON("/cdn/{version}/data/ko_KR/item.json"),
     GET_ITEM("/cdn/{version}/img/item/{itemId}.png"),
+    GET_RUNE_JSON("/cdn/{version}/data/ko_KR/runesReforged.json"),
     GET_SUMMONER_JSON("/cdn/{version}/data/ko_KR/summoner.json"),
     GET_ICON("/cdn/{version}/img/{group}/{full}")
     ;

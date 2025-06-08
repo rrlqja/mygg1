@@ -132,6 +132,17 @@ public class ApiService {
         );
     }
 
+    public Optional<JsonNode> getRuneJson(String version) {
+        return doExchange(
+                baseBucket,
+                riotDataDragonUrl,
+                GET_RUNE_JSON.getPath(),
+                HttpMethod.GET,
+                JsonNode.class,
+                Map.of("version", version)
+        );
+    }
+
     public ChampionRotationsDto getChampionRotations() {
         return doExchange(baseBucket, riotKrUrl, GET_CHAMPION_ROTATIONS.getPath(), HttpMethod.GET, ChampionRotationsDto.class, Map.of())
                 .orElseThrow(RiotApiException::new);

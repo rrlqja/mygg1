@@ -24,6 +24,7 @@ import song.mygg1.domain.riot.dto.match.info.ChampionUsageDto;
 import song.mygg1.domain.riot.dto.match.participant.ChampionWinRatePerDateDto;
 import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.dto.match.participant.WinRateDto;
+import song.mygg1.domain.riot.dto.rune.RuneStyleDto;
 import song.mygg1.domain.riot.dto.summoner.SummonerDto;
 import song.mygg1.domain.riot.dto.timeline.TimelineDto;
 
@@ -196,6 +197,17 @@ public class CacheConfig {
     ) {
         JavaType type = mapper.getTypeFactory()
                 .constructType(ItemDto.class);
+
+        return new BaseCacheService<>(redis, mapper, type);
+    }
+
+    @Bean
+    public CacheService<RuneStyleDto> runeCacheService(
+            StringRedisTemplate redis,
+            ObjectMapper mapper
+    ) {
+        JavaType type = mapper.getTypeFactory()
+                .constructType(RuneStyleDto.class);
 
         return new BaseCacheService<>(redis, mapper, type);
     }
