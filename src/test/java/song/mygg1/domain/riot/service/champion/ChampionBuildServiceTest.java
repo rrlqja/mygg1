@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import song.mygg1.domain.riot.dto.champion.ChampionLevelSkillStatsResponse;
+import song.mygg1.domain.riot.dto.champion.ChampionRuneStatsResponse;
 import song.mygg1.domain.riot.dto.match.championbuild.AggregatedCoreItemStatsDto;
 import song.mygg1.domain.riot.dto.match.championbuild.CoreItemStatDto;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -39,5 +39,12 @@ class ChampionBuildServiceTest {
         ChampionLevelSkillStatsResponse res = championBuildService.setChampionSkillTree(145);
 
         log.info("skillTree: {}", res);
+    }
+
+    @Test
+    void getChampionRune() {
+        ChampionRuneStatsResponse res = championBuildService.setChampionRune(111);
+
+        log.info("rune: {}", res);
     }
 }

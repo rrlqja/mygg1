@@ -16,7 +16,7 @@ import lombok.Setter;
 import lombok.ToString;
 import song.mygg1.domain.riot.entity.match.participant.Perks;
 
-@ToString(exclude = {"info"})
+@ToString(exclude = {"info", "perks"})
 @Entity
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,6 +24,7 @@ public class Participant {
     @EmbeddedId
     private ParticipantId id;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "perks_id")
     private Perks perks;

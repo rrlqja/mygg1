@@ -57,6 +57,7 @@ public class ChampionController {
 
         model.addAttribute("championItemBuild", championBuildService.getChampionItemBuild(championId.intValue()));
         model.addAttribute("championSkillTree", championBuildService.getChampionSkillTree(championId.intValue()));
+        model.addAttribute("championRune", championBuildService.getChampionRune(championId.intValue()));
 
         return "riot/champion";
     }

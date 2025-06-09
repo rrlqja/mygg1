@@ -102,6 +102,51 @@
         .skill-label-container .skill-text {
 
         }
+
+        .rune-item, .rune-item-large {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .rune-item-large img {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+        }
+        .rune-item img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #1a1a1a;
+        }
+        .rune-stats {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .pick-count {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .stat-perk-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .stat-perk-item img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #1a1a1a;
+        }
+        .stat-perk-rate {
+            font-size: 11px;
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -216,6 +261,60 @@
                                 <tr th:replace="common/championFragments :: skillLevelUpDetail(skillKey='R', skillLabel='R', championId=${championInfo.getChampionDto().getId()}, levelStats=${championSkillTree.levelStats})"></tr>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="width: 100%; min-height: 80px; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; border-radius: 10px; padding-bottom: 8px;">
+                    <div th:if="${championRune != null and championRune.getTotalGames() > 0}"
+                         style="width: 50%; min-height: 140px; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; border-radius: 10px; border: 1px solid #e0e0e0; gap: 8px; padding-bottom: 8px; margin-top: 12px;">
+                        <div style="width: 100%; min-height: 40px; display: flex; flex-direction: row; justify-content: center; align-items: center; border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom: 1px solid #e0e0e0; background-color: #d9fae8;">
+                            룬 빌드
+                        </div>
+
+                        <div style="width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 60px; padding: 20px;">
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                                <div class="rune-item-large">
+                                    <img th:src="@{/image/runeStyle/{runeId}(runeId=${championRune.getPrimaryStyle().getRuneId()})}" alt="Primary Style">
+                                    <div class="rune-stats">
+                                        <span th:text="${championRune.getPrimaryStyle().getPickRate()} + '%'"></span>
+                                        <span class="pick-count" th:text="'(' + ${championRune.getPrimaryStyle().getPickCount()} + ' games)'"></span>
+                                    </div>
+                                </div>
+
+                                <div th:each="rune : ${championRune.getPrimaryRunes()}" class="rune-item">
+                                    <img th:src="@{/image/rune/{runeId}(runeId=${rune.getRuneId()})}" alt="Primary Rune">
+                                    <div class="rune-stats">
+                                        <span th:text="${rune.getPickRate()} + '%'"></span>
+                                        <span class="pick-count" th:text="'(' + ${rune.getPickCount()} + ' games)'"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                                <div class="rune-item-large">
+                                    <img th:src="@{/image/runeStyle/{runeId}(runeId=${championRune.getSecondaryStyle().getRuneId()})}" alt="Secondary Style">
+                                    <div class="rune-stats">
+                                        <span th:text="${championRune.getSecondaryStyle().getPickRate()} + '%'"></span>
+                                        <span class="pick-count" th:text="'(' + ${championRune.secondaryStyle.getPickCount()} + ' games)'"></span>
+                                    </div>
+                                </div>
+
+                                <div th:each="rune : ${championRune.getSecondaryRunes()}" class="rune-item">
+                                    <img th:src="@{/image/rune/{runeId}(runeId=${rune.getRuneId()})}" alt="Secondary Rune">
+                                    <div class="rune-stats">
+                                        <span th:text="${rune.getPickRate()} + '%'"></span>
+                                        <span class="pick-count" th:text="'(' + ${rune.getPickCount()} + ' games)'"></span>
+                                    </div>
+                                </div>
+
+<!--                                <div style="display: flex; flex-direction: row; align-items: center; gap: 10px; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">-->
+<!--                                    <div th:each="rune : ${championRune.getStatPerks()}" class="stat-perk-item">-->
+<!--                                        <img th:src="@{/image/rune/{runeId}(runeId=${rune.getRuneId()})}" alt="Stat Perk">-->
+<!--                                        <span class="stat-perk-rate" th:text="${rune.getPickRate()} + '%'"></span>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+                            </div>
                         </div>
                     </div>
                 </div>

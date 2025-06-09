@@ -6,8 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import song.mygg1.domain.riot.dto.rune.RuneDto;
+import song.mygg1.domain.riot.dto.rune.RuneStyleDto;
 import song.mygg1.domain.riot.service.champion.ChampionService;
 import song.mygg1.domain.riot.service.datadragon.DataDragonService;
+import song.mygg1.domain.riot.service.rune.RuneService;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,6 +26,7 @@ import java.util.function.Supplier;
 public class ImageService {
     private final DataDragonService dataDragonService;
     private final ChampionService championService;
+    private final RuneService runeService;
     @Value("${ddragon.path}")
     private Path ddragonPath;
 
@@ -84,6 +88,36 @@ public class ImageService {
 
     public UrlResource getTier(String tierName) throws IOException {
         Path file = ddragonPath.resolve("tier").resolve("Rank_" + tierName + ".png");
+        if (!Files.exists(file)) {
+            return new UrlResource(ddragonPath.resolve("placeteemo.png").toUri());
+        }
+        return new UrlResource(file.toUri());
+    }
+
+    public UrlResource getRune(String runeId) throws IOException {
+        String path = runeService.getRunePath(runeId);
+
+        if (path == null) {
+            return new UrlResource(ddragonPath.resolve("placeteemo.png").toUri());
+        }
+
+        log.info("rune icon: {}", path);
+        Path file = ddragonPath.resolve(path);
+        if (!Files.exists(file)) {
+            return new UrlResource(ddragonPath.resolve("placeteemo.png").toUri());
+        }
+        return new UrlResource(file.toUri());
+    }
+
+    public UrlResource getRuneStyle(String runeId) throws IOException {
+        String path = runeService.getRuneStylePath(runeId);
+
+        if (path == null) {
+            return new UrlResource(ddragonPath.resolve("placeteemo.png").toUri());
+        }
+
+        log.info("runeStyle icon: {}", path);
+        Path file = ddragonPath.resolve(path);
         if (!Files.exists(file)) {
             return new UrlResource(ddragonPath.resolve("placeteemo.png").toUri());
         }

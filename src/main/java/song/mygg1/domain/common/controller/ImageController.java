@@ -27,9 +27,29 @@ public class ImageController {
     private final ImageService imageService;
 
     @GetMapping(value = "/tier/{tierName}", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<UrlResource> getProfile(@PathVariable("tierName") String tierName) throws IOException {
+    public ResponseEntity<UrlResource> getTier(@PathVariable("tierName") String tierName) throws IOException {
         log.info("tier name: {}", tierName);
         UrlResource resource = imageService.getTier(tierName);
+
+        return ResponseEntity.ok()
+                .cacheControl(maxAge(30, DAYS).cachePublic())
+                .body(resource);
+    }
+
+    @GetMapping(value = "/rune/{runeId}", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<UrlResource> getRune(@PathVariable("runeId") String runeId) throws IOException {
+        log.info("runeId: {}", runeId);
+        UrlResource resource = imageService.getRune(runeId);
+
+        return ResponseEntity.ok()
+                .cacheControl(maxAge(30, DAYS).cachePublic())
+                .body(resource);
+    }
+
+    @GetMapping(value = "/runeStyle/{runeId}", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<UrlResource> getruneStyle(@PathVariable("runeId") String runeId) throws IOException {
+        log.info("runeStyle: {}", runeId);
+        UrlResource resource = imageService.getRuneStyle(runeId);
 
         return ResponseEntity.ok()
                 .cacheControl(maxAge(30, DAYS).cachePublic())

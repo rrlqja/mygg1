@@ -15,6 +15,7 @@ import song.mygg1.domain.riot.dto.champion.ChampionLevelSkillStatsResponse;
 import song.mygg1.domain.riot.dto.champion.ChampionMasteryDto;
 import song.mygg1.domain.riot.dto.champion.ChampionMasteryRankingDto;
 import song.mygg1.domain.riot.dto.champion.ChampionRotationsDto;
+import song.mygg1.domain.riot.dto.champion.ChampionRuneStatsResponse;
 import song.mygg1.domain.riot.dto.item.ItemDto;
 import song.mygg1.domain.riot.dto.league.LeagueEntryDto;
 import song.mygg1.domain.riot.dto.league.LeagueItemSummonerDto;
@@ -24,6 +25,7 @@ import song.mygg1.domain.riot.dto.match.info.ChampionUsageDto;
 import song.mygg1.domain.riot.dto.match.participant.ChampionWinRatePerDateDto;
 import song.mygg1.domain.riot.dto.match.MatchDto;
 import song.mygg1.domain.riot.dto.match.participant.WinRateDto;
+import song.mygg1.domain.riot.dto.rune.RuneDto;
 import song.mygg1.domain.riot.dto.rune.RuneStyleDto;
 import song.mygg1.domain.riot.dto.summoner.SummonerDto;
 import song.mygg1.domain.riot.dto.timeline.TimelineDto;
@@ -64,6 +66,17 @@ public class CacheConfig {
     ) {
         JavaType type = mapper.getTypeFactory()
                 .constructType(ChampionLevelSkillStatsResponse.class);
+
+        return new BaseCacheService<>(redis, mapper, type);
+    }
+
+    @Bean
+    public CacheService<ChampionRuneStatsResponse> championRuneCacheService(
+            StringRedisTemplate redis,
+            ObjectMapper mapper
+    ) {
+        JavaType type = mapper.getTypeFactory()
+                .constructType(ChampionRuneStatsResponse.class);
 
         return new BaseCacheService<>(redis, mapper, type);
     }
@@ -202,12 +215,23 @@ public class CacheConfig {
     }
 
     @Bean
-    public CacheService<RuneStyleDto> runeCacheService(
+    public CacheService<RuneStyleDto> runeStyleCacheService(
             StringRedisTemplate redis,
             ObjectMapper mapper
     ) {
         JavaType type = mapper.getTypeFactory()
                 .constructType(RuneStyleDto.class);
+
+        return new BaseCacheService<>(redis, mapper, type);
+    }
+
+    @Bean
+    public CacheService<RuneDto> runeCacheService(
+            StringRedisTemplate redis,
+            ObjectMapper mapper
+    ) {
+        JavaType type = mapper.getTypeFactory()
+                .constructType(RuneDto.class);
 
         return new BaseCacheService<>(redis, mapper, type);
     }
