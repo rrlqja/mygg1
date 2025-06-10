@@ -14,6 +14,7 @@ import song.mygg1.domain.redis.service.CacheService;
 import song.mygg1.domain.riot.dto.champion.ChampionLevelSkillStatsResponse;
 import song.mygg1.domain.riot.dto.champion.ChampionRuneStatsResponse;
 import song.mygg1.domain.riot.dto.champion.LevelSkillData;
+import song.mygg1.domain.riot.dto.champion.RuneCountDto;
 import song.mygg1.domain.riot.dto.champion.RuneStatDto;
 import song.mygg1.domain.riot.dto.match.championbuild.AggregatedCoreItemStatsDto;
 import song.mygg1.domain.riot.dto.match.championbuild.CoreItemStatDto;
@@ -21,11 +22,7 @@ import song.mygg1.domain.riot.dto.match.championbuild.ItemStatCounter;
 import song.mygg1.domain.riot.dto.match.championbuild.MatchPlayerInfo;
 import song.mygg1.domain.riot.entity.champion.Champion;
 import song.mygg1.domain.riot.entity.item.Item;
-import song.mygg1.domain.riot.entity.match.Participant;
-import song.mygg1.domain.riot.entity.match.participant.PerkStats;
 import song.mygg1.domain.riot.entity.match.participant.PerkStyle;
-import song.mygg1.domain.riot.entity.match.participant.PerkStyleSelection;
-import song.mygg1.domain.riot.entity.match.participant.Perks;
 import song.mygg1.domain.riot.entity.timeline.events.ItemPurchaseEvent;
 import song.mygg1.domain.riot.entity.timeline.events.SkillLevelUpEvent;
 import song.mygg1.domain.riot.repository.champion.ChampionJpaRepository;
@@ -46,7 +43,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -72,8 +69,8 @@ public class ChampionBuildService {
     private static final int SECOND_CORE_LIMIT = 3;
     private static final int THIRD_CORE_LIMIT = 5;
 
-    @PostConstruct
     @Transactional
+    @PostConstruct
     public void initDev() {
         if (env.acceptsProfiles(Profiles.of("dev"))) {
             setChampionBuild();
@@ -118,7 +115,7 @@ public class ChampionBuildService {
         );
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public ChampionRuneStatsResponse setChampionRune(Integer championId) {
         ZonedDateTime endZonedDateTime = ZonedDateTime.now(kst);
         Instant endInstant = endZonedDateTime.toInstant();
@@ -129,100 +126,90 @@ public class ChampionBuildService {
         Instant startInstant = startZonedDateTime.toInstant();
         long startTimestamp = startInstant.toEpochMilli();
 
-        List<Participant> targetParticipants = participantRepository.findParticipantsByChampionAndPeriod(championId, startTimestamp, endTimestamp, PageRequest.of(0, 800));
-        log.info("get participants {}", targetParticipants.size());
-
-        Map<Integer, Integer> primaryStylePicks = new HashMap<>();
-        Map<Integer, Integer> secondaryStylePicks = new HashMap<>();
-        Map<String, Map<Integer, Integer>> runePicksBySlot = new HashMap<>();
-        Map<String, Map<Integer, Integer>> statPerkPicksBySlot = new HashMap<>();
-
-        int analyzedGames = 0;
-        for (Participant participant : targetParticipants) {
-            Perks perks = participant.getPerks();
-            log.info("perks: {}", perks);
-            if (perks == null || perks.getStyles().isEmpty()) {
-                continue;
-            }
-            analyzedGames++;
-
-            PerkStyle primaryStyle = perks.getStyles().stream()
-                    .filter(s -> "primaryStyle".equals(s.getDescription()))
-                    .findFirst().orElse(null);
-            PerkStyle subStyle = perks.getStyles().stream()
-                    .filter(s -> "subStyle".equals(s.getDescription()))
-                    .findFirst().orElse(null);
-
-            if (primaryStyle != null) {
-                primaryStylePicks.merge(primaryStyle.getStyle(), 1, Integer::sum);
-                List<PerkStyleSelection> primarySelections = primaryStyle.getSelections();
-                for (int i = 0; i < primarySelections.size(); i++) {
-                    String slotKey = "primary_" + i;
-                    int perkId = primarySelections.get(i).getPerk();
-                    runePicksBySlot.computeIfAbsent(slotKey, k -> new HashMap<>()).merge(perkId, 1, Integer::sum);
-                }
-            }
-
-            if (subStyle != null) {
-                secondaryStylePicks.merge(subStyle.getStyle(), 1, Integer::sum);
-                List<PerkStyleSelection> subSelections = subStyle.getSelections();
-                for (int i = 0; i < subSelections.size(); i++) {
-                    String slotKey = "sub_" + i;
-                    int perkId = subSelections.get(i).getPerk();
-                    runePicksBySlot.computeIfAbsent(slotKey, k -> new HashMap<>()).merge(perkId, 1, Integer::sum);
-                }
-            }
-
-            PerkStats statPerks = perks.getStatPerks();
-            if (statPerks != null) {
-                statPerkPicksBySlot.computeIfAbsent("offense", k -> new HashMap<>()).merge(statPerks.getOffense(), 1, Integer::sum);
-                statPerkPicksBySlot.computeIfAbsent("flex", k -> new HashMap<>()).merge(statPerks.getFlex(), 1, Integer::sum);
-                statPerkPicksBySlot.computeIfAbsent("defense", k -> new HashMap<>()).merge(statPerks.getDefense(), 1, Integer::sum);
-            }
-        }
+        long analyzedGames = participantRepository.countTotalGames(championId, startTimestamp, endTimestamp);
+        log.info("Total analyzed games for champion {}: {}", championId, analyzedGames);
 
         if (analyzedGames == 0) {
             log.warn("No rune data found for championId: {}", championId);
             return new ChampionRuneStatsResponse(championId, 0, null, null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
         }
 
-        RuneStatDto mostPrimaryStyle = findMostPicked(primaryStylePicks, analyzedGames);
-        RuneStatDto mostSecondaryStyle = findMostPicked(secondaryStylePicks, analyzedGames);
+        RuneStatDto mostPrimaryStyle = findMostPicked(
+                participantRepository.findPrimaryStylePicks(championId, startTimestamp, endTimestamp), analyzedGames);
+
+        RuneStatDto mostSecondaryStyle = findMostPicked(
+                participantRepository.findSecondaryStylePicks(championId, startTimestamp, endTimestamp), analyzedGames);
+
+        List<PerkStyle> perkStyles = participantRepository.findPerkStylesWithSelections(championId, startTimestamp, endTimestamp);
+        Map<String, List<RuneCountDto>> runePicksBySlot = processRunePicksBySlot(perkStyles);
 
         List<RuneStatDto> primaryRunes = new ArrayList<>();
-        for(int i = 0; i < 4; i++) {
-            primaryRunes.add(findMostPicked(runePicksBySlot.getOrDefault("primary_" + i, Collections.emptyMap()), analyzedGames));
+        for (int i = 0; i < 4; i++) {
+            primaryRunes.add(findMostPicked(runePicksBySlot.getOrDefault("primary_" + i, Collections.emptyList()), analyzedGames));
         }
 
         List<RuneStatDto> secondaryRunes = new ArrayList<>();
-        for(int i = 0; i < 2; i++) {
-            secondaryRunes.add(findMostPicked(runePicksBySlot.getOrDefault("sub_" + i, Collections.emptyMap()), analyzedGames));
+        for (int i = 0; i < 2; i++) {
+            secondaryRunes.add(findMostPicked(runePicksBySlot.getOrDefault("sub_" + i, Collections.emptyList()), analyzedGames));
         }
 
         List<RuneStatDto> statPerkRunes = new ArrayList<>();
-        statPerkRunes.add(findMostPicked(statPerkPicksBySlot.getOrDefault("offense", Collections.emptyMap()), analyzedGames));
-        statPerkRunes.add(findMostPicked(statPerkPicksBySlot.getOrDefault("flex", Collections.emptyMap()), analyzedGames));
-        statPerkRunes.add(findMostPicked(statPerkPicksBySlot.getOrDefault("defense", Collections.emptyMap()), analyzedGames));
+        statPerkRunes.add(findMostPicked(
+                participantRepository.findStatPerkOffensePicks(championId, startTimestamp, endTimestamp), analyzedGames));
+        statPerkRunes.add(findMostPicked(
+                participantRepository.findStatPerkFlexPicks(championId, startTimestamp, endTimestamp), analyzedGames));
+        statPerkRunes.add(findMostPicked(
+                participantRepository.findStatPerkDefensePicks(championId, startTimestamp, endTimestamp), analyzedGames));
 
-        return new ChampionRuneStatsResponse(championId, analyzedGames, mostPrimaryStyle, mostSecondaryStyle, primaryRunes, secondaryRunes, statPerkRunes);
+        return new ChampionRuneStatsResponse(championId, (int) analyzedGames, mostPrimaryStyle, mostSecondaryStyle, primaryRunes, secondaryRunes, statPerkRunes);
     }
 
-    private RuneStatDto findMostPicked(Map<Integer, Integer> pickCounts, int totalGames) {
+    private Map<String, List<RuneCountDto>> processRunePicksBySlot(List<PerkStyle> perkStyles) {
+        Map<String, List<RuneCountDto>> result = new HashMap<>();
+
+        for (int i = 0; i < 4; i++) {
+            final int slotIndex = i;
+            Map<Integer, Long> counts = perkStyles.stream()
+                    .filter(ps -> "primaryStyle".equals(ps.getDescription()) && ps.getSelections().size() > slotIndex)
+                    .map(ps -> ps.getSelections().get(slotIndex).getPerk())
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+            result.put("primary_" + i, convertMapToDtoList(counts));
+        }
+
+        for (int i = 0; i < 2; i++) {
+            final int slotIndex = i;
+            Map<Integer, Long> counts = perkStyles.stream()
+                    .filter(ps -> "subStyle".equals(ps.getDescription()) && ps.getSelections().size() > slotIndex)
+                    .map(ps -> ps.getSelections().get(slotIndex).getPerk())
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+            result.put("sub_" + i, convertMapToDtoList(counts));
+        }
+
+        return result;
+    }
+
+    private List<RuneCountDto> convertMapToDtoList(Map<Integer, Long> map) {
+        return map.entrySet().stream()
+                .map(entry -> new RuneCountDto(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+    }
+
+    private RuneStatDto findMostPicked(List<RuneCountDto> pickCounts, long totalGames) {
         if (pickCounts.isEmpty() || totalGames == 0) {
             return new RuneStatDto(0, 0.0, 0);
         }
 
-        Optional<Map.Entry<Integer, Integer>> mostPickedEntry = pickCounts.entrySet().stream()
-                .max(Map.Entry.comparingByValue());
+        RuneCountDto mostPicked = pickCounts.stream()
+                .max(Comparator.comparing(RuneCountDto::getPickCount))
+                .orElse(new RuneCountDto(0, 0L));
 
-        if (mostPickedEntry.isPresent()) {
-            Map.Entry<Integer, Integer> entry = mostPickedEntry.get();
-            int runeId = entry.getKey();
-            int pickCount = entry.getValue();
-            double pickRate = Math.round(((double) pickCount / totalGames) * 10000.0) / 100.0;
-            return new RuneStatDto(runeId, pickRate, pickCount);
-        }
-        return new RuneStatDto(0, 0.0, 0);
+        int runeId = mostPicked.getId();
+        long pickCount = mostPicked.getPickCount();
+        double pickRate = (totalGames > 0)
+                ? Math.round(((double) pickCount / totalGames) * 10000.0) / 100.0
+                : 0.0;
+
+        return new RuneStatDto(runeId, pickRate, (int) pickCount);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

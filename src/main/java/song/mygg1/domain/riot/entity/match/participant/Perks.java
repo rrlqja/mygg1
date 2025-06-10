@@ -24,7 +24,7 @@ public class Perks {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(mappedBy = "perks", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "perks")
     private Participant participant;
 
     @Embedded

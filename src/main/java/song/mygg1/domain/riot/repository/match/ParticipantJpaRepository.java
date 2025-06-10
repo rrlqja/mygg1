@@ -5,10 +5,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import song.mygg1.domain.riot.dto.champion.RuneCountDto;
 import song.mygg1.domain.riot.dto.match.participant.ChampionWinRatePerDateDto;
 import song.mygg1.domain.riot.dto.match.participant.WinRateDto;
 import song.mygg1.domain.riot.entity.match.Participant;
 import song.mygg1.domain.riot.entity.match.ParticipantId;
+import song.mygg1.domain.riot.entity.match.participant.PerkStyle;
 
 import java.util.List;
 
@@ -73,13 +75,68 @@ public interface ParticipantJpaRepository extends JpaRepository<Participant, Par
                                         @Param("startDate") Long startDate,
                                         @Param("endDate") Long endDate);
 
-    @Query("SELECT p " +
-            " FROM Participant p " +
+    @Query("SELECT COUNT(p) FROM Participant p " +
+            "JOIN p.perks perks " +
             "WHERE p.championId = :championId " +
-            "  and date(from_unixtime(p.info.gameCreation / 1000)) between :startDate and :endDate " +
-            "order by p.info.gameCreation desc")
-    List<Participant> findParticipantsByChampionAndPeriod(@Param("championId") Integer championId,
-                                                          @Param("startDate") long start,
-                                                          @Param("endDate") long end,
-                                                          Pageable pageable);
+            "AND date(from_unixtime(p.info.gameCreation / 1000)) between :startDate and :endDate")
+    long countTotalGames(@Param("championId") Integer championId,
+                         @Param("startDate") long startDate,
+                         @Param("endDate") long endDate);
+
+    @Query("SELECT NEW song.mygg1.domain.riot.dto.champion.RuneCountDto(ps.style, COUNT(ps.style)) " +
+            "FROM Participant p JOIN p.perks.styles ps " +
+            "WHERE p.championId = :championId " +
+            "AND date(from_unixtime(p.info.gameCreation / 1000)) between :startDate and :endDate " +
+            "AND ps.description = 'primaryStyle' " +
+            "GROUP BY ps.style")
+    List<RuneCountDto> findPrimaryStylePicks(@Param("championId") Integer championId,
+                                             @Param("startDate") long startDate,
+                                             @Param("endDate") long endDate);
+
+    @Query("SELECT NEW song.mygg1.domain.riot.dto.champion.RuneCountDto(ps.style, COUNT(ps.style)) " +
+            "FROM Participant p JOIN p.perks.styles ps " +
+            "WHERE p.championId = :championId " +
+            "AND date(from_unixtime(p.info.gameCreation / 1000)) between :startDate and :endDate " +
+            "AND ps.description = 'subStyle' " +
+            "GROUP BY ps.style")
+    List<RuneCountDto> findSecondaryStylePicks(@Param("championId") Integer championId,
+                                               @Param("startDate") long startDate,
+                                               @Param("endDate") long endDate);
+
+    @Query("SELECT DISTINCT ps FROM PerkStyle ps " +
+            "JOIN FETCH ps.selections " +
+            "JOIN ps.perks pr " +
+            "JOIN pr.participant p " +
+            "WHERE p.championId = :championId " +
+            "AND date(from_unixtime(p.info.gameCreation / 1000)) between :startDate and :endDate")
+    List<PerkStyle> findPerkStylesWithSelections(@Param("championId") Integer championId,
+                                                 @Param("startDate") long startDate,
+                                                 @Param("endDate") long endDate);
+
+    @Query("SELECT NEW song.mygg1.domain.riot.dto.champion.RuneCountDto(p.perks.statPerks.offense, COUNT(p.perks.statPerks.offense)) " +
+            "FROM Participant p JOIN p.perks perks " +
+            "WHERE p.championId = :championId " +
+            "AND date(from_unixtime(p.info.gameCreation / 1000)) between :startDate and :endDate " +
+            "GROUP BY p.perks.statPerks.offense")
+    List<RuneCountDto> findStatPerkOffensePicks(@Param("championId") Integer championId,
+                                                @Param("startDate") long startDate,
+                                                @Param("endDate") long endDate);
+
+    @Query("SELECT NEW song.mygg1.domain.riot.dto.champion.RuneCountDto(p.perks.statPerks.flex, COUNT(p.perks.statPerks.flex)) " +
+            "FROM Participant p JOIN p.perks perks " +
+            "WHERE p.championId = :championId " +
+            "AND date(from_unixtime(p.info.gameCreation / 1000)) between :startDate and :endDate " +
+            "GROUP BY p.perks.statPerks.flex")
+    List<RuneCountDto> findStatPerkFlexPicks(@Param("championId") Integer championId,
+                                             @Param("startDate") long startDate,
+                                             @Param("endDate") long endDate);
+
+    @Query("SELECT NEW song.mygg1.domain.riot.dto.champion.RuneCountDto(p.perks.statPerks.defense, COUNT(p.perks.statPerks.defense)) " +
+            "FROM Participant p JOIN p.perks perks " +
+            "WHERE p.championId = :championId " +
+            "AND date(from_unixtime(p.info.gameCreation / 1000)) between :startDate and :endDate " +
+            "GROUP BY p.perks.statPerks.defense")
+    List<RuneCountDto> findStatPerkDefensePicks(@Param("championId") Integer championId,
+                                                @Param("startDate") long startDate,
+                                                @Param("endDate") long endDate);
 }
