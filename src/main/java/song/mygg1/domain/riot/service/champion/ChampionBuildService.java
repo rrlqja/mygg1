@@ -86,14 +86,17 @@ public class ChampionBuildService {
             log.info("set champion build champion {}:{}", champion.getId(), champion.getKey());
 
             try {
+                log.info("set champion skill build champion {}:{}", champion.getId(), champion.getKey());
                 String skillTreeKey = "champion:build:skill:" + champion.getKey().intValue();
                 ChampionLevelSkillStatsResponse skillTree = setChampionSkillTree(champion.getKey().intValue());
                 skillTreeCacheService.put(skillTreeKey, skillTree, SKILL_TREE_TTL);
 
+                log.info("set champion item build champion {}:{}", champion.getId(), champion.getKey());
                 String itemBuildKey = "champion:build:item:" + champion.getKey().intValue();
                 AggregatedCoreItemStatsDto itemBuild = setChampionItemBuild(champion.getKey().intValue());
                 itemBuildCacheService.put(itemBuildKey, itemBuild, ITEM_BUILD_TTL);
 
+                log.info("set champion rune build champion {}:{}", champion.getId(), champion.getKey());
                 String runeKey = "champion:build:rune:" + champion.getKey().intValue();
                 ChampionRuneStatsResponse rune = setChampionRune(champion.getKey().intValue());
                 runeCacheService.put(runeKey, rune, RUNE_TTL);
@@ -352,7 +355,7 @@ public class ChampionBuildService {
                         (name1, name2) -> name1
                 ));
 
-        List<MatchPlayerInfo> infoList = matchRepository.findMatchPlayerInfoByChampionAndPeriod(championId, start, end, PageRequest.of(0, 1500));
+        List<MatchPlayerInfo> infoList = matchRepository.findMatchPlayerInfoByChampionAndPeriod(championId, start, end, PageRequest.of(0, 500));
         List<String> matchIds = infoList.stream().map(MatchPlayerInfo::getMatchId).distinct().toList();
         List<ItemPurchaseEvent> allPurchaseEvents = itemPurchaseEventRepository.findByMatchIds(matchIds);
 
